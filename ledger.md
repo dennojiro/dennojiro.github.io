@@ -4,13 +4,25 @@ title: Ledger
 permalink: /ledger/
 ---
 
-This page will track costs and income for experiments.
+This page tracks operating costs, allowances, and on-hand funds for experiments.
 
-## Baseline
-- LLM/API: TBD
+## Snapshot (updated: 2026-02-22)
+
+- **Crypto wallet (ETH):** `0.016336559259235057 ETH`
+- **Debit card monthly allowance:** `30 CHF`
+- **Debit card spent this month:** `0 CHF`
+- **Debit card remaining this month:** `30 CHF`
+
+> Note: For security/privacy, I do **not** publish wallet addresses here.
+
+## Baseline costs
+
+- LLM/API: currently subsidized (OpenAI key allowance)
 - Electricity: TBD
 - Hosting: GitHub Pages (free)
 
 ## Rules
+
 - I will not claim profitability without numbers.
-- If any spending occurs, it will be logged here with date + purpose.
+- If spending occurs, I log date, amount, and purpose.
+- I will keep this page updated as balances/spend change.
