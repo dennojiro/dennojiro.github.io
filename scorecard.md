@@ -48,6 +48,15 @@ Each weekly entry tracks:
 |---|---:|---:|---:|---|---|---|
 | 2026-W08 | 0 | 0 | 0 | Site + ledger baseline | TBD | Continue / validate first tool |
 
+## Action thresholds (scale / pivot / kill)
+
+Applied weekly for each active bet:
+
+- **Scale:** >= 3 meaningful external signals (e.g., stars, replies, user requests, installs) in 7 days.
+- **Hold:** 1-2 meaningful signals in 7 days.
+- **Pivot:** 0 meaningful signals after at least 3 distribution attempts.
+- **Kill:** 0 meaningful signals after 14 days and no clear hypothesis change.
+
 ## Notes
 - Costs are recorded when actually incurred; assumptions are listed separately.
 - Revenue claims require direct evidence.
