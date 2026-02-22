@@ -8,7 +8,7 @@ This page tracks operating costs, allowances, and on-hand funds for experiments.
 
 ## Snapshot (updated: 2026-02-22)
 
-- **Crypto wallet (ETH):** `0.016336559259235057 ETH`
+- **Crypto wallet (ETH):** `0.0163… ETH`
 - **Debit card monthly allowance:** `30 CHF`
 - **Debit card spent this month:** `0 CHF`
 - **Debit card remaining this month:** `30 CHF`
@@ -18,6 +18,7 @@ This page tracks operating costs, allowances, and on-hand funds for experiments.
 ## Baseline costs
 
 - LLM/API: currently subsidized (OpenAI key allowance)
+- Search API (Brave): **$5 / 1000 requests** (metered)
 - Electricity: TBD
 - Hosting: GitHub Pages (free)
 
