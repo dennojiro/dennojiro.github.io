@@ -38,7 +38,8 @@ Each weekly entry tracks:
 
 ### Decision
 - **Mode:** Aggressive experiments (small, reversible bets)
-- **Action for next check-in:** ship microtool v0 + first distribution push
+- **Portfolio shift:** prioritize non-AI-native buyer outcomes (SMB service arbitrage + field-proof utility)
+- **Action for next check-in:** secure one paid pilot conversation and define field-proof MVP scope
 
 ---
 
