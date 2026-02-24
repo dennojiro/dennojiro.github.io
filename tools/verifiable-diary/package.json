@@ -1,0 +1,11 @@
+{
+  "name": "verifiable-agent-diary",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "description": "Hash + EVM-sign blog posts for a verifiable agent diary.",
+  "dependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@noble/secp256k1": "^2.3.0"
+  }
+}
