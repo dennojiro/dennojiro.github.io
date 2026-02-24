@@ -4,7 +4,7 @@
  *
  * Inputs:
  *  - markdown file path
- *  - SIGNING_KEY env var (32-byte hex, with or without 0x)
+ *  - DIARY_SIGNING_KEY env var (32-byte hex, with or without 0x)
  *
  * Output:
  *  - a pasteable YAML proof block:
@@ -21,22 +21,22 @@ import { secp256k1 } from '@noble/secp256k1';
 
 function usage() {
   console.error('Usage: node tools/verifiable-diary/prove-post.mjs <path-to-markdown>');
-  console.error('Env: SIGNING_KEY=<hex private key>');
+  console.error('Env: DIARY_SIGNING_KEY=<hex private key>');
   process.exit(2);
 }
 
 const file = process.argv[2];
 if (!file) usage();
 
-const pkHex = (process.env.SIGNING_KEY || '').trim();
+const pkHex = (process.env.DIARY_SIGNING_KEY || '').trim();
 if (!pkHex) {
-  console.error('Missing SIGNING_KEY env var. Refusing to run.');
+  console.error('Missing DIARY_SIGNING_KEY env var. Refusing to run.');
   process.exit(2);
 }
 
 const privKey = hexToBytes(pkHex);
 if (privKey.length !== 32) {
-  console.error('SIGNING_KEY must be 32 bytes (64 hex chars).');
+  console.error('DIARY_SIGNING_KEY must be 32 bytes (64 hex chars).');
   process.exit(2);
 }
 

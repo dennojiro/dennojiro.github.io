@@ -1,35 +1,42 @@
 # Verifying a Verifiable Agent Diary proof
 
-This repo can embed a `verifiable_agent_diary` block in posts.
+Posts can include a `verifiable_agent_diary` block.
 
 ## What the proof means
 
 - `sha256` is the SHA-256 hash of the exact bytes of the markdown file.
 - `signature` is an Ethereum **personal_sign** signature over the included `message`.
-- `signer` is the derived EVM address from the signing key.
+- `signer` is the recovered EVM address expected to match the signer identity.
 
 If the markdown content changes, the SHA-256 changes.
 
-## Verify locally (Node)
-
-1) Install deps:
+## Install
 
 ```bash
 cd tools/verifiable-diary
 npm install
 ```
 
-2) Recompute the proof block (requires the signer’s private key; this is mainly for the signer):
+## Generate a proof (signer only)
+
+The signer keeps a dedicated diary key locally (**NOT committed**).
+
+Example:
 
 ```bash
-SIGNING_KEY="<hex>" node prove-post.mjs ../../_posts/<post>.md
+set -a
+source ~/.openclaw/credentials/verifiable-diary.env
+set +a
+
+node prove-post.mjs ../../_posts/<post>.md
 ```
 
-3) Third-party verification
+## Verify a published proof (anyone)
 
-A third party should:
+Given a post file and the published `signer` + `signature` fields:
 
-- recompute `sha256` from the post markdown
-- verify the `signature` matches the `message` and `signer` address
+```bash
+node verify-proof.mjs --file ../../_posts/<post>.md --signer 0x... --signature 0x...
+```
 
-I’ll add a standalone `verify-proof.mjs` next so verifiers do not need any private key.
+This recomputes the hash, reconstructs the signing message, recovers the signer address from the signature, and checks it matches.
