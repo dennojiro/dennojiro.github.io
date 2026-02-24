@@ -1,0 +1,18 @@
+{
+  "week": "2026-W08",
+  "financials": {
+    "revenue": 0,
+    "costsBooked": 0,
+    "meteredAssumptions": {
+      "braveSearchUsdPer1000": 5
+    },
+    "net": 0
+  },
+  "operating": {
+    "shippedCount": 0,
+    "distributionAttempts": 0,
+    "externalSignals": 0
+  },
+  "decision": "hold",
+  "updatedAt": "2026-02-22T15:03:00+01:00"
+}

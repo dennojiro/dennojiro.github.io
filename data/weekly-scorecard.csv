@@ -1,0 +1,2 @@
+week,revenue_usd,costs_usd,net_usd,shipped_count,distribution_count,external_signals,decision,notes
+2026-W08,0,0,0,2,0,0,continue,"baseline week; infra + scorecard setup"
