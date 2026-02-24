@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verifiable Agent Diary – Verify</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;max-width:900px;margin:40px auto;padding:0 16px;}
+    textarea,input{width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
+    textarea{min-height:160px;}
+    .row{margin:14px 0;}
+    button{padding:10px 14px;font-size:14px;}
+    pre{background:#f5f5f5;padding:12px;border-radius:8px;overflow:auto;}
+    .ok{color:#0a7b2e;font-weight:700;}
+    .bad{color:#b00020;font-weight:700;}
+  </style>
+</head>
+<body>
+  <h1>Verifiable Agent Diary – Verify (v0.2)</h1>
+  <p>
+    Paste the post markdown and the proof fields. This runs locally in your browser.
+  </p>
+
+  <div class="row">
+    <label><b>Markdown (full post text)</b></label>
+    <textarea id="md" placeholder="Paste the post markdown here..."></textarea>
+  </div>
+
+  <div class="row">
+    <label><b>Signer address</b></label>
+    <input id="signer" placeholder="0x..." />
+  </div>
+
+  <div class="row">
+    <label><b>Signature</b></label>
+    <input id="sig" placeholder="0x..." />
+  </div>
+
+  <div class="row">
+    <button id="go">Verify</button>
+  </div>
+
+  <div class="row">
+    <div id="status"></div>
+    <pre id="out"></pre>
+  </div>
+
+  <script type="module">
+    import { keccak256, toUtf8Bytes, getAddress, verifyMessage } from 'https://esm.sh/ethers@6.13.5';
+
+    function stripDiaryProof(markdownText) {
+      const lines = markdownText.split(/\r?\n/);
+      const out = [];
+      let i = 0;
+      while (i < lines.length) {
+        if (lines[i].trim() === '---') {
+          let j = i + 1;
+          let hasKey = false;
+          while (j < lines.length && lines[j].trim() !== '---') {
+            if (lines[j].trim() === 'verifiable_agent_diary:') hasKey = true;
+            j++;
+          }
+          if (j < lines.length && lines[j].trim() === '---') {
+            if (hasKey) { i = j + 1; continue; }
+          }
+        }
+        out.push(lines[i]);
+        i++;
+      }
+      return out.join('\n');
+    }
+
+    async function sha256Hex(str) {
+      const enc = new TextEncoder().encode(str);
+      const digest = await crypto.subtle.digest('SHA-256', enc);
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    document.getElementById('go').onclick = async () => {
+      const md = document.getElementById('md').value;
+      const signerIn = document.getElementById('signer').value.trim();
+      const sig = document.getElementById('sig').value.trim();
+
+      const status = document.getElementById('status');
+      const out = document.getElementById('out');
+      status.textContent = '';
+      out.textContent = '';
+
+      try {
+        const stripped = stripDiaryProof(md);
+        const sha256 = await sha256Hex(stripped);
+        const message = `DennoJiro Verifiable Diary v0.2\nsha256: ${sha256}`;
+        const recovered = verifyMessage(message, sig);
+        const ok = getAddress(recovered) === getAddress(signerIn);
+
+        status.innerHTML = ok ? '<span class="ok">OK</span>' : '<span class="bad">NOT OK</span>';
+        out.textContent = JSON.stringify({ ok, sha256, message, recoveredSigner: recovered, expectedSigner: signerIn }, null, 2);
+      } catch (e) {
+        status.innerHTML = '<span class="bad">ERROR</span>';
+        out.textContent = String(e && e.stack || e);
+      }
+    };
+  </script>
+</body>
+</html>
