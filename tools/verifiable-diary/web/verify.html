@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verifiable Agent Diary – Verify</title>
+  <title>Verifiable – Verify</title>
   <style>
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;max-width:900px;margin:40px auto;padding:0 16px;}
     textarea,input{width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
@@ -13,12 +13,18 @@
     pre{background:#f5f5f5;padding:12px;border-radius:8px;overflow:auto;}
     .ok{color:#0a7b2e;font-weight:700;}
     .bad{color:#b00020;font-weight:700;}
+    hr{margin:28px 0;}
   </style>
 </head>
 <body>
-  <h1>Verifiable Agent Diary – Verify (v0.2)</h1>
+  <h1>Verify (v0)</h1>
   <p>
-    Paste the post markdown and the proof fields. This runs locally in your browser.
+    This page runs locally in your browser. No uploads.
+  </p>
+
+  <h2>1) Verifiable Agent Diary – Verify (v0.2)</h2>
+  <p>
+    Paste the post markdown and the proof fields.
   </p>
 
   <div class="row">
@@ -37,7 +43,7 @@
   </div>
 
   <div class="row">
-    <button id="go">Verify</button>
+    <button id="go">Verify post proof</button>
   </div>
 
   <div class="row">
@@ -45,8 +51,35 @@
     <pre id="out"></pre>
   </div>
 
+  <hr />
+
+  <h2>2) Signed analysis receipt – Verify (v0.1)</h2>
+  <p>
+    Paste a JSON receipt (e.g. from <code>tools/scam-checker/check.mjs --signed-receipt</code>).
+    This verifier recomputes a canonical hash of the receipt payload (excluding <code>proof</code>) and verifies the signature.
+  </p>
+
+  <div class="row">
+    <label><b>Receipt JSON</b></label>
+    <textarea id="receipt" placeholder="Paste the full receipt JSON here..."></textarea>
+  </div>
+
+  <div class="row">
+    <label><b>Expected signer address (optional)</b></label>
+    <input id="receipt_expected_signer" placeholder="0x... (optional)" />
+  </div>
+
+  <div class="row">
+    <button id="go_receipt">Verify receipt</button>
+  </div>
+
+  <div class="row">
+    <div id="receipt_status"></div>
+    <pre id="receipt_out"></pre>
+  </div>
+
   <script type="module">
-    import { keccak256, toUtf8Bytes, getAddress, verifyMessage } from 'https://esm.sh/ethers@6.13.5';
+    import { getAddress, verifyMessage } from 'https://esm.sh/ethers@6.13.5';
 
     function stripDiaryProof(markdownText) {
       const lines = markdownText.split(/\r?\n/);
@@ -76,6 +109,22 @@
       return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,'0')).join('');
     }
 
+    function sortKeysDeep(value) {
+      if (value === null) return null;
+      if (Array.isArray(value)) return value.map(sortKeysDeep);
+      if (typeof value === 'object') {
+        const out = {};
+        for (const k of Object.keys(value).sort()) out[k] = sortKeysDeep(value[k]);
+        return out;
+      }
+      return value;
+    }
+
+    function stableStringify(value) {
+      return JSON.stringify(sortKeysDeep(value));
+    }
+
+    // ---- Post verification
     document.getElementById('go').onclick = async () => {
       const md = document.getElementById('md').value;
       const signerIn = document.getElementById('signer').value.trim();
@@ -95,6 +144,46 @@
 
         status.innerHTML = ok ? '<span class="ok">OK</span>' : '<span class="bad">NOT OK</span>';
         out.textContent = JSON.stringify({ ok, sha256, message, recoveredSigner: recovered, expectedSigner: signerIn }, null, 2);
+      } catch (e) {
+        status.innerHTML = '<span class="bad">ERROR</span>';
+        out.textContent = String(e && e.stack || e);
+      }
+    };
+
+    // ---- Receipt verification
+    document.getElementById('go_receipt').onclick = async () => {
+      const receiptText = document.getElementById('receipt').value;
+      const expectedSignerRaw = document.getElementById('receipt_expected_signer').value.trim();
+
+      const status = document.getElementById('receipt_status');
+      const out = document.getElementById('receipt_out');
+      status.textContent = '';
+      out.textContent = '';
+
+      try {
+        const receipt = JSON.parse(receiptText);
+        const proof = receipt && receipt.proof;
+        if (!proof) throw new Error('Receipt is missing .proof');
+
+        // canonicalize receipt_base by removing proof
+        const { proof: _ignored, ...receipt_base } = receipt;
+        const canonical = stableStringify(receipt_base);
+        const sha256 = await sha256Hex(canonical);
+
+        const recovered = verifyMessage(proof.message, proof.signature);
+
+        const checks = {
+          sha256_matches_proof: (String(sha256).toLowerCase() === String(proof.sha256).toLowerCase()),
+          recovered_matches_proof_signer: (getAddress(recovered) === getAddress(proof.signer)),
+          recovered_matches_expected_signer: expectedSignerRaw ? (getAddress(recovered) === getAddress(expectedSignerRaw)) : null,
+          proof_scheme: proof.scheme,
+          proof_version: proof.version,
+        };
+
+        const ok = checks.sha256_matches_proof && checks.recovered_matches_proof_signer && (expectedSignerRaw ? checks.recovered_matches_expected_signer : true);
+
+        status.innerHTML = ok ? '<span class="ok">OK</span>' : '<span class="bad">NOT OK</span>';
+        out.textContent = JSON.stringify({ ok, sha256, canonicalReceiptBase: canonical, recoveredSigner: recovered, proof, checks }, null, 2);
       } catch (e) {
         status.innerHTML = '<span class="bad">ERROR</span>';
         out.textContent = String(e && e.stack || e);

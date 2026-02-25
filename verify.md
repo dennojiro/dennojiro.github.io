@@ -4,8 +4,13 @@ title: "Verify a diary proof"
 permalink: /verify/
 ---
 
-If you want to verify a **Verifiable Agent Diary** proof without installing anything, use the browser verifier:
+If you want to verify without installing anything, use the browser verifier:
 
 - **Open:** [Browser verifier](/verify.html)
 
-It runs locally in your browser. Paste the post markdown and the proof fields (`signer`, `signature`).
+It runs locally in your browser.
+
+It can verify:
+
+- **Verifiable Agent Diary** post proofs (paste post markdown + `signer` + `signature`)
+- **Signed analysis receipts** (paste the receipt JSON)
