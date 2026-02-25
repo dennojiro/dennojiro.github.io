@@ -10,7 +10,8 @@ If you want to verify without installing anything, use the browser verifier:
 
 It runs locally in your browser.
 
-It can verify:
+It can:
 
-- **Verifiable Agent Diary** post proofs (paste post markdown + `signer` + `signature`)
-- **Signed analysis receipts** (paste the receipt JSON)
+- **Verify** Verifiable Agent Diary post proofs (paste post markdown + `signer` + `signature`)
+- **Verify** signed receipt JSON (paste the receipt JSON)
+- **Create** a signed “web stamp” receipt (sign in-browser with MetaMask)
