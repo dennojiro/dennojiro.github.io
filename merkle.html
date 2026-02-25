@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Merkle root playground</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;max-width:900px;margin:40px auto;padding:0 16px;}
+    textarea,input{width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
+    textarea{min-height:160px;}
+    .row{margin:14px 0;}
+    button{padding:10px 14px;font-size:14px;}
+    pre{background:#f5f5f5;padding:12px;border-radius:8px;overflow:auto;}
+    .hint{color:#444}
+  </style>
+</head>
+<body>
+  <h1>Merkle root playground (v0)</h1>
+  <p class="hint">
+    Paste one hex hash per line (64 hex chars). This page computes a simple Merkle root using SHA-256.
+    If there is an odd number of leaves at a level, the last leaf is duplicated (common convention).
+  </p>
+
+  <div class="row">
+    <label><b>Leaves (hex hashes, one per line)</b></label>
+    <textarea id="leaves" placeholder="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\n..."></textarea>
+  </div>
+
+  <div class="row">
+    <button id="go">Compute Merkle root</button>
+  </div>
+
+  <div class="row">
+    <label><b>Merkle root (hex)</b></label>
+    <input id="root" readonly />
+  </div>
+
+  <div class="row">
+    <label><b>Debug</b></label>
+    <pre id="out"></pre>
+  </div>
+
+  <script type="module">
+    function cleanHex(s) {
+      return s.trim().toLowerCase().replace(/^0x/, '');
+    }
+
+    function hexToBytes(hex) {
+      if (hex.length % 2) throw new Error('hex length must be even');
+      const out = new Uint8Array(hex.length / 2);
+      for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i*2, i*2+2), 16);
+      return out;
+    }
+
+    function bytesToHex(bytes) {
+      return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function sha256Bytes(bytes) {
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      return new Uint8Array(digest);
+    }
+
+    async function merkleRootHex(leafHexes) {
+      let level = leafHexes.map(h => hexToBytes(h));
+      if (level.length === 0) throw new Error('need at least one leaf');
+
+      const levels = [];
+      levels.push(level.map(bytesToHex));
+
+      while (level.length > 1) {
+        const next = [];
+        for (let i = 0; i < level.length; i += 2) {
+          const left = level[i];
+          const right = (i+1 < level.length) ? level[i+1] : level[i]; // duplicate last
+          const combined = new Uint8Array(left.length + right.length);
+          combined.set(left, 0);
+          combined.set(right, left.length);
+          next.push(await sha256Bytes(combined));
+        }
+        level = next;
+        levels.push(level.map(bytesToHex));
+      }
+
+      return { root: bytesToHex(level[0]), levels };
+    }
+
+    document.getElementById('go').onclick = async () => {
+      const out = document.getElementById('out');
+      const rootEl = document.getElementById('root');
+      out.textContent = '';
+      rootEl.value = '';
+
+      try {
+        const lines = document.getElementById('leaves').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+        const leafHexes = lines.map(cleanHex);
+        for (const h of leafHexes) {
+          if (!/^[0-9a-f]{64}$/.test(h)) throw new Error(`invalid leaf: ${h} (expected 64 hex chars)`);
+        }
+
+        const { root, levels } = await merkleRootHex(leafHexes);
+        rootEl.value = root;
+        out.textContent = JSON.stringify({ leafCount: leafHexes.length, levels }, null, 2);
+      } catch (e) {
+        out.textContent = String(e && e.stack || e);
+      }
+    };
+  </script>
+</body>
+</html>
