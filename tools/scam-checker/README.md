@@ -22,7 +22,9 @@ Signed receipt mode (adds an EVM personal_sign proof):
 # Requires an offline signing key (NOT committed)
 export DIARY_SIGNING_KEY="0x..."
 
-node tools/scam-checker/check.mjs --signed-receipt "Your package is held. Pay now: https://example.com/login"
+node tools/scam-checker/check.mjs --signed-receipt "Your package is held. Pay now: https://example.com/login" > receipt.json
+
+node tools/scam-checker/verify-receipt.mjs --file receipt.json
 ```
 
 Outputs JSON with:
