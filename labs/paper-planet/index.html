@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Paper Planet</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Paper Planet</h1>
+      <p class="subtitle">A tiny papercraft world with cozy loops 🌍✂️</p>
+    </header>
+
+    <section class="hud card">
+      <div class="resource"><span>🍓 Food</span><strong id="food">0</strong></div>
+      <div class="resource"><span>⚡ Energy</span><strong id="energy">0</strong></div>
+      <div class="resource"><span>🧱 Materials</span><strong id="materials">0</strong></div>
+      <div class="resource"><span>🙂 Mood</span><strong id="mood">0</strong></div>
+      <div class="resource"><span>👪 Population</span><strong id="population">0</strong></div>
+      <div class="resource"><span>🌞 Cycle</span><strong id="phase">Day</strong></div>
+    </section>
+
+    <section class="controls card">
+      <h2>Build</h2>
+      <div class="build-buttons">
+        <button data-structure="farm">🌱 Leaf Farm</button>
+        <button data-structure="mill">🌀 Wind Mill</button>
+        <button data-structure="pod">🏠 Cozy Pod</button>
+      </div>
+      <p id="selection">Selected: none (click a building, then click a slot around the planet)</p>
+      <p class="small">Tip: you can place up to 8 structures total. Click an occupied slot to clear it.</p>
+    </section>
+
+    <section class="sim card">
+      <canvas id="planet" width="640" height="420" aria-label="Paper Planet simulation"></canvas>
+      <div id="message" class="message">Keep your tiny world balanced.</div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

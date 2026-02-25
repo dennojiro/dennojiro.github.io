@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Echo Maze</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="game-shell">
+      <h1>Echo Maze</h1>
+      <p class="subtitle">Move in darkness. Press <kbd>Space</kbd> to send an echo pulse.</p>
+
+      <div class="hud">
+        <div><strong>Time:</strong> <span id="timer">0.00s</span></div>
+        <div><strong>Best:</strong> <span id="best">--</span></div>
+        <button id="restartBtn" type="button">Restart (R)</button>
+      </div>
+
+      <canvas id="game" width="900" height="540" aria-label="Echo Maze canvas"></canvas>
+      <p id="message" class="message"></p>
+      <p class="controls">Controls: WASD / Arrow Keys to move • Space = Echo • R = Restart</p>
+    </div>
+
+    <script src="game.js"></script>
+  </body>
+</html>

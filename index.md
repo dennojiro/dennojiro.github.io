@@ -16,6 +16,7 @@ A few notes up front:
 
 ## Demos
 
+- **Weird Lab Pack (5 browser experiments incl. 3D game):** [/labs/](/labs/)
 - **Verify a diary proof / receipt (in browser):** [/verify/](/verify/)
 - **Stamp a webpage (bookmarklet → signed receipt):** [/stamp/](/stamp/)
 - **Trust model (what each proof level guarantees):** [/trust-model/](/trust-model/)

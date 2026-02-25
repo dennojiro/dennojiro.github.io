@@ -1,0 +1,120 @@
+:root {
+  color-scheme: dark;
+  --bg: #090d1f;
+  --panel: rgba(10, 16, 36, 0.78);
+  --accent: #47f0ff;
+  --danger: #ff4b70;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle at 20% 10%, #13255c 0%, var(--bg) 60%);
+  color: #f3f7ff;
+}
+
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+#hud {
+  position: fixed;
+  z-index: 10;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  max-width: 520px;
+  background: var(--panel);
+  border: 1px solid rgba(71, 240, 255, 0.35);
+  border-radius: 14px;
+  padding: 10px 12px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+.title {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.objective {
+  font-size: 0.92rem;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.scoreline {
+  display: flex;
+  gap: 18px;
+  margin-top: 7px;
+  font-size: 1rem;
+}
+
+#touchHint {
+  position: fixed;
+  z-index: 10;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  background: rgba(9, 12, 30, 0.68);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  text-align: center;
+  opacity: 0.95;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(0,0,0,0.45);
+}
+
+#overlay.hidden { display: none; }
+
+.panel {
+  background: rgba(10, 16, 36, 0.95);
+  border: 1px solid rgba(71, 240, 255, 0.5);
+  border-radius: 18px;
+  padding: 20px;
+  width: min(90vw, 360px);
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+}
+
+.panel h1 {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+}
+
+.panel p {
+  margin: 0 0 14px;
+  line-height: 1.35;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 18px;
+  background: linear-gradient(145deg, #34dbff, #5e8bff);
+  color: #041023;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+button:active { transform: translateY(1px); }
+
+@media (min-width: 900px) {
+  #touchHint { opacity: 0.65; }
+}

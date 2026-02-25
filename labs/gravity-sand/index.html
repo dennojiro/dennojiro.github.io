@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gravity Sand Garden</title>
+  <style>
+    :root {
+      --bg-1: #081326;
+      --bg-2: #140f2f;
+      --panel: rgba(12, 18, 38, 0.72);
+      --line: rgba(255, 255, 255, 0.16);
+      --text: #e8f0ff;
+      --muted: #9fb2d6;
+      --accent: #7fd4ff;
+      --accent-2: #a987ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 900px at 15% -10%, #1f4f89 0%, transparent 45%),
+                  radial-gradient(900px 700px at 85% -20%, #512f8c 0%, transparent 40%),
+                  linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      overflow: hidden;
+    }
+
+    #scene {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .ui {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      right: 1rem;
+      max-width: 760px;
+      display: grid;
+      gap: 0.6rem;
+      padding: 0.9rem;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 38px rgba(0, 0, 0, 0.35);
+      z-index: 2;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .title {
+      font-size: clamp(1rem, 1vw + 0.75rem, 1.25rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font-size: 0.85rem;
+      padding: 0.48rem 0.72rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    button.active {
+      background: linear-gradient(140deg, rgba(127, 212, 255, 0.3), rgba(169, 135, 255, 0.25));
+      border-color: rgba(172, 225, 255, 0.8);
+      box-shadow: 0 0 0 1px rgba(172, 225, 255, 0.25) inset;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .badge {
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.73rem;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.05);
+      color: #d6e7ff;
+    }
+
+    @media (max-width: 780px) {
+      .ui { right: 0.65rem; left: 0.65rem; top: 0.65rem; }
+      .subtitle { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <section class="ui" aria-label="Controls">
+    <div class="row">
+      <div>
+        <div class="title">Gravity Sand Garden</div>
+        <div class="subtitle">Watch particles settle. Hold pointer/touch to attract · press <strong>R</strong> while holding to repel.</div>
+      </div>
+      <div class="badge" id="countLabel">Particles: 0</div>
+    </div>
+
+    <div class="row">
+      <div class="controls" id="modeButtons">
+        <button data-mode="calm" class="active">Calm Drift</button>
+        <button data-mode="storm">Meteor Rain</button>
+        <button data-mode="nebula">Nebula Bloom</button>
+      </div>
+      <div class="controls">
+        <button id="resetBtn">Reset Garden</button>
+      </div>
+    </div>
+
+    <div class="hint">Tip: try quick circles with your finger/mouse to sculpt arcs. Double tap/click anywhere to spawn a burst.</div>
+  </section>
+
+  <script>
+    const canvas = document.getElementById('scene');
+    const ctx = canvas.getContext('2d');
+    const countLabel = document.getElementById('countLabel');
+    const modeButtons = document.getElementById('modeButtons');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const pointer = { x: 0, y: 0, down: false, repel: false, active: false };
+
+    let width = 0;
+    let height = 0;
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let particles = [];
+    let mode = 'calm';
+    let lastTap = 0;
+
+    const presets = {
+      calm: {
+        count: 1200,
+        gravity: 0.018,
+        friction: 0.992,
+        turbulence: 0.005,
+        pointPower: 0.45,
+        floorBounce: 0.28,
+        size: [0.8, 2.1],
+        hueShift: 200,
+      },
+      storm: {
+        count: 1600,
+        gravity: 0.048,
+        friction: 0.988,
+        turbulence: 0.035,
+        pointPower: 1.18,
+        floorBounce: 0.38,
+        size: [0.7, 1.9],
+        hueShift: 25,
+      },
+      nebula: {
+        count: 1000,
+        gravity: 0.008,
+        friction: 0.995,
+        turbulence: 0.02,
+        pointPower: 0.85,
+        floorBounce: 0.62,
+        size: [1.0, 2.8],
+        hueShift: 285,
+      }
+    };
+
+    function rand(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (particles.length) {
+        for (const p of particles) {
+          p.x = Math.min(Math.max(p.x, 0), width);
+          p.y = Math.min(Math.max(p.y, 0), height);
+        }
+      }
+    }
+
+    function makeParticle(spawnTop = true, x = rand(0, width), y = rand(0, height * 0.5)) {
+      const conf = presets[mode];
+      const size = rand(conf.size[0], conf.size[1]);
+      const hue = (conf.hueShift + rand(-28, 24) + 360) % 360;
+      return {
+        x,
+        y: spawnTop ? rand(-height * 0.2, height * 0.15) : y,
+        vx: rand(-0.36, 0.36),
+        vy: rand(-0.2, 0.5),
+        size,
+        hue,
+        alpha: rand(0.5, 1),
+      };
+    }
+
+    function seedParticles() {
+      const conf = presets[mode];
+      particles = new Array(conf.count).fill(0).map(() => makeParticle(true));
+      countLabel.textContent = `Particles: ${particles.length}`;
+    }
+
+    function activateMode(nextMode) {
+      mode = nextMode;
+      for (const btn of modeButtons.querySelectorAll('button')) {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      }
+      seedParticles();
+    }
+
+    function applyPointerForce(p, conf) {
+      if (!pointer.active || !pointer.down) return;
+      const dx = pointer.x - p.x;
+      const dy = pointer.y - p.y;
+      const distSq = dx * dx + dy * dy + 20;
+      const maxRadius = 180;
+      if (distSq > maxRadius * maxRadius) return;
+      const dist = Math.sqrt(distSq);
+      const strength = (conf.pointPower * 120) / distSq;
+      const signed = pointer.repel ? -strength : strength;
+      p.vx += (dx / dist) * signed;
+      p.vy += (dy / dist) * signed;
+    }
+
+    function burst(x, y, n = 120) {
+      const conf = presets[mode];
+      for (let i = 0; i < n; i++) {
+        const a = rand(0, Math.PI * 2);
+        const speed = rand(0.5, 2.4);
+        const p = makeParticle(false, x + Math.cos(a) * rand(0, 20), y + Math.sin(a) * rand(0, 20));
+        p.vx += Math.cos(a) * speed;
+        p.vy += Math.sin(a) * speed - rand(0, 1.3);
+        p.size = rand(conf.size[0] * 0.85, conf.size[1] * 1.25);
+        particles.push(p);
+      }
+      if (particles.length > 2800) {
+        particles.splice(0, particles.length - 2800);
+      }
+      countLabel.textContent = `Particles: ${particles.length}`;
+    }
+
+    function step() {
+      const conf = presets[mode];
+      ctx.clearRect(0, 0, width, height);
+
+      const grad = ctx.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, 'rgba(20, 36, 72, 0.18)');
+      grad.addColorStop(1, 'rgba(92, 40, 110, 0.14)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        p.vy += conf.gravity;
+        p.vx += rand(-conf.turbulence, conf.turbulence);
+        p.vy += rand(-conf.turbulence, conf.turbulence);
+
+        applyPointerForce(p, conf);
+
+        p.vx *= conf.friction;
+        p.vy *= conf.friction;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0) { p.x = 0; p.vx *= -0.72; }
+        if (p.x > width) { p.x = width; p.vx *= -0.72; }
+
+        if (p.y > height - p.size) {
+          p.y = height - p.size;
+          p.vy *= -conf.floorBounce;
+          p.vx *= 0.95;
+
+          if (Math.abs(p.vy) < 0.03) {
+            p.vy = 0;
+            p.vx *= 0.985;
+          }
+        }
+
+        if (p.y < -40) {
+          particles[i] = makeParticle(true);
+          continue;
+        }
+
+        const sat = mode === 'storm' ? 90 : 82;
+        const light = mode === 'nebula' ? 72 : 66;
+        ctx.fillStyle = `hsla(${p.hue}, ${sat}%, ${light}%, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (pointer.active && pointer.down) {
+        const radius = pointer.repel ? 44 : 34;
+        ctx.beginPath();
+        ctx.arc(pointer.x, pointer.y, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = pointer.repel ? 'rgba(255,120,160,0.55)' : 'rgba(127,212,255,0.55)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([6, 7]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    function setPointerFromEvent(e) {
+      const point = e.touches ? e.touches[0] : e;
+      pointer.x = point.clientX;
+      pointer.y = point.clientY;
+      pointer.active = true;
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      setPointerFromEvent(e);
+      pointer.down = true;
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      setPointerFromEvent(e);
+    });
+
+    canvas.addEventListener('pointerup', () => {
+      pointer.down = false;
+      pointer.active = false;
+      pointer.repel = false;
+    });
+
+    canvas.addEventListener('pointercancel', () => {
+      pointer.down = false;
+      pointer.active = false;
+      pointer.repel = false;
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      setPointerFromEvent(e);
+      pointer.down = true;
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      setPointerFromEvent(e);
+    }, { passive: false });
+
+    canvas.addEventListener('dblclick', (e) => {
+      burst(e.clientX, e.clientY, 170);
+    });
+
+    canvas.addEventListener('touchend', () => {
+      pointer.down = false;
+      pointer.active = false;
+      pointer.repel = false;
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const now = performance.now();
+      if (now - lastTap < 260) {
+        burst(e.clientX, e.clientY, 150);
+      }
+      lastTap = now;
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'r') pointer.repel = true;
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key.toLowerCase() === 'r') pointer.repel = false;
+    });
+
+    modeButtons.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-mode]');
+      if (!btn) return;
+      activateMode(btn.dataset.mode);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      seedParticles();
+    });
+
+    window.addEventListener('resize', resize);
+
+    resize();
+    activateMode(mode);
+    requestAnimationFrame(step);
+  </script>
+</body>
+</html>

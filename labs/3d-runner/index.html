@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Neon Lane Runner</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="hud">
+    <div class="title">Neon Lane Runner</div>
+    <div class="objective">Dodge red blocks, collect cyan orbs.</div>
+    <div class="scoreline">
+      <span>Score: <b id="score">0</b></span>
+      <span>Best: <b id="best">0</b></span>
+    </div>
+  </div>
+
+  <div id="touchHint">Swipe ◀ ▶ to change lane · Swipe ▲ to jump</div>
+
+  <div id="overlay" class="hidden">
+    <div class="panel">
+      <h1 id="overlayTitle">Game Over</h1>
+      <p id="overlayText"></p>
+      <button id="restartBtn">Restart</button>
+    </div>
+  </div>
+
+  <script type="module" src="./game.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+:root {
+  color-scheme: dark;
+  --bg: #05060a;
+  --panel: #0d1020;
+  --ink: #dce8ff;
+  --accent: #5be7ff;
+  --danger: #ff5f6d;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: radial-gradient(circle at 20% 20%, #111530 0%, var(--bg) 60%);
+  color: var(--ink);
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+}
+
+h1 { margin: 0; font-size: 1.75rem; }
+.subtitle { margin: 0.25rem 0 0; opacity: 0.85; }
+.status { font-size: 0.9rem; opacity: 0.9; }
+
+.controls, .presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding: 0.65rem;
+  border: 1px solid #252a44;
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--panel), black 14%);
+}
+
+button {
+  border: 1px solid #3b436a;
+  background: #151a34;
+  color: var(--ink);
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+button:hover { border-color: var(--accent); }
+button.danger { border-color: #8d1f2a; background: #3b1117; }
+
+input[type='range'] { width: 130px; }
+
+#stage {
+  width: 100%;
+  margin-top: 0.85rem;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  border: 1px solid #2d3154;
+  background: #05070f;
+  touch-action: none;
+  display: block;
+}
+
+.hint {
+  margin-top: 0.6rem;
+  font-size: 0.88rem;
+  opacity: 0.8;
+}

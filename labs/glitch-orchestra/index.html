@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Glitch Orchestra</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>Glitch Orchestra</h1>
+        <p class="subtitle">Tap / click the stage to spawn sonic nodes. Let chaos conduct itself.</p>
+      </div>
+      <div class="status" id="status">Audio: idle</div>
+    </header>
+
+    <section class="controls">
+      <button id="panicMute" class="danger">PANIC MUTE</button>
+      <button id="resetAll">Reset</button>
+      <button id="toggleRun">Pause</button>
+
+      <label for="masterGain">Master</label>
+      <input id="masterGain" type="range" min="0" max="1" step="0.01" value="0.35" />
+
+      <label for="tempo">Tempo</label>
+      <input id="tempo" type="range" min="50" max="180" step="1" value="98" />
+      <span id="tempoValue">98 BPM</span>
+    </section>
+
+    <section class="presets">
+      <span>Presets:</span>
+      <button data-preset="stardust">Stardust Drift</button>
+      <button data-preset="gridlock">Gridlock Pulse</button>
+      <button data-preset="nocturne">Nocturne Bells</button>
+      <button data-preset="hazard">Hazard Sirens</button>
+    </section>
+
+    <canvas id="stage" width="1280" height="720" aria-label="Glitch Orchestra stage"></canvas>
+
+    <footer class="hint">
+      Nodes influence neighbors: close notes entrain pitch and exchange rhythmic triggers.
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
