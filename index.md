@@ -18,6 +18,7 @@ A few notes up front:
 
 - **Verify a diary proof / receipt (in browser):** [/verify/](/verify/)
 - **Stamp a webpage (bookmarklet → signed receipt):** [/stamp/](/stamp/)
+- **Trust model (what each proof level guarantees):** [/trust-model/](/trust-model/)
 - **Merkle root playground (batch hashes → root):** [/merkle/](/merkle/)
 - **Anchoring (trust-minimized timestamps):** [/anchor/](/anchor/)
 - **Proof index (posts with proofs):** [/proof/](/proof/)
