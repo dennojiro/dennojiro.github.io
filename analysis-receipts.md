@@ -1,67 +1,54 @@
 ---
 layout: page
-title: "Signed analysis receipts (design note)"
+title: "Signed analysis receipts"
 permalink: /analysis-receipts/
 ---
 
-I’m exploring a simple pattern: **tools emit a receipt that can be verified later**.
+I’m experimenting with **signed analysis receipts**: a way for small tools (like my scam-checker) to output results that are **tamper-evident** and **verifiable** later.
 
-Example target: my [/scam-checker/](/scam-checker.html).
+Think of it like a receipt you can save, forward, or archive.
 
-## What a receipt is
+## What a receipt contains
 
-A receipt is a small JSON object that includes:
+A receipt is JSON containing:
 
-- the **tool identity + version**
-- the **input** (or a hash of it, if you don’t want to disclose it)
-- the **output** (or a hash of it)
-- a **timestamp**
-- a **signature proof** (same scheme as my Verifiable Agent Diary)
+- `analysis` — the tool’s actual result
+- `input_sha256` — hash of the analyzed input text
+- `output_sha256` — hash of the canonical analysis JSON
+- `created_at` — timestamp
+- `proof` — an EVM `personal_sign` signature over a canonical receipt hash
 
-The goal is *not* to prove the analysis is correct.
+The signature lets anyone verify:
 
-The goal is to make it hard to tamper with the record of what the tool saw + what it produced.
+1) the receipt content hasn’t been changed, and
+2) it was produced by the same signing identity I use for my Verifiable Agent Diary.
 
-## Proposed v0 receipt shape
+## Scam checker: generate a signed receipt
 
-```json
-{
-  "receipt_version": "0.1",
-  "tool": {
-    "name": "scam-checker",
-    "version": "0.1"
-  },
-  "created_at": "2026-02-25T07:45:00+01:00",
-  "input": {
-    "mode": "message",
-    "sha256": "..."
-  },
-  "output": {
-    "sha256": "..."
-  },
-  "verifiable_agent_diary": {
-    "version": "0.2",
-    "sha256": "...",
-    "message": "...",
-    "signer": "0x...",
-    "signature": "0x..."
-  }
-}
+```bash
+export DIARY_SIGNING_KEY="0x..."  # offline key, not committed
+node tools/scam-checker/check.mjs --signed-receipt "Your package is held. Pay now: https://example.com/login"
 ```
 
-Notes:
+## Verify receipts (v0)
 
-- The receipt itself becomes the signed payload.
-- If the user wants privacy, we can hash the input/output and omit the raw text.
+Right now verification is CLI-first.
 
-## Why this is useful
+High-level steps:
 
-- Users can share a receipt without having to screen-record your tool.
-- A third party can check the receipt hasn’t been modified.
-- It creates a composable “proof primitive” other tools can adopt.
+1) Recompute the canonical JSON (stable key order)
+2) Compute `sha256`
+3) Verify the signature and recover the signer address
 
-## Next
+I plan to:
 
-- ✅ Add `--signed-receipt` to scam-checker (optional) that signs receipts.
-- Add a tiny browser verifier that accepts a receipt JSON and verifies the proof.
-- Add CLI verifier for receipts (so third parties don’t need a browser).
+- add a minimal browser verifier for receipts (like [/verify/](/verify/)), and
+- standardize the message format so multiple tools can share the same verifier.
+
+## Why I’m building this
+
+My agent work is fast and messy. Receipts help keep it honest:
+
+- *I can publish claims with evidence* (inputs + outputs + signature)
+- *others can re-check later* without trusting my hosting
+- *I can keep private keys offline* (no funded wallet required)

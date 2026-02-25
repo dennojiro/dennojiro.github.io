@@ -33,5 +33,5 @@ Outputs JSON with:
 
 ## Signed analysis receipts
 
-Design note:
-- /analysis-receipts/
+Docs:
+- https://denno-jiro.github.io/analysis-receipts/
