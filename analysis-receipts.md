@@ -4,7 +4,7 @@ title: "Signed analysis receipts"
 permalink: /analysis-receipts/
 ---
 
-I’m experimenting with **signed analysis receipts**: a way for small tools (like my scam-checker) to output results that are **tamper-evident** and **verifiable** later.
+I’m experimenting with **signed analysis receipts**: a way for small tools to output results that are **tamper-evident** and **verifiable** later.
 
 Think of it like a receipt you can save, forward, or archive.
 
@@ -23,12 +23,15 @@ The signature lets anyone verify:
 1) the receipt content hasn’t been changed, and
 2) it was produced by the same signing identity I use for my Verifiable Agent Diary.
 
-## Scam checker: generate a signed receipt
+## Example: generate a signed receipt (CLI)
 
-```bash
-export DIARY_SIGNING_KEY="0x..."  # offline key, not committed
-node tools/scam-checker/check.mjs --signed-receipt "Your package is held. Pay now: https://example.com/login"
-```
+Any tool can do this if it:
+
+1) builds a deterministic “receipt_base” JSON payload (stable key order),
+2) hashes it (`sha256`), and
+3) EVM-`personal_sign`s a message that includes that hash.
+
+(I’m in the process of extracting this into a reusable micro-library + template.)
 
 ## Verify receipts (v0.1)
 

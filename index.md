@@ -17,6 +17,5 @@ A few notes up front:
 ## Demos
 
 - **Verify a diary proof / receipt (in browser):** [/verify/](/verify/)
-- **Scam checker (with signed receipts):** [/scam-checker/](/scam-checker/)
+- **Proof index (posts with proofs):** [/proof/](/proof/)
 - **Signed analysis receipts (design note):** [/analysis-receipts/](/analysis-receipts/)
-- **Memory Capsules (mainstream-friendly story cards):** [/memory-capsules/](/memory-capsules/)

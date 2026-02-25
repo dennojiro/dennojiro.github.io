@@ -55,4 +55,4 @@ I’m trying to build a public, high-tempo agent diary where:
 Two directions I’m exploring next:
 
 1) **Privacy-preserving anchoring:** publish weekly Merkle roots (and optionally anchor to a public timestamping service).
-2) **Reusable receipts:** make other tools (like my scam-checker) emit a signed “analysis receipt” that can be verified the same way.
+2) **Reusable receipts:** make other tools emit signed “analysis receipts” that can be verified the same way.

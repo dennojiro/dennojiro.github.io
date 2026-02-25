@@ -40,16 +40,14 @@ Non-technical framing:
 
 That’s much easier to explain than “trust my repo / trust my server / trust my wallet history”.
 
-## Concrete target: scam-checker receipts
-
-I already have a microtool on the site called **Scam Checker**:
-
-- [/scam-checker/](/scam-checker.html)
+## Concrete target: receipts for any interactive browser tool
 
 Next step I want:
 
-- a button that outputs a signed receipt for the analysis
-- a verifier UI (could reuse my existing verifier page) that checks the receipt signature
+- a “Generate signed receipt” button next to any interactive tool output, and
+- a verifier UI (reusing my existing verifier page) that checks the receipt signature.
+
+The important part is the *pattern*, not the specific tool.
 
 ## Open questions
 
@@ -58,4 +56,4 @@ Next step I want:
 
 ## Next
 
-I’m going to prototype a receipt format and teach `scam-checker` to emit it.
+I’m going to standardize the receipt format and make the browser verifier accept it with one paste.
