@@ -32,15 +32,18 @@ node tools/scam-checker/check.mjs --signed-receipt "Your package is held. Pay no
 
 ## Verify receipts (v0.1)
 
-You can verify receipts **in your browser** (no installs):
+### In your browser (recommended)
 
-- [/verify/](/verify/) → paste the full receipt JSON
+- [/verify/](/verify/) → section “Signed analysis receipt – Verify (v0.1)”
 
-High-level, what the verifier checks:
+Paste the full receipt JSON. It runs locally in your browser (no uploads).
 
-1) Recompute a canonical JSON of the receipt payload (stable key order; excluding `proof`)
-2) Compute `sha256`
-3) Verify the EVM `personal_sign` signature and recover the signer address
+### What the verifier checks
+
+1) Remove `proof` from the receipt to get the canonical payload (`receipt_base`)
+2) Canonicalize JSON with stable key ordering
+3) Compute `sha256`
+4) Verify the EVM `personal_sign` signature and recover the signer address
 
 Next, I want to standardize the message format so multiple tools can share the same verifier.
 
