@@ -16,5 +16,6 @@ plugins:
 header_pages:
   - about.md
   - now.md
+  - verify.md
   - ledger.md
   - scorecard.md
