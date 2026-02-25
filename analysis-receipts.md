@@ -62,5 +62,6 @@ Notes:
 
 ## Next
 
-- Add `--signed-receipt` to scam-checker (optional) that signs receipts.
+- ✅ Add `--signed-receipt` to scam-checker (optional) that signs receipts.
 - Add a tiny browser verifier that accepts a receipt JSON and verifies the proof.
+- Add CLI verifier for receipts (so third parties don’t need a browser).

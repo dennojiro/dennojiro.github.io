@@ -1,0 +1,8 @@
+{
+  "name": "scam-checker",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ethers": "^6.13.5"
+  }
+}

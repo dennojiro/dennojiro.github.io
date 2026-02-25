@@ -9,12 +9,20 @@
 import { URL } from 'node:url';
 
 import crypto from 'node:crypto';
+import { Wallet } from 'ethers';
 
 const args = process.argv.slice(2);
 const receiptMode = args[0] === '--receipt';
-const input = (receiptMode ? args.slice(1) : args).join(' ').trim();
+const signedReceiptMode = args[0] === '--signed-receipt';
+
+if (receiptMode && signedReceiptMode) {
+  console.error('Choose only one: --receipt or --signed-receipt');
+  process.exit(2);
+}
+
+const input = ((receiptMode || signedReceiptMode) ? args.slice(1) : args).join(' ').trim();
 if (!input) {
-  console.error('Usage: node tools/scam-checker/check.mjs [--receipt] "<message text>"');
+  console.error('Usage: node tools/scam-checker/check.mjs [--receipt|--signed-receipt] "<message text>"');
   process.exit(2);
 }
 
@@ -44,23 +52,80 @@ const analysis = {
   advice: adviceFor(verdict)
 };
 
-if (!receiptMode) {
+if (!receiptMode && !signedReceiptMode) {
   console.log(JSON.stringify(analysis, null, 2));
-} else {
+} else if (receiptMode) {
   const input_sha256 = sha256Hex(input);
-  const output_sha256 = sha256Hex(JSON.stringify(analysis));
+  const output_sha256 = sha256Hex(stableStringify(analysis));
   console.log(JSON.stringify({
     kind: 'scam_checker_receipt',
     version: 'v0',
     tool: 'tools/scam-checker/check.mjs',
+    created_at: new Date().toISOString(),
     input_sha256,
     output_sha256,
     analysis
   }, null, 2));
+} else {
+  // signed receipt
+  const pkHex = (process.env.DIARY_SIGNING_KEY || '').trim();
+  if (!pkHex) {
+    console.error('Missing DIARY_SIGNING_KEY env var. Refusing to run signed receipt mode.');
+    process.exit(2);
+  }
+  const wallet = new Wallet(pkHex);
+
+  const receipt_base = {
+    kind: 'scam_checker_receipt',
+    version: 'v0.1',
+    tool: 'tools/scam-checker/check.mjs',
+    created_at: new Date().toISOString(),
+    input_sha256: sha256Hex(input),
+    output_sha256: sha256Hex(stableStringify(analysis)),
+    analysis
+  };
+
+  const canonical = stableStringify(receipt_base);
+  const sha256 = sha256Hex(canonical);
+  const message = `DennoJiro ScamChecker Receipt v0.1\nsha256: ${sha256}`;
+  const signature = await wallet.signMessage(message);
+
+  const receipt = {
+    ...receipt_base,
+    proof: {
+      scheme: 'sha256(stable_json(receipt_base)) + evm_personal_sign',
+      version: '0.1',
+      sha256,
+      message,
+      signer: wallet.address,
+      signature
+    }
+  };
+
+  console.log(JSON.stringify(receipt, null, 2));
 }
 
 function sha256Hex(s) {
   return crypto.createHash('sha256').update(s, 'utf8').digest('hex');
+}
+
+function stableStringify(value) {
+  // Deterministic JSON stringify with recursively sorted object keys.
+  // Good enough for receipts; avoids "same data, different key order" issues.
+  return JSON.stringify(sortKeysDeep(value));
+}
+
+function sortKeysDeep(value) {
+  if (value === null) return null;
+  if (Array.isArray(value)) return value.map(sortKeysDeep);
+  if (typeof value === 'object') {
+    const out = {};
+    for (const k of Object.keys(value).sort()) {
+      out[k] = sortKeysDeep(value[k]);
+    }
+    return out;
+  }
+  return value;
 }
 
 function extractUrls(text) {

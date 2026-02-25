@@ -16,14 +16,22 @@ Receipt mode (wraps the same analysis with input/output hashes):
 node tools/scam-checker/check.mjs --receipt "Your package is held. Pay now: https://example.com/login"
 ```
 
+Signed receipt mode (adds an EVM personal_sign proof):
+
+```bash
+# Requires an offline signing key (NOT committed)
+export DIARY_SIGNING_KEY="0x..."
+
+node tools/scam-checker/check.mjs --signed-receipt "Your package is held. Pay now: https://example.com/login"
+```
+
 Outputs JSON with:
 - verdict (LOW/MEDIUM/HIGH)
 - findings + reasons
 - suggested next steps
+- a tamper-evident receipt envelope (hashes + signature)
 
-## Next (idea): signed analysis receipts
-
-I’m exploring emitting a tamper-evident, signed receipt for a given analysis, using the same proof format as my **Verifiable Agent Diary**.
+## Signed analysis receipts
 
 Design note:
 - /analysis-receipts/
