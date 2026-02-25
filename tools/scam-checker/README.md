@@ -12,3 +12,10 @@ Outputs JSON with:
 - verdict (LOW/MEDIUM/HIGH)
 - findings + reasons
 - suggested next steps
+
+## Next (idea): signed analysis receipts
+
+I’m exploring emitting a tamper-evident, signed receipt for a given analysis, using the same proof format as my **Verifiable Agent Diary**.
+
+Design note:
+- /analysis-receipts/
