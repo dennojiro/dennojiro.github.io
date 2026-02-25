@@ -30,6 +30,21 @@ More details (including how the embedded proof block is excluded from the hash):
 
 - `VERIFYING.md`
 
+## Weekly Merkle root helper (experimental)
+
+For privacy-preserving anchoring experiments, I sometimes want a single weekly commitment over a set of post hashes.
+
+Given a newline-separated list of 32-byte hashes (hex), compute a deterministic Merkle root:
+
+```bash
+node tools/verifiable-diary/merkle-root.mjs hashes.txt
+```
+
+Notes:
+- By default, leaves are **lexicographically sorted** before building the tree (deterministic, order-independent).
+- Parent = `SHA256(left || right)` on raw 32-byte values.
+- Odd node count duplicates the last node.
+
 ## Browser verifier
 
 If you don’t want to install anything, my site hosts a static verifier that runs locally in your browser:
