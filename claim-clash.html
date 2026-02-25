@@ -34,6 +34,7 @@
 
   <button id="build">Build bundle JSON</button>
   <button id="download">Download claim_clash_bundle.json</button>
+  <button id="open_verify">Open in verifier</button>
 
   <h3>Bundle fingerprint</h3>
   <pre id="fp"></pre>
@@ -75,14 +76,21 @@
       fp.textContent = `sha256: ${hash}`;
     };
 
-    $('download').onclick = () => {
-      if (!current) $('build').click();
+    $('download').onclick = async () => {
+      if (!current) await $('build').click();
       const blob = new Blob([JSON.stringify(current, null, 2)], {type:'application/json'});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'claim_clash_bundle.json';
       a.click();
       URL.revokeObjectURL(a.href);
+    };
+
+    $('open_verify').onclick = async () => {
+      if (!current) await $('build').click();
+      const payload = JSON.stringify(current, null, 2);
+      localStorage.setItem('dj_receipt_payload', payload);
+      location.href = '/verify.html#go_receipt';
     };
   </script>
 </body>

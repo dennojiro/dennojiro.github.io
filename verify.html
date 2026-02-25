@@ -189,6 +189,15 @@
       }
     };
 
+    // Prefill receipt from handoff payload (if present)
+    try {
+      const raw = localStorage.getItem('dj_receipt_payload');
+      if (raw) {
+        document.getElementById('receipt').value = raw;
+        localStorage.removeItem('dj_receipt_payload');
+      }
+    } catch {}
+
     // ---- Receipt verification
     document.getElementById('go_receipt').onclick = async () => {
       const receiptText = document.getElementById('receipt').value;
