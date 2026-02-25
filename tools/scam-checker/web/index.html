@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scam Checker (v0)</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;max-width:920px;margin:40px auto;padding:0 16px;}
+    textarea{width:100%;min-height:180px;font-family:inherit;font-size:15px;}
+    button{padding:10px 14px;font-size:14px;}
+    pre{background:#f5f5f5;padding:12px;border-radius:8px;overflow:auto;}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;}
+    .low{background:#e7f6ea;color:#0a7b2e;}
+    .med{background:#fff2cc;color:#7a5b00;}
+    .high{background:#ffe6e6;color:#b00020;}
+  </style>
+</head>
+<body>
+  <h1>Scam Checker (v0)</h1>
+  <p>Paste a suspicious message. This runs locally in your browser (no sending).</p>
+
+  <textarea id="msg" placeholder="Paste the message here..."></textarea>
+  <div style="margin:12px 0">
+    <button id="go">Check</button>
+    <span id="verdict"></span>
+  </div>
+
+  <pre id="out"></pre>
+
+  <script type="module">
+    function extractUrls(text) {
+      const re = /https?:\/\/[^\s)\]]+/gi;
+      return Array.from(text.matchAll(re)).map(m => m[0]);
+    }
+
+    function looksLikeUrgentMoneyAsk(text) {
+      const t = text.toLowerCase();
+      return /(urgent|immediately|asap|right now|final notice)/.test(t) && /(bank|payment|transfer|invoice|refund|crypto|wallet)/.test(t);
+    }
+
+    function mentionsOtpOrCode(text) {
+      const t = text.toLowerCase();
+      return /(otp|one[- ]time|verification code|security code|2fa)/.test(t);
+    }
+
+    function analyzeUrl(raw) {
+      const out = [];
+      let url;
+      try { url = new URL(raw); } catch { return [{ level: 'medium', reason: `Malformed URL: ${raw}`, url: raw }]; }
+      const host = url.hostname;
+      if (host.startsWith('xn--') || host.includes('.xn--')) out.push({ level: 'medium', reason: `Domain uses punycode/IDN (${host}); can hide lookalike characters.`, url: raw });
+      const tld = host.split('.').pop()?.toLowerCase();
+      const riskyTlds = new Set(['zip','mov','click','top','xyz','cfd','loan','work','cam']);
+      if (tld && riskyTlds.has(tld)) out.push({ level: 'medium', reason: `Domain uses a commonly abused TLD (.${tld}).`, url: raw });
+      if (url.protocol !== 'https:') out.push({ level: 'medium', reason: `URL is not HTTPS (${url.protocol}).`, url: raw });
+      const path = url.pathname.toLowerCase();
+      if (/(login|verify|reset|security|account|billing)/.test(path)) out.push({ level: 'low', reason: `URL path contains account/security keywords (${url.pathname}).`, url: raw });
+      return out;
+    }
+
+    function scoreFindings(findings) {
+      let s = 0;
+      for (const f of findings) s += f.level === 'high' ? 3 : f.level === 'medium' ? 2 : 1;
+      return s;
+    }
+
+    function adviceFor(verdict) {
+      if (verdict === 'HIGH') return [
+        'Do not click links or reply.',
+        'Verify via the official app/website (type the domain yourself).',
+        'If it claims to be your bank/service, call the number on your card/app.',
+        'Never share verification codes.'
+      ];
+      if (verdict === 'MEDIUM') return [
+        'Be cautious. Prefer navigating manually to the official site.',
+        'Check the exact domain spelling carefully.',
+        'If unsure, ask the sender via a known-good channel.'
+      ];
+      return ['Still be careful with links. When in doubt, navigate manually to the official site.'];
+    }
+
+    document.getElementById('go').onclick = () => {
+      const input = document.getElementById('msg').value.trim();
+      const urls = extractUrls(input);
+      const findings = [];
+      if (looksLikeUrgentMoneyAsk(input)) findings.push({ level: 'high', reason: 'Urgency + money/account language (common scam pattern).' });
+      if (mentionsOtpOrCode(input)) findings.push({ level: 'high', reason: 'Mentions OTP/verification codes.' });
+      for (const u of urls) findings.push(...analyzeUrl(u));
+
+      const score = scoreFindings(findings);
+      const verdict = score >= 6 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
+
+      const v = document.getElementById('verdict');
+      v.innerHTML = '';
+      const pill = document.createElement('span');
+      pill.className = 'pill ' + (verdict === 'HIGH' ? 'high' : verdict === 'MEDIUM' ? 'med' : 'low');
+      pill.textContent = `VERDICT: ${verdict}`;
+      v.appendChild(pill);
+
+      document.getElementById('out').textContent = JSON.stringify({ verdict, score, urls, findings, advice: adviceFor(verdict) }, null, 2);
+    };
+  </script>
+</body>
+</html>
