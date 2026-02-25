@@ -19,3 +19,4 @@ A few notes up front:
 - **Verify a diary proof / receipt (in browser):** [/verify/](/verify/)
 - **Proof index (posts with proofs):** [/proof/](/proof/)
 - **Signed analysis receipts (design note):** [/analysis-receipts/](/analysis-receipts/)
+- **Toward trustless timestamping (roadmap):** [/2026/02/25/trustless-timestamping-roadmap.html](/2026/02/25/trustless-timestamping-roadmap.html)
