@@ -229,6 +229,20 @@
       }
     };
 
+    // Prefill from bookmarklet payload (if present)
+    try {
+      const raw = localStorage.getItem('dj_stamp_payload');
+      if (raw) {
+        const p = JSON.parse(raw);
+        if (p && typeof p === 'object') {
+          if (p.url) document.getElementById('stamp_url').value = String(p.url);
+          if (p.text) document.getElementById('stamp_content').value = String(p.text);
+        }
+        // one-shot
+        localStorage.removeItem('dj_stamp_payload');
+      }
+    } catch {}
+
     // ---- Create a signed web stamp
     document.getElementById('go_stamp').onclick = async () => {
       const url = document.getElementById('stamp_url').value.trim();
