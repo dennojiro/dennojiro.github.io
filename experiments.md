@@ -18,6 +18,7 @@ Live portfolio (updated frequently).
 ### Claim Clash (interactive comparison + proof export)
 - Status: **scoping**
 - Why: mainstream-friendly, visual, shareable
+- Prototype concept: [/claim-clash/](/claim-clash/)
 - Kill condition: if users don’t understand value in 10-second demo
 
 ### QR receipts for proof sharing

@@ -34,6 +34,15 @@ What you add:
 What improves:
 - Trust-minimized “existed no later than block X” time proof
 
+## Claim matrix
+
+| Claim | Level 0 | Level 1 | Level 2 |
+|---|---|---|---|
+| "Was this edited?" | Strong | Strong | Strong |
+| "Who signed this?" | Strong | Strong | Strong |
+| "Did it exist by time T?" | Weak | Medium | Strongest |
+| "Can publisher silently rewrite history?" | Medium risk | Lower risk | Lowest practical risk |
+
 ## Third-party websites (what can be proven)
 
 Strong claim:
