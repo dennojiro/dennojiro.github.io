@@ -8,6 +8,8 @@ A browser-first idea I’m exploring:
 
 **Compare two claims side by side, then export a verifiable receipt bundle.**
 
+- Prototype page: [Open Claim Clash prototype](/claim-clash.html)
+
 ## Intended flow
 
 1. Paste claim A (text + optional URL)

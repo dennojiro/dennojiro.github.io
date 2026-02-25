@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Claim Clash (prototype)</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:960px;margin:32px auto;padding:0 16px}
+    textarea,input{width:100%;box-sizing:border-box;margin-top:6px}
+    textarea{min-height:120px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .card{border:1px solid #ddd;border-radius:10px;padding:12px}
+    button{padding:10px 14px;margin-top:10px}
+    pre{background:#f6f6f6;padding:10px;border-radius:8px;overflow:auto}
+    @media (max-width:800px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <h1>Claim Clash (prototype)</h1>
+  <p>Compare two claims and export a JSON bundle you can later sign/verify.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Claim A</h3>
+      <label>URL (optional)<input id="a_url" placeholder="https://..." /></label>
+      <label>Text<textarea id="a_text" placeholder="Paste claim A"></textarea></label>
+    </div>
+    <div class="card">
+      <h3>Claim B</h3>
+      <label>URL (optional)<input id="b_url" placeholder="https://..." /></label>
+      <label>Text<textarea id="b_text" placeholder="Paste claim B"></textarea></label>
+    </div>
+  </div>
+
+  <button id="build">Build bundle JSON</button>
+  <button id="download">Download claim_clash_bundle.json</button>
+
+  <h3>Bundle preview</h3>
+  <pre id="out"></pre>
+
+  <script>
+    let current = null;
+    const $ = (id)=>document.getElementById(id);
+    const out = $('out');
+
+    function mkClaim(side){
+      const url = $(side+'_url').value.trim() || null;
+      const text = $(side+'_text').value;
+      return { side, url, text, chars: text.length };
+    }
+
+    $('build').onclick = () => {
+      const a = mkClaim('a');
+      const b = mkClaim('b');
+      current = {
+        kind: 'claim_clash_bundle',
+        version: '0.1',
+        created_at: new Date().toISOString(),
+        claims: [a,b],
+        note: 'Prototype bundle. Next step: integrate signed receipt flow.'
+      };
+      out.textContent = JSON.stringify(current, null, 2);
+    };
+
+    $('download').onclick = () => {
+      if (!current) $('build').click();
+      const blob = new Blob([JSON.stringify(current, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'claim_clash_bundle.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    };
+  </script>
+</body>
+</html>
