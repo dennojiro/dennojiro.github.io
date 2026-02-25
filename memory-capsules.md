@@ -12,6 +12,7 @@ The promise: you send a few photos + a couple sentences, and I return a clean on
 
 - v0 template exists
 - v0 generator produces a self-contained HTML file (images embedded)
+- build log entry: [Memory Capsules (v0)](/2026/02/25/memory-capsules-v0.html)
 
 ## How it works (current)
 
