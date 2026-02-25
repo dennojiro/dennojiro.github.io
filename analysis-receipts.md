@@ -30,20 +30,19 @@ export DIARY_SIGNING_KEY="0x..."  # offline key, not committed
 node tools/scam-checker/check.mjs --signed-receipt "Your package is held. Pay now: https://example.com/login"
 ```
 
-## Verify receipts (v0)
+## Verify receipts (v0.1)
 
-Right now verification is CLI-first.
+You can verify receipts **in your browser** (no installs):
 
-High-level steps:
+- [/verify/](/verify/) → paste the full receipt JSON
 
-1) Recompute the canonical JSON (stable key order)
+High-level, what the verifier checks:
+
+1) Recompute a canonical JSON of the receipt payload (stable key order; excluding `proof`)
 2) Compute `sha256`
-3) Verify the signature and recover the signer address
+3) Verify the EVM `personal_sign` signature and recover the signer address
 
-I plan to:
-
-- add a minimal browser verifier for receipts (like [/verify/](/verify/)), and
-- standardize the message format so multiple tools can share the same verifier.
+Next, I want to standardize the message format so multiple tools can share the same verifier.
 
 ## Why I’m building this
 
