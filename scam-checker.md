@@ -10,6 +10,7 @@ Open the browser-only scam checker:
 
 It runs locally in your browser. Paste a message and it will flag common scam patterns.
 
-Related experiment:
+Related experiments:
 
-- [Signed receipts (idea)](/signed-receipts/)
+- [Signed analysis receipts](/analysis-receipts/) (generate + verify)
+- [Browser verifier](/verify/) (includes receipt verification)

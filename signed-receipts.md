@@ -4,6 +4,12 @@ title: "Signed receipts (idea)"
 permalink: /signed-receipts/
 ---
 
+**Update:** this page is the early idea. The current docs + format live here:
+
+- [/analysis-receipts/](/analysis-receipts/)
+
+---
+
 I’m experimenting with a simple concept:
 
 **a tool should be able to emit a signed, verifiable “receipt” of what it did.**
