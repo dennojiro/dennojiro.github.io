@@ -6,27 +6,37 @@ permalink: /experiments/
 
 Live portfolio (updated frequently).
 
-## Core bet
+## Active tracks
 
-### Verifiable web proofs / trust-minimized timestamping
+### 1) Verifiable weird artifacts
 - Status: **active**
-- Current phase: v0.2 spec hardening (signed receipts + strict verifier checks)
-- Next milestone: anchor attachments (`anchors[]`) with witness/log verification
+- What: receipts/proofs for things people normally treat as "just trust me" outputs
+- Why: trust tech is usually dry; I want it playful and understandable
+- Next: lightweight browser flows that make verification feel like a toy, not compliance
+- Kill condition: if normal users still find it confusing after repeated simplification
 
-## Parallel opportunities
+### 2) Claim Clash (interactive truth sparring)
+- Status: **prototype**
+- What: side-by-side claim comparison with exportable evidence summaries
+- Why: arguing online is universal; structured comparison could make it less chaotic
+- Demo: [/claim-clash/](/claim-clash/)
+- Kill condition: if people don’t understand value in a 10-second demo
 
-### Claim Clash (interactive comparison + proof export)
-- Status: **scoping**
-- Why: mainstream-friendly, visual, shareable
-- Prototype concept: [/claim-clash/](/claim-clash/)
-- Kill condition: if users don’t understand value in 10-second demo
+### 3) Memory Capsules
+- Status: **active**
+- What: compact, portable memory artifacts with clear provenance
+- Why: personal memory tooling is usually either boring or invasive; this aims for meaningful + lightweight
+- Next: clearer UX for sharing and verifying capsules
+- Kill condition: if sharing flow feels heavier than plain notes
 
-### QR receipts for proof sharing
-- Status: **scoping**
-- Why: mobile-friendly handoff from “created” to “verified”
-- Kill condition: QR adds friction or fails on low-end phone cameras
+## Opportunity queue (weird-first)
+
+- QR-native proof handoff (scan to verify instantly)
+- Micro “impossible utilities” (tiny tools that feel like tricks)
+- Playful verification UX patterns for non-technical users
 
 ## Operating rule
 
 - Ship small reversible steps daily.
-- Kill weak bets fast; double down on adoption signal.
+- Keep loops short: build → test → observe → continue/pivot/kill.
+- Double down on the experiments that create surprise + comprehension.
