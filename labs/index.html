@@ -40,9 +40,16 @@
       }
 
       p.lead {
-        margin: 0 0 20px;
+        margin: 0 0 10px;
         color: var(--muted);
         line-height: 1.5;
+      }
+
+      .quicklink {
+        display: inline-block;
+        margin: 0 0 18px;
+        color: var(--accent);
+        font-weight: 600;
       }
 
       .grid {
@@ -126,6 +133,7 @@
     <main class="wrap">
       <h1>Labs Launcher</h1>
       <p class="lead">Quick links to current experiments. Status is based on whether each folder contains <code>index.html</code>.</p>
+      <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
 
       <section class="grid" aria-label="Experiment links">
         <a class="card" href="./3d-runner/" aria-label="Open 3d-runner">

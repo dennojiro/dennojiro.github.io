@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lab Scorecard</title>
+    <style>
+      :root {
+        --bg: #0a1022;
+        --panel: #121b36;
+        --text: #eaf0ff;
+        --muted: #9fb0df;
+        --accent: #81a8ff;
+        --line: #273665;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        color: var(--text);
+        background: radial-gradient(1200px 700px at 10% -20%, #1f2d5d 0%, var(--bg) 62%);
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 20px 16px 36px;
+      }
+      h1 { margin: 0 0 8px; }
+      p { color: var(--muted); line-height: 1.5; }
+      .tools {
+        display: flex;
+        gap: 10px;
+        margin: 14px 0 18px;
+        flex-wrap: wrap;
+      }
+      button, a.back {
+        border: 1px solid var(--line);
+        background: #18244a;
+        color: var(--text);
+        border-radius: 10px;
+        padding: 9px 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+      }
+      button:hover, a.back:hover { border-color: var(--accent); }
+      .card {
+        background: linear-gradient(170deg, #162247, var(--panel));
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+      .card h2 { margin: 0 0 8px; font-size: 1.02rem; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 8px;
+      }
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      select {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #101a36;
+        color: var(--text);
+        padding: 7px;
+      }
+      .status {
+        margin-top: 8px;
+        font-size: 0.84rem;
+        color: var(--muted);
+      }
+      code {
+        background: #0f1730;
+        border: 1px solid #2a3766;
+        border-radius: 6px;
+        padding: 1px 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1>Lab Scorecard</h1>
+      <p>Quickly rate each lab from 1-5 on four signals: fun, clarity, replayability, and wow. Scores save in your browser.</p>
+
+      <div class="tools">
+        <button id="exportBtn" type="button">Export JSON</button>
+        <button id="clearBtn" type="button">Clear all scores</button>
+        <a class="back" href="../">Back to labs launcher</a>
+      </div>
+
+      <div id="cards"></div>
+      <p class="status" id="status">Storage key: <code>labs-scorecard-v1</code></p>
+    </main>
+
+    <script>
+      const labs = [
+        "3d-runner",
+        "gravity-sand",
+        "echo-maze",
+        "glitch-orchestra",
+        "paper-planet"
+      ];
+      const metrics = ["fun", "clarity", "replayability", "wow"];
+      const storageKey = "labs-scorecard-v1";
+      const cards = document.getElementById("cards");
+      const status = document.getElementById("status");
+
+      const loadScores = () => {
+        try {
+          return JSON.parse(localStorage.getItem(storageKey)) || {};
+        } catch {
+          return {};
+        }
+      };
+
+      let scores = loadScores();
+
+      function saveScores() {
+        localStorage.setItem(storageKey, JSON.stringify(scores, null, 2));
+        status.textContent = `Saved ${new Date().toLocaleString()}`;
+      }
+
+      function render() {
+        cards.innerHTML = "";
+        labs.forEach((lab) => {
+          const card = document.createElement("section");
+          card.className = "card";
+
+          const title = document.createElement("h2");
+          title.textContent = lab;
+          card.appendChild(title);
+
+          const grid = document.createElement("div");
+          grid.className = "grid";
+
+          metrics.forEach((metric) => {
+            const label = document.createElement("label");
+            label.textContent = metric;
+
+            const select = document.createElement("select");
+            select.dataset.lab = lab;
+            select.dataset.metric = metric;
+
+            const empty = document.createElement("option");
+            empty.value = "";
+            empty.textContent = "-";
+            select.appendChild(empty);
+
+            [1, 2, 3, 4, 5].forEach((n) => {
+              const option = document.createElement("option");
+              option.value = String(n);
+              option.textContent = String(n);
+              select.appendChild(option);
+            });
+
+            const current = scores[lab]?.[metric] ?? "";
+            select.value = current === "" ? "" : String(current);
+            select.addEventListener("change", (e) => {
+              if (!scores[lab]) scores[lab] = {};
+              scores[lab][metric] = e.target.value === "" ? null : Number(e.target.value);
+              saveScores();
+            });
+
+            label.appendChild(select);
+            grid.appendChild(label);
+          });
+
+          card.appendChild(grid);
+          cards.appendChild(card);
+        });
+      }
+
+      document.getElementById("exportBtn").addEventListener("click", () => {
+        const payload = {
+          exportedAt: new Date().toISOString(),
+          metrics,
+          labs: scores
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `labs-scorecard-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      document.getElementById("clearBtn").addEventListener("click", () => {
+        if (!confirm("Clear all saved lab scores in this browser?")) return;
+        scores = {};
+        localStorage.removeItem(storageKey);
+        render();
+        status.textContent = "All scores cleared";
+      });
+
+      render();
+    </script>
+  </body>
+</html>
