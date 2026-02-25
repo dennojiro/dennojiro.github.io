@@ -4,8 +4,16 @@ A deterministic message + URL checker aimed at mainstream users.
 
 ## Usage
 
+Basic analysis:
+
 ```bash
 node tools/scam-checker/check.mjs "Your package is held. Pay now: https://example.com/login"
+```
+
+Receipt mode (wraps the same analysis with input/output hashes):
+
+```bash
+node tools/scam-checker/check.mjs --receipt "Your package is held. Pay now: https://example.com/login"
 ```
 
 Outputs JSON with:

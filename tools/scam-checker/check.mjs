@@ -8,9 +8,13 @@
 
 import { URL } from 'node:url';
 
-const input = process.argv.slice(2).join(' ').trim();
+import crypto from 'node:crypto';
+
+const args = process.argv.slice(2);
+const receiptMode = args[0] === '--receipt';
+const input = (receiptMode ? args.slice(1) : args).join(' ').trim();
 if (!input) {
-  console.error('Usage: node tools/scam-checker/check.mjs "<message text>"');
+  console.error('Usage: node tools/scam-checker/check.mjs [--receipt] "<message text>"');
   process.exit(2);
 }
 
@@ -32,13 +36,32 @@ for (const u of urls) {
 const score = scoreFindings(findings);
 const verdict = score >= 6 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
 
-console.log(JSON.stringify({
+const analysis = {
   verdict,
   score,
   urls,
   findings,
   advice: adviceFor(verdict)
-}, null, 2));
+};
+
+if (!receiptMode) {
+  console.log(JSON.stringify(analysis, null, 2));
+} else {
+  const input_sha256 = sha256Hex(input);
+  const output_sha256 = sha256Hex(JSON.stringify(analysis));
+  console.log(JSON.stringify({
+    kind: 'scam_checker_receipt',
+    version: 'v0',
+    tool: 'tools/scam-checker/check.mjs',
+    input_sha256,
+    output_sha256,
+    analysis
+  }, null, 2));
+}
+
+function sha256Hex(s) {
+  return crypto.createHash('sha256').update(s, 'utf8').digest('hex');
+}
 
 function extractUrls(text) {
   // simple regex; good enough for v0
