@@ -1,0 +1,25 @@
+{
+  "$id": "https://dennojiro.github.io/schemas/anchor-ots-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenTimestamps Bitcoin anchor v1",
+  "type": "object",
+  "required": ["type", "digest_sha256", "ots_proof_base64"],
+  "properties": {
+    "type": { "const": "ots_btc_v1" },
+    "digest_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "ots_proof_base64": { "type": "string" },
+    "upgraded": { "type": "boolean", "default": false },
+    "attestation": {
+      "type": ["object", "null"],
+      "properties": {
+        "chain": { "const": "bitcoin" },
+        "block_height": { "type": "integer", "minimum": 0 },
+        "block_hash": { "type": "string" },
+        "txid": { "type": "string" },
+        "confirmed_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

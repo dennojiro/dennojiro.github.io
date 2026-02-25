@@ -1,0 +1,48 @@
+{
+  "$id": "https://dennojiro.github.io/schemas/web-stamp-receipt-v0.2.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Web stamp receipt v0.2",
+  "type": "object",
+  "required": ["kind", "version", "snapshot", "proof"],
+  "properties": {
+    "kind": { "const": "web_stamp_receipt" },
+    "version": { "const": "0.2" },
+    "snapshot": {
+      "type": "object",
+      "required": ["source", "captured_at", "content_sha256", "content_len"],
+      "properties": {
+        "source": {
+          "type": "object",
+          "required": ["mode"],
+          "properties": {
+            "mode": { "enum": ["paste"] },
+            "url": { "type": ["string", "null"], "format": "uri" },
+            "title": { "type": ["string", "null"] }
+          },
+          "additionalProperties": false
+        },
+        "captured_at": { "type": "string", "format": "date-time" },
+        "content_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "content_len": { "type": "integer", "minimum": 0 },
+        "content": { "type": ["string", "null"] },
+        "content_encoding": { "type": "string", "enum": ["utf-8"] }
+      },
+      "additionalProperties": false
+    },
+    "anchors": { "type": "array", "items": { "type": "object" }, "default": [] },
+    "proof": {
+      "type": "object",
+      "required": ["scheme", "message", "sha256", "signer", "signature", "signed_at"],
+      "properties": {
+        "scheme": { "const": "sha256(stable_json(receipt_base))+evm_personal_sign" },
+        "message": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "signer": { "type": "string", "pattern": "^0x[a-fA-F0-9]{40}$" },
+        "signature": { "type": "string", "pattern": "^0x[a-fA-F0-9]{130}$" },
+        "signed_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

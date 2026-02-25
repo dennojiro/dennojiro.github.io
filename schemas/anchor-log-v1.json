@@ -1,0 +1,38 @@
+{
+  "$id": "https://dennojiro.github.io/schemas/anchor-log-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Transparency log anchor v1",
+  "type": "object",
+  "required": ["type", "log_id", "entry_id", "integrated_time", "inclusion_proof", "signed_tree_head"],
+  "properties": {
+    "type": { "const": "transparency_log_v1" },
+    "log_id": { "type": "string" },
+    "entry_id": { "type": "string" },
+    "integrated_time": { "type": "integer", "minimum": 0 },
+    "body_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "inclusion_proof": {
+      "type": "object",
+      "required": ["log_index", "tree_size", "root_hash", "hashes"],
+      "properties": {
+        "log_index": { "type": "integer", "minimum": 0 },
+        "tree_size": { "type": "integer", "minimum": 1 },
+        "root_hash": { "type": "string" },
+        "hashes": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "signed_tree_head": {
+      "type": "object",
+      "required": ["tree_size", "root_hash", "timestamp", "signature", "key_id"],
+      "properties": {
+        "tree_size": { "type": "integer", "minimum": 1 },
+        "root_hash": { "type": "string" },
+        "timestamp": { "type": "integer", "minimum": 0 },
+        "signature": { "type": "string" },
+        "key_id": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
