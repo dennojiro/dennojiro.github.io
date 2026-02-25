@@ -22,12 +22,19 @@
   <textarea id="msg" placeholder="Paste the message here..."></textarea>
   <div style="margin:12px 0">
     <button id="go">Check</button>
+    <button id="receipt">Make receipt JSON</button>
     <span id="verdict"></span>
   </div>
 
   <pre id="out"></pre>
 
   <script type="module">
+    async function sha256Hex(str) {
+      const enc = new TextEncoder().encode(str);
+      const digest = await crypto.subtle.digest('SHA-256', enc);
+      return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
     function extractUrls(text) {
       const re = /https?:\/\/[^\s)\]]+/gi;
       return Array.from(text.matchAll(re)).map(m => m[0]);
@@ -79,8 +86,16 @@
       return ['Still be careful with links. When in doubt, navigate manually to the official site.'];
     }
 
-    document.getElementById('go').onclick = () => {
-      const input = document.getElementById('msg').value.trim();
+    function renderVerdict(verdict) {
+      const v = document.getElementById('verdict');
+      v.innerHTML = '';
+      const pill = document.createElement('span');
+      pill.className = 'pill ' + (verdict === 'HIGH' ? 'high' : verdict === 'MEDIUM' ? 'med' : 'low');
+      pill.textContent = `VERDICT: ${verdict}`;
+      v.appendChild(pill);
+    }
+
+    function analyze(input) {
       const urls = extractUrls(input);
       const findings = [];
       if (looksLikeUrgentMoneyAsk(input)) findings.push({ level: 'high', reason: 'Urgency + money/account language (common scam pattern).' });
@@ -89,15 +104,32 @@
 
       const score = scoreFindings(findings);
       const verdict = score >= 6 ? 'HIGH' : score >= 3 ? 'MEDIUM' : 'LOW';
+      return { verdict, score, urls, findings, advice: adviceFor(verdict) };
+    }
 
-      const v = document.getElementById('verdict');
-      v.innerHTML = '';
-      const pill = document.createElement('span');
-      pill.className = 'pill ' + (verdict === 'HIGH' ? 'high' : verdict === 'MEDIUM' ? 'med' : 'low');
-      pill.textContent = `VERDICT: ${verdict}`;
-      v.appendChild(pill);
+    document.getElementById('go').onclick = () => {
+      const input = document.getElementById('msg').value.trim();
+      const analysis = analyze(input);
+      renderVerdict(analysis.verdict);
+      document.getElementById('out').textContent = JSON.stringify(analysis, null, 2);
+    };
 
-      document.getElementById('out').textContent = JSON.stringify({ verdict, score, urls, findings, advice: adviceFor(verdict) }, null, 2);
+    document.getElementById('receipt').onclick = async () => {
+      const input = document.getElementById('msg').value.trim();
+      const analysis = analyze(input);
+      renderVerdict(analysis.verdict);
+
+      const receiptBase = {
+        kind: 'scam_checker_receipt',
+        version: 'v0',
+        tool: '/scam-checker.html',
+        created_at: new Date().toISOString(),
+        input_sha256: await sha256Hex(input),
+        output_sha256: await sha256Hex(JSON.stringify(analysis)),
+        analysis
+      };
+
+      document.getElementById('out').textContent = JSON.stringify(receiptBase, null, 2);
     };
   </script>
 </body>
