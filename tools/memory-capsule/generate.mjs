@@ -27,7 +27,7 @@ const tpl = fs.readFileSync(path.join('tools/memory-capsule/template.html'), 'ut
 const meta = JSON.parse(fs.readFileSync(path.join(capsuleDir, 'capsule.json'), 'utf8'));
 
 function findImage(nameBase) {
-  const exts = ['.jpg','.jpeg','.png','.webp'];
+  const exts = ['.jpg','.jpeg','.png','.webp','.svg'];
   for (const ext of exts) {
     const p = path.join(capsuleDir, nameBase + ext);
     if (fs.existsSync(p)) return p;
@@ -38,7 +38,7 @@ function findImage(nameBase) {
 function dataUrl(filePath) {
   const buf = fs.readFileSync(filePath);
   const ext = path.extname(filePath).toLowerCase();
-  const mime = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
+  const mime = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : ext === '.svg' ? 'image/svg+xml' : 'image/jpeg';
   return `data:${mime};base64,${buf.toString('base64')}`;
 }
 
