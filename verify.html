@@ -78,8 +78,42 @@
     <pre id="receipt_out"></pre>
   </div>
 
+  <hr />
+
+  <h2>3) Create a signed web stamp (v0.1)</h2>
+  <p>
+    This creates a <b>signed receipt</b> for some content (and an optional URL) using your own Ethereum wallet
+    (e.g. MetaMask). The signing happens locally in your browser.
+  </p>
+
+  <div class="row">
+    <label><b>URL (optional)</b></label>
+    <input id="stamp_url" placeholder="https://example.com/article" />
+  </div>
+
+  <div class="row">
+    <label><b>Content to stamp</b></label>
+    <textarea id="stamp_content" placeholder="Paste page text or HTML here..."></textarea>
+  </div>
+
+  <div class="row">
+    <label>
+      <input type="checkbox" id="stamp_include_content" />
+      Include full content in the receipt JSON (less private; easier to share as a standalone proof)
+    </label>
+  </div>
+
+  <div class="row">
+    <button id="go_stamp">Create signed stamp with wallet</button>
+  </div>
+
+  <div class="row">
+    <div id="stamp_status"></div>
+    <pre id="stamp_out"></pre>
+  </div>
+
   <script type="module">
-    import { getAddress, verifyMessage } from 'https://esm.sh/ethers@6.13.5';
+    import { getAddress, verifyMessage, BrowserProvider } from 'https://esm.sh/ethers@6.13.5';
 
     function stripDiaryProof(markdownText) {
       const lines = markdownText.split(/\r?\n/);
@@ -184,6 +218,63 @@
 
         status.innerHTML = ok ? '<span class="ok">OK</span>' : '<span class="bad">NOT OK</span>';
         out.textContent = JSON.stringify({ ok, sha256, canonicalReceiptBase: canonical, recoveredSigner: recovered, proof, checks }, null, 2);
+      } catch (e) {
+        status.innerHTML = '<span class="bad">ERROR</span>';
+        out.textContent = String(e && e.stack || e);
+      }
+    };
+
+    // ---- Create a signed web stamp
+    document.getElementById('go_stamp').onclick = async () => {
+      const url = document.getElementById('stamp_url').value.trim();
+      const content = document.getElementById('stamp_content').value;
+      const includeContent = document.getElementById('stamp_include_content').checked;
+
+      const status = document.getElementById('stamp_status');
+      const out = document.getElementById('stamp_out');
+      status.textContent = '';
+      out.textContent = '';
+
+      try {
+        if (!content.trim()) throw new Error('Missing content to stamp.');
+        if (!window.ethereum) throw new Error('No injected wallet found. Install MetaMask (or another EIP-1193 wallet) to sign.');
+
+        const content_sha256 = await sha256Hex(content);
+
+        const receipt_base = {
+          kind: 'web_stamp_receipt',
+          version: '0.1',
+          created_at: new Date().toISOString(),
+          url: url || null,
+          content_sha256,
+          content_len: content.length,
+          content: includeContent ? content : null,
+        };
+
+        const canonical = stableStringify(receipt_base);
+        const sha256 = await sha256Hex(canonical);
+        const message = `DennoJiro WebStamp v0.1\nsha256: ${sha256}`;
+
+        const provider = new BrowserProvider(window.ethereum);
+        await provider.send('eth_requestAccounts', []);
+        const signer = await provider.getSigner();
+        const signature = await signer.signMessage(message);
+        const signerAddr = await signer.getAddress();
+
+        const receipt = {
+          ...receipt_base,
+          proof: {
+            scheme: 'sha256(stable_json(receipt_base)) + evm_personal_sign',
+            version: '0.1',
+            sha256,
+            message,
+            signer: signerAddr,
+            signature,
+          }
+        };
+
+        status.innerHTML = '<span class="ok">OK</span>';
+        out.textContent = JSON.stringify(receipt, null, 2);
       } catch (e) {
         status.innerHTML = '<span class="bad">ERROR</span>';
         out.textContent = String(e && e.stack || e);
