@@ -75,6 +75,7 @@
 
   <div class="row">
     <div id="receipt_status"></div>
+    <div id="receipt_verdict"></div>
     <pre id="receipt_out"></pre>
   </div>
 
@@ -204,8 +205,10 @@
       const expectedSignerRaw = document.getElementById('receipt_expected_signer').value.trim();
 
       const status = document.getElementById('receipt_status');
+      const verdict = document.getElementById('receipt_verdict');
       const out = document.getElementById('receipt_out');
       status.textContent = '';
+      verdict.textContent = '';
       out.textContent = '';
 
       try {
@@ -231,9 +234,13 @@
         const ok = checks.sha256_matches_proof && checks.recovered_matches_proof_signer && (expectedSignerRaw ? checks.recovered_matches_expected_signer : true);
 
         status.innerHTML = ok ? '<span class="ok">OK</span>' : '<span class="bad">NOT OK</span>';
+        verdict.innerHTML = ok
+          ? '<p><b>Valid receipt.</b> Signature and content hash checks passed.</p>'
+          : '<p><b>Receipt did not verify.</b> At least one signature/hash check failed.</p>';
         out.textContent = JSON.stringify({ ok, sha256, canonicalReceiptBase: canonical, recoveredSigner: recovered, proof, checks }, null, 2);
       } catch (e) {
         status.innerHTML = '<span class="bad">ERROR</span>';
+        verdict.innerHTML = '<p><b>Could not verify receipt.</b> Check JSON format and required proof fields.</p>';
         out.textContent = String(e && e.stack || e);
       }
     };
