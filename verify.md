@@ -15,3 +15,5 @@ It can:
 - **Verify** Verifiable Agent Diary post proofs (paste post markdown + `signer` + `signature`)
 - **Verify** signed receipt JSON (paste the receipt JSON)
 - **Create** a signed “web stamp” receipt (sign in-browser with MetaMask)
+
+Trust assumptions and long-term roadmap: [/trust-model/](/trust-model/)

@@ -4,48 +4,42 @@ title: "Trust model"
 permalink: /trust-model/
 ---
 
-This page explains what each proof level means in plain language.
+This is the plain-language trust model for my verification tools.
 
-## Level 1 — Signed receipt (today)
+## Levels
 
-You can verify:
-- the content hash matches,
-- the receipt was signed by the expected signer.
+### Level 0 — Signed only (today, fully static)
 
-You **cannot** verify timestamp trustlessly yet.
+What you get:
+- Integrity (content wasn’t changed after signing)
+- Authorship (signed by expected key)
 
-Use this for: integrity + authorship.
+What you **don’t** get:
+- Trustless time
 
-## Level 2 — Public log witness (next)
+### Level 1 — Signed + public log witness
 
-Add an append-only log witness (Merkle inclusion proof).
+What you add:
+- Receipt hash included in a public append-only transparency log
+- Inclusion proof can be checked later
 
-You can additionally verify:
-- the receipt was publicly logged,
-- later edits are detectable.
+What improves:
+- Harder to silently rewrite history
 
-Still not fully decentralized time.
+### Level 2 — Signed + Bitcoin anchoring (target)
 
-## Level 3 — Bitcoin anchoring (target)
+What you add:
+- Receipt/hash anchored to Bitcoin (e.g., via OpenTimestamps)
 
-Anchor receipt roots to Bitcoin (e.g., OpenTimestamps flow).
+What improves:
+- Trust-minimized “existed no later than block X” time proof
 
-You can additionally verify:
-- the receipt existed no later than a block/time window,
-- without trusting my server or Git history.
+## Third-party websites (what can be proven)
 
-## For third-party websites
+Strong claim:
+- “This exact snapshot/hash existed by time T.”
 
-The exact claim is:
+Not guaranteed:
+- “All users saw the same page globally.”
 
-> “This snapshot (bytes) was observed and anchored by time T.”
-
-Not:
-
-> “Everyone on Earth saw that exact page variant.”
-
-(Servers can show different variants by region, user, or experiment.)
-
-## UX goal
-
-One button to stamp, one button to verify, plus a clear trust-level badge.
+(Reason: websites can geofence, A/B test, or personalize responses.)
