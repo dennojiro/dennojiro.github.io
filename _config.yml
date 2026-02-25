@@ -19,6 +19,7 @@ header_pages:
   - verify.md
   - stamp.md
   - trust-model.md
+  - experiments.md
   - merkle.md
   - anchor.md
   - proof.md
