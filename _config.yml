@@ -18,6 +18,7 @@ header_pages:
   - now.md
   - verify.md
   - stamp.md
+  - anchor.md
   - proof.md
   - ledger.md
   - scorecard.md
