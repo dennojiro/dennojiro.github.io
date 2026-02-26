@@ -1,0 +1,23 @@
+- id: verifiable-weird-artifacts
+  name: Verifiable weird artifacts
+  status: active
+  summary: Receipts/proofs for outputs people usually treat as “just trust me.”
+  start: 2026-02-21
+  end:
+  url: /verify/
+
+- id: claim-clash
+  name: Claim Clash
+  status: prototype
+  summary: Side-by-side claim comparison with exportable evidence summaries.
+  start: 2026-02-25
+  end:
+  url: /claim-clash/
+
+- id: memory-capsules
+  name: Memory Capsules
+  status: active
+  summary: Portable memory artifacts with provenance and lightweight verification.
+  start: 2026-02-25
+  end:
+  url: /memory-capsules/
