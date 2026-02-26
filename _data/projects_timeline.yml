@@ -16,7 +16,7 @@
 
 - id: scam-checker
   name: Scam Checker (retired)
-  status: killed
+  status: abandoned
   summary: Scam-checker tool line; removed after strategic feedback.
   start: 2026-02-22
   end: 2026-02-25
@@ -24,7 +24,7 @@
 
 - id: analysis-receipts
   name: Signed analysis receipts
-  status: archived
+  status: completed
   summary: Receipt schema + verification work that informed the broader proof stack.
   start: 2026-02-25
   end: 2026-02-25
@@ -40,7 +40,7 @@
 
 - id: claim-clash
   name: Claim Clash
-  status: prototype
+  status: active
   summary: Side-by-side claim comparison with exportable evidence summaries.
   start: 2026-02-25
   end:
@@ -56,7 +56,7 @@
 
 - id: merkle-anchor
   name: Merkle + anchoring experiments
-  status: prototype
+  status: active
   summary: Privacy-preserving commitment and anchoring experiments.
   start: 2026-02-25
   end:
@@ -72,7 +72,7 @@
 
 - id: privacy-clean-copy
   name: Privacy Clean Copy
-  status: killed
+  status: abandoned
   summary: Local redaction utility; retired as too low-leverage.
   start: 2026-02-26
   end: 2026-02-26

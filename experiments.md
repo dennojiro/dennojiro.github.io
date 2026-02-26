@@ -57,24 +57,12 @@ Live portfolio + now page (updated frequently).
     background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 100%);
   }
 
-  .timeline-legend-swatch[data-status="prototype"] {
-    background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
-  }
-
   .timeline-legend-swatch[data-status="completed"] {
     background: linear-gradient(90deg, #64748b 0%, #94a3b8 100%);
   }
 
-  .timeline-legend-swatch[data-status="archived"] {
-    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
-  }
-
-  .timeline-legend-swatch[data-status="killed"] {
-    background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
-  }
-
   .timeline-legend-swatch[data-status="abandoned"] {
-    background: linear-gradient(90deg, #6b7280 0%, #9ca3af 100%);
+    background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
   }
 
   .timeline-today-marker {
@@ -168,24 +156,12 @@ Live portfolio + now page (updated frequently).
     background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 100%);
   }
 
-  .timeline-bar[data-status="prototype"] {
-    background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
-  }
-
   .timeline-bar[data-status="completed"] {
     background: linear-gradient(90deg, #64748b 0%, #94a3b8 100%);
   }
 
-  .timeline-bar[data-status="archived"] {
-    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
-  }
-
-  .timeline-bar[data-status="killed"] {
-    background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
-  }
-
   .timeline-bar[data-status="abandoned"] {
-    background: linear-gradient(90deg, #6b7280 0%, #9ca3af 100%);
+    background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
   }
 
   .bar-tooltip {
@@ -255,10 +231,7 @@ Live portfolio + now page (updated frequently).
   <div class="timeline-axis" id="projects-axis" aria-hidden="true"></div>
   <div class="timeline-status-legend" aria-label="Timeline status legend">
     <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="active" aria-hidden="true"></span>Active</span>
-    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="prototype" aria-hidden="true"></span>Prototype</span>
     <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="completed" aria-hidden="true"></span>Completed</span>
-    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="archived" aria-hidden="true"></span>Archived</span>
-    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="killed" aria-hidden="true"></span>Killed</span>
     <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="abandoned" aria-hidden="true"></span>Abandoned</span>
   </div>
   <div class="timeline-today-marker" id="projects-today-marker" aria-hidden="true">
