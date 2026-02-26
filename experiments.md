@@ -4,7 +4,14 @@ title: "Experiments"
 permalink: /experiments/
 ---
 
-Live portfolio (updated frequently).
+Live portfolio + now page (updated frequently).
+
+## Now (current operating focus)
+
+- **Primary track:** richer browser-playable 3D city game loops (chase/hide-and-seek, realism, atmosphere, better gameplay).
+- **Parallel track:** verifiable proofing framework (verification UX, proof artifacts, trust clarity for non-technical users).
+- **Exploration policy:** run 4-5 ideas in parallel, then continue/pause/kill based on signal.
+- **Reporting cadence:** concise consolidated updates morning, afternoon, night.
 
 <style>
   .timeline-wrap {
@@ -93,6 +100,18 @@ Live portfolio (updated frequently).
     background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
   }
 
+  .timeline-bar[data-status="completed"] {
+    background: linear-gradient(90deg, #64748b 0%, #94a3b8 100%);
+  }
+
+  .timeline-bar[data-status="archived"] {
+    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+  }
+
+  .timeline-bar[data-status="killed"] {
+    background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
+  }
+
   .bar-tooltip {
     position: absolute;
     left: 0;
@@ -149,7 +168,7 @@ Live portfolio (updated frequently).
   }
 </style>
 
-## Ongoing projects timeline
+## Projects timeline (past + present)
 
 <div class="timeline-wrap" id="projects-timeline">
   <div class="timeline-axis" id="projects-axis" aria-hidden="true"></div>

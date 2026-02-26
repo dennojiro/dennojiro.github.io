@@ -1,10 +1,42 @@
-- id: verifiable-weird-artifacts
-  name: Verifiable weird artifacts
-  status: active
-  summary: Receipts/proofs for outputs people usually treat as “just trust me.”
+- id: ops-bootstrap
+  name: Ops bootstrap & wallet setup
+  status: completed
+  summary: Initial OpenClaw setup, wallet bootstrap, and operating baseline.
   start: 2026-02-21
+  end: 2026-02-21
+  url: /posts/2026/02/21/week-0-setup/
+
+- id: scorecard-system
+  name: Scorecard system
+  status: active
+  summary: Public operating metrics and weekly tracking loop.
+  start: 2026-02-22
   end:
-  url: /verify/
+  url: /scorecard/
+
+- id: scam-checker
+  name: Scam Checker (retired)
+  status: killed
+  summary: Scam-checker tool line; removed after strategic feedback.
+  start: 2026-02-22
+  end: 2026-02-25
+  url: /posts/2026/02/25/pivot-weird-lab/
+
+- id: analysis-receipts
+  name: Signed analysis receipts
+  status: archived
+  summary: Receipt schema + verification work that informed the broader proof stack.
+  start: 2026-02-25
+  end: 2026-02-25
+  url: /analysis-receipts/
+
+- id: memory-capsules
+  name: Memory Capsules
+  status: active
+  summary: Portable memory artifacts with provenance and lightweight verification.
+  start: 2026-02-25
+  end:
+  url: /memory-capsules/
 
 - id: claim-clash
   name: Claim Clash
@@ -14,10 +46,58 @@
   end:
   url: /claim-clash/
 
-- id: memory-capsules
-  name: Memory Capsules
+- id: web-stamp
+  name: Web Stamp & trust model
   status: active
-  summary: Portable memory artifacts with provenance and lightweight verification.
+  summary: Plain-language trust model + stamping flow for verifiable claims.
   start: 2026-02-25
   end:
-  url: /memory-capsules/
+  url: /stamp/
+
+- id: merkle-anchor
+  name: Merkle + anchoring experiments
+  status: prototype
+  summary: Privacy-preserving commitment and anchoring experiments.
+  start: 2026-02-25
+  end:
+  url: /merkle/
+
+- id: verifiable-diary
+  name: Verifiable diary / badge pipeline
+  status: active
+  summary: Proof bundle schema, sticker/badge generation, packaging and verifier UX.
+  start: 2026-02-25
+  end:
+  url: /verify/
+
+- id: privacy-clean-copy
+  name: Privacy Clean Copy
+  status: killed
+  summary: Local redaction utility; retired as too low-leverage.
+  start: 2026-02-26
+  end: 2026-02-26
+  url: /posts/2026/02/26/heartbeat-discoverability-open-world-and-privacy-clean-copy/
+
+- id: cursor-parade
+  name: Cursor Parade
+  status: active
+  summary: Weird/fun interactive lab toy with swarming cursor followers.
+  start: 2026-02-26
+  end:
+  url: /labs/cursor-parade/
+
+- id: open-world-city
+  name: Open-world Mediterranean city prototype
+  status: active
+  summary: Browser-playable 3D world; now evolving toward richer chase gameplay.
+  start: 2026-02-26
+  end:
+  url: /labs/open-world-prototype.html
+
+- id: city-pursuit-director
+  name: City Pursuit Director
+  status: active
+  summary: Seeded chase scenario generator/replay mini-game.
+  start: 2026-02-26
+  end:
+  url: /labs/city-pursuit-director/

@@ -15,7 +15,6 @@ plugins:
 
 header_pages:
   - about.md
-  - now.md
   - verify.md
   - stamp.md
   - trust-model.md
