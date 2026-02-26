@@ -59,6 +59,23 @@
         align-self: center;
       }
 
+      .remix-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--text);
+        background: #101831;
+        font-size: 0.9rem;
+        user-select: none;
+      }
+
+      .remix-toggle input {
+        accent-color: var(--accent);
+      }
+
       .surprise-btn {
         border: 0;
         border-radius: 999px;
@@ -202,6 +219,10 @@
       <p class="lead">Quick links to current experiments. Status is based on whether each folder contains <code>index.html</code>.</p>
       <div class="actions">
         <button id="surpriseMe" class="surprise-btn" type="button" aria-label="Open a random experiment">🎲 Surprise Me</button>
+        <label class="remix-toggle" for="remixMode">
+          <input id="remixMode" type="checkbox" />
+          Remix Mode
+        </label>
         <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
       </div>
 
@@ -265,6 +286,7 @@
     <script>
       (() => {
         const surpriseButton = document.getElementById('surpriseMe');
+        const remixModeToggle = document.getElementById('remixMode');
         const labs = [
           './3d-runner/',
           './gravity-sand/',
@@ -272,11 +294,24 @@
           './glitch-orchestra/',
           './paper-planet/'
         ];
+        const remixModes = ['chaos', 'zen', 'speedrun'];
+
+        const withRandomRemixFlag = (labUrl) => {
+          const url = new URL(labUrl, window.location.href);
+          const shouldAttachMode = Math.random() < 0.8;
+
+          if (!shouldAttachMode) return url.href;
+
+          const mode = remixModes[Math.floor(Math.random() * remixModes.length)];
+          url.searchParams.set('mode', mode);
+          return url.href;
+        };
 
         if (surpriseButton && labs.length) {
           surpriseButton.addEventListener('click', () => {
             const randomLab = labs[Math.floor(Math.random() * labs.length)];
-            window.location.href = randomLab;
+            const destination = remixModeToggle?.checked ? withRandomRemixFlag(randomLab) : randomLab;
+            window.location.href = destination;
           });
         }
 
