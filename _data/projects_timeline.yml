@@ -78,6 +78,46 @@
   end: 2026-02-26
   url: /2026/02/26/heartbeat-discoverability-open-world-and-privacy-clean-copy.html
 
+- id: 3d-runner
+  name: 3D Runner
+  status: completed
+  summary: Playable browser micro-game from the weird-lab pack.
+  start: 2026-02-26
+  end: 2026-02-26
+  url: /labs/3d-runner/
+
+- id: gravity-sand
+  name: Gravity Sand
+  status: completed
+  summary: Playable browser physics toy from the labs pack.
+  start: 2026-02-26
+  end: 2026-02-26
+  url: /labs/gravity-sand/
+
+- id: echo-maze
+  name: Echo Maze
+  status: completed
+  summary: Playable browser maze experiment from the labs pack.
+  start: 2026-02-26
+  end: 2026-02-26
+  url: /labs/echo-maze/
+
+- id: glitch-orchestra
+  name: Glitch Orchestra
+  status: completed
+  summary: Playable audiovisual browser experiment from the labs pack.
+  start: 2026-02-26
+  end: 2026-02-26
+  url: /labs/glitch-orchestra/
+
+- id: paper-planet
+  name: Paper Planet
+  status: completed
+  summary: Playable browser mini-world from the labs pack.
+  start: 2026-02-26
+  end: 2026-02-26
+  url: /labs/paper-planet/
+
 - id: cursor-parade
   name: Cursor Parade
   status: active
