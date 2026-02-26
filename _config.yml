@@ -16,3 +16,4 @@ plugins:
 header_pages:
   - about.md
   - experiments.md
+  - labs/index.html
