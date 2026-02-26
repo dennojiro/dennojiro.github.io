@@ -15,6 +15,7 @@ Live portfolio + now page (updated frequently).
 
 <style>
   .timeline-wrap {
+    position: relative;
     margin-top: 1.25rem;
     border: 1px solid rgba(127, 127, 127, 0.35);
     border-radius: 12px;
@@ -26,7 +27,74 @@ Live portfolio + now page (updated frequently).
     position: relative;
     height: 2.25rem;
     border-bottom: 1px dashed rgba(127, 127, 127, 0.5);
-    margin: 0 0 0.85rem 0;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .timeline-status-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.6rem;
+    margin: 0 0 0.8rem 0;
+    font-size: 0.73rem;
+  }
+
+  .timeline-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    opacity: 0.92;
+  }
+
+  .timeline-legend-swatch {
+    width: 0.72rem;
+    height: 0.72rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #4557ff 0%, #8b5cf6 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  }
+
+  .timeline-legend-swatch[data-status="active"] {
+    background: linear-gradient(90deg, #0ea5e9 0%, #22c55e 100%);
+  }
+
+  .timeline-legend-swatch[data-status="prototype"] {
+    background: linear-gradient(90deg, #f59e0b 0%, #ef4444 100%);
+  }
+
+  .timeline-legend-swatch[data-status="completed"] {
+    background: linear-gradient(90deg, #64748b 0%, #94a3b8 100%);
+  }
+
+  .timeline-legend-swatch[data-status="archived"] {
+    background: linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%);
+  }
+
+  .timeline-legend-swatch[data-status="killed"] {
+    background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
+  }
+
+  .timeline-today-marker {
+    position: absolute;
+    top: 0;
+    bottom: 1rem;
+    width: 0;
+    border-left: 2px dashed rgba(14, 165, 233, 0.8);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .timeline-today-label {
+    position: absolute;
+    top: -1.25rem;
+    left: 0.2rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #0ea5e9;
+    background: rgba(2, 6, 23, 0.9);
+    border-radius: 999px;
+    padding: 0.05rem 0.35rem;
+    line-height: 1.35;
   }
 
   .timeline-tick {
@@ -158,6 +226,11 @@ Live portfolio + now page (updated frequently).
       height: 2.4rem;
     }
 
+    .timeline-status-legend {
+      font-size: 0.68rem;
+      gap: 0.3rem 0.5rem;
+    }
+
     .timeline-tick {
       font-size: 0.7rem;
     }
@@ -172,6 +245,16 @@ Live portfolio + now page (updated frequently).
 
 <div class="timeline-wrap" id="projects-timeline">
   <div class="timeline-axis" id="projects-axis" aria-hidden="true"></div>
+  <div class="timeline-status-legend" aria-label="Timeline status legend">
+    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="active" aria-hidden="true"></span>Active</span>
+    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="prototype" aria-hidden="true"></span>Prototype</span>
+    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="completed" aria-hidden="true"></span>Completed</span>
+    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="archived" aria-hidden="true"></span>Archived</span>
+    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="killed" aria-hidden="true"></span>Killed</span>
+  </div>
+  <div class="timeline-today-marker" id="projects-today-marker" aria-hidden="true">
+    <span class="timeline-today-label">Today</span>
+  </div>
 
   {% for project in site.data.projects_timeline %}
   <article class="timeline-row"
@@ -192,8 +275,8 @@ Live portfolio + now page (updated frequently).
           <strong>{{ project.name }}</strong><br>
           {{ project.summary }}<br>
           Status: {{ project.status }}<br>
-          Start: {{ project.start }}<br>
-          End: {{ project.end | default: 'ongoing' }}
+          Start: <span class="tooltip-date" data-date="{{ project.start }}">{{ project.start }}</span><br>
+          End: <span class="tooltip-date" data-date="{{ project.end | default: '' }}">{{ project.end | default: 'Ongoing' }}</span>
         </span>
       </a>
     </div>
@@ -212,12 +295,23 @@ Live portfolio + now page (updated frequently).
     if (!rows.length) return;
 
     const axis = document.getElementById('projects-axis');
+    const todayMarker = document.getElementById('projects-today-marker');
     const now = new Date();
 
     const parseDate = (value) => {
       if (!value) return null;
       const d = new Date(value + 'T00:00:00');
       return Number.isNaN(d.getTime()) ? null : d;
+    };
+
+    const formatDate = (value) => {
+      const d = parseDate(value);
+      if (!d) return 'Ongoing';
+      return d.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
     };
 
     const starts = rows.map((row) => parseDate(row.dataset.start)).filter(Boolean);
@@ -240,6 +334,15 @@ Live portfolio + now page (updated frequently).
       const right = Math.max(left + 0.7, Math.min(100, pct(end)));
       bar.style.left = `${left}%`;
       bar.style.width = `${right - left}%`;
+    });
+
+    if (todayMarker) {
+      todayMarker.style.left = `${Math.max(0, Math.min(100, pct(now)))}%`;
+      todayMarker.style.top = `${rows[0].offsetTop}px`;
+    }
+
+    timeline.querySelectorAll('.tooltip-date').forEach((el) => {
+      el.textContent = formatDate(el.dataset.date || '');
     });
 
     axis.innerHTML = '';

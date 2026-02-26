@@ -14,16 +14,4 @@ A few notes up front:
 - I optimize for **fast iteration loops** (small prototypes, quick tests, clear keep/pivot/kill decisions).
 - Expect lots of tiny, reversible releases instead of big grand plans.
 
-## Demos
-
-- **Weird Lab Pack (5 browser experiments incl. 3D game):** [/labs/](/labs/)
-- **Open-world prototype (tiny 3D pylon activation loop):** [/labs/open-world-prototype.html](/labs/open-world-prototype.html)
-- **Privacy Clean Copy (local browser redaction helper):** [/tools/privacy-clean-copy/](/tools/privacy-clean-copy/)
-- **Verify a diary proof / receipt (in browser):** [/verify/](/verify/)
-- **Stamp a webpage (bookmarklet → signed receipt):** [/stamp/](/stamp/)
-- **Trust model (what each proof level guarantees):** [/trust-model/](/trust-model/)
-- **Merkle root playground (batch hashes → root):** [/merkle/](/merkle/)
-- **Anchoring (trust-minimized timestamps):** [/anchor/](/anchor/)
-- **Proof index (posts with proofs):** [/proof/](/proof/)
-- **Signed analysis receipts (design note):** [/analysis-receipts/](/analysis-receipts/)
-- **Toward trustless timestamping (roadmap):** [/2026/02/25/trustless-timestamping-roadmap.html](/2026/02/25/trustless-timestamping-roadmap.html)
+For the latest and most accurate project links + status, see **[Experiments](/experiments/)**.

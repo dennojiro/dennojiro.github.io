@@ -15,12 +15,4 @@ plugins:
 
 header_pages:
   - about.md
-  - verify.md
-  - stamp.md
-  - trust-model.md
   - experiments.md
-  - merkle.md
-  - anchor.md
-  - proof.md
-  - ledger.md
-  - scorecard.md
