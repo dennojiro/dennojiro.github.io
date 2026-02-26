@@ -181,6 +181,28 @@
         word-break: break-all;
       }
 
+      .route-preview {
+        margin: 0 0 16px;
+        padding: 10px 12px;
+        border: 1px dashed var(--border);
+        border-radius: 10px;
+        background: rgba(16, 24, 49, 0.6);
+      }
+
+      .route-preview h2 {
+        margin: 0 0 6px;
+        font-size: 0.95rem;
+      }
+
+      .route-preview p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .route-path {
+        color: var(--text);
+      }
 
       .challenge-helper {
         margin-top: 18px;
@@ -310,6 +332,11 @@
         <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
       </div>
 
+      <section class="route-preview" aria-live="polite" aria-label="Seeded route preview">
+        <h2>Seeded Route Preview</h2>
+        <p id="routePreviewText">Add a Session Seed to preview your 3-step lab route.</p>
+      </section>
+
       <section class="grid" aria-label="Experiment links">
         <a class="card" href="./3d-runner/" aria-label="Open 3d-runner">
           <div class="row">
@@ -400,12 +427,13 @@
         const surpriseButton = document.getElementById('surpriseMe');
         const remixModeToggle = document.getElementById('remixMode');
         const sessionSeedInput = document.getElementById('sessionSeed');
+        const routePreviewText = document.getElementById('routePreviewText');
         const labs = [
-          './3d-runner/',
-          './gravity-sand/',
-          './echo-maze/',
-          './glitch-orchestra/',
-          './paper-planet/'
+          { name: '3d-runner', href: './3d-runner/' },
+          { name: 'gravity-sand', href: './gravity-sand/' },
+          { name: 'echo-maze', href: './echo-maze/' },
+          { name: 'glitch-orchestra', href: './glitch-orchestra/' },
+          { name: 'paper-planet', href: './paper-planet/' }
         ];
         const remixModes = ['chaos', 'zen', 'speedrun'];
 
@@ -430,15 +458,56 @@
           return hash;
         };
 
+        const routeFromSeed = (seed) => {
+          if (!seed || labs.length < 3) return [];
+
+          const baseHash = hashSeed(seed);
+          const start = baseHash % labs.length;
+          const step = (baseHash % (labs.length - 1)) + 1;
+          const route = [];
+          let index = start;
+
+          while (route.length < 3) {
+            const candidate = labs[index];
+            if (!route.includes(candidate)) {
+              route.push(candidate);
+            }
+            index = (index + step) % labs.length;
+          }
+
+          return route;
+        };
+
+        const renderRoutePreview = () => {
+          if (!routePreviewText) return;
+
+          const seed = sessionSeedInput?.value?.trim() || '';
+
+          if (!seed) {
+            routePreviewText.textContent = 'Add a Session Seed to preview your 3-step lab route.';
+            return;
+          }
+
+          const route = routeFromSeed(seed);
+
+          if (!route.length) {
+            routePreviewText.textContent = 'Could not build route yet. Try another seed.';
+            return;
+          }
+
+          const routeLabel = route.map((lab) => lab.name).join(' → ');
+          routePreviewText.innerHTML = `<span class="route-path">${routeLabel}</span> (same seed = same route)`;
+        };
+
         const pickLab = () => {
           const seed = sessionSeedInput?.value?.trim() || '';
 
           if (!seed) {
-            return labs[Math.floor(Math.random() * labs.length)];
+            return labs[Math.floor(Math.random() * labs.length)].href;
           }
 
-          const index = hashSeed(seed) % labs.length;
-          return labs[index];
+          const route = routeFromSeed(seed);
+          return (route[0] && route[0].href) || labs[0].href;
         };
 
         if (surpriseButton && labs.length) {
@@ -449,6 +518,10 @@
           });
         }
 
+        if (sessionSeedInput) {
+          sessionSeedInput.addEventListener('input', renderRoutePreview);
+          renderRoutePreview();
+        }
 
         const challengeButtons = Array.from(document.querySelectorAll('.challenge-copy'));
 
