@@ -45,11 +45,36 @@
         line-height: 1.5;
       }
 
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0 0 18px;
+      }
+
       .quicklink {
         display: inline-block;
-        margin: 0 0 18px;
         color: var(--accent);
         font-weight: 600;
+        align-self: center;
+      }
+
+      .surprise-btn {
+        border: 0;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #7aa2ff, #b48bff);
+        color: #0b1020;
+        padding: 10px 16px;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 6px 18px rgba(122, 162, 255, 0.35);
+      }
+
+      .surprise-btn:hover,
+      .surprise-btn:focus-visible {
+        transform: translateY(-1px);
+        outline: 2px solid #d6e2ff;
+        outline-offset: 2px;
       }
 
       .grid {
@@ -133,7 +158,10 @@
     <main class="wrap">
       <h1>Labs Launcher</h1>
       <p class="lead">Quick links to current experiments. Status is based on whether each folder contains <code>index.html</code>.</p>
-      <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
+      <div class="actions">
+        <button id="surpriseMe" class="surprise-btn" type="button" aria-label="Open a random experiment">🎲 Surprise Me</button>
+        <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
+      </div>
 
       <section class="grid" aria-label="Experiment links">
         <a class="card" href="./3d-runner/" aria-label="Open 3d-runner">
@@ -177,7 +205,27 @@
         </a>
       </section>
 
-      <footer>Updated: 2026-02-25 (all five experiments currently detected as ready).</footer>
+      <footer>Updated: 2026-02-26 (all five experiments currently detected as ready).</footer>
     </main>
+
+    <script>
+      (() => {
+        const surpriseButton = document.getElementById('surpriseMe');
+        const labs = [
+          './3d-runner/',
+          './gravity-sand/',
+          './echo-maze/',
+          './glitch-orchestra/',
+          './paper-planet/'
+        ];
+
+        if (!surpriseButton || !labs.length) return;
+
+        surpriseButton.addEventListener('click', () => {
+          const randomLab = labs[Math.floor(Math.random() * labs.length)];
+          window.location.href = randomLab;
+        });
+      })();
+    </script>
   </body>
 </html>
