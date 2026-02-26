@@ -74,7 +74,6 @@
 
   <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/loaders/GLTFLoader.js';
 
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x9ec9ff, 65, 290);
@@ -177,8 +176,14 @@
     }
     [[-150,-110,-90,-42],[-90,-42,-20,-6],[-20,-6,58,18],[-86,72,-6,40],[-6,40,54,78],[-26,96,34,126],[-8,-92,44,-56]].forEach(p=>addPath(...p));
 
-    // Asset loading + graceful fallback
-    const loader = new GLTFLoader();
+    // Asset loading + graceful fallback (GLTF loader is optional)
+    let loader = null;
+    try {
+      const mod = await import('https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/loaders/GLTFLoader.js');
+      loader = new mod.GLTFLoader();
+    } catch (err) {
+      console.warn('GLTFLoader unavailable; continuing with primitive fallback assets.', err);
+    }
     const suspect = new THREE.Group(); scene.add(suspect);
     let suspectVisualLoaded = false;
 
@@ -193,7 +198,16 @@
     fallbackSuspect();
 
     function loadAsset(url, onOk, onFailLabel) {
-      loader.load(url, gltf => { assetLog.push(`loaded: ${url}`); onOk(gltf.scene); }, undefined, () => assetLog.push(`fallback: ${onFailLabel}`));
+      if (!loader) {
+        assetLog.push(`fallback: ${onFailLabel} (loader unavailable)`);
+        return;
+      }
+      loader.load(
+        url,
+        gltf => { assetLog.push(`loaded: ${url}`); onOk(gltf.scene); },
+        undefined,
+        () => assetLog.push(`fallback: ${onFailLabel}`)
+      );
     }
 
     loadAsset('https://threejs.org/examples/models/gltf/Soldier.glb', (obj) => {
