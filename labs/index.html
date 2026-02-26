@@ -76,6 +76,28 @@
         accent-color: var(--accent);
       }
 
+      .seed-control {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+        background: #101831;
+        font-size: 0.82rem;
+      }
+
+      .seed-control input {
+        width: 120px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #0d142b;
+        color: var(--text);
+        padding: 4px 6px;
+        font-size: 0.82rem;
+      }
+
       .surprise-btn {
         border: 0;
         border-radius: 999px;
@@ -277,6 +299,10 @@
       <p class="lead">Quick links to current experiments. Status is based on whether each folder contains <code>index.html</code>.</p>
       <div class="actions">
         <button id="surpriseMe" class="surprise-btn" type="button" aria-label="Open a random experiment">🎲 Surprise Me</button>
+        <label class="seed-control" for="sessionSeed">
+          Session Seed
+          <input id="sessionSeed" type="text" placeholder="optional" autocomplete="off" />
+        </label>
         <label class="remix-toggle" for="remixMode">
           <input id="remixMode" type="checkbox" />
           Remix Mode
@@ -373,6 +399,7 @@
       (() => {
         const surpriseButton = document.getElementById('surpriseMe');
         const remixModeToggle = document.getElementById('remixMode');
+        const sessionSeedInput = document.getElementById('sessionSeed');
         const labs = [
           './3d-runner/',
           './gravity-sand/',
@@ -393,10 +420,31 @@
           return url.href;
         };
 
+        const hashSeed = (seed) => {
+          let hash = 0;
+
+          for (let i = 0; i < seed.length; i += 1) {
+            hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+          }
+
+          return hash;
+        };
+
+        const pickLab = () => {
+          const seed = sessionSeedInput?.value?.trim() || '';
+
+          if (!seed) {
+            return labs[Math.floor(Math.random() * labs.length)];
+          }
+
+          const index = hashSeed(seed) % labs.length;
+          return labs[index];
+        };
+
         if (surpriseButton && labs.length) {
           surpriseButton.addEventListener('click', () => {
-            const randomLab = labs[Math.floor(Math.random() * labs.length)];
-            const destination = remixModeToggle?.checked ? withRandomRemixFlag(randomLab) : randomLab;
+            const selectedLab = pickLab();
+            const destination = remixModeToggle?.checked ? withRandomRemixFlag(selectedLab) : selectedLab;
             window.location.href = destination;
           });
         }
