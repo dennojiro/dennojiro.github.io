@@ -12,6 +12,18 @@
       backdrop-filter: blur(2px);
     }
     #finish { display: none; z-index: 25; }
+    #overlay::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(7,15,28,.55), rgba(7,15,28,.72)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 700'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%2387c5ff'/%3E%3Cstop offset='1' stop-color='%23ffd4a1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='700' fill='url(%23sky)'/%3E%3Cpath d='M0 430 L180 350 L300 390 L460 300 L620 360 L760 300 L960 360 L1200 280 L1200 700 L0 700 Z' fill='%23c8b089' opacity='.86'/%3E%3Crect y='498' width='1200' height='202' fill='%232f84b6' opacity='.84'/%3E%3Cpath d='M105 470 h112 v108 h-112zM250 444 h135 v130 h-135zM426 424 h150 v156 h-150zM618 456 h122 v118 h-122zM792 410 h156 v166 h-156z' fill='%23f1dfbf' opacity='.93'/%3E%3Cpath d='M95 470 h132 l-62 -54 h-58zM240 444 h155 l-78 -52 h-74zM414 424 h172 l-84 -64 h-74zM612 456 h134 l-68 -46 h-60zM782 410 h174 l-86 -68 h-78z' fill='%239f4b35'/%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center;
+      z-index: -1;
+      pointer-events: none;
+    }
     .card {
       width: min(720px, calc(100vw - 32px)); border-radius: 14px; padding: 18px 20px;
       border: 1px solid rgba(148,163,184,.4); background: rgba(9,16,33,.9);
@@ -79,6 +91,75 @@
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x9ec9ff, 65, 300);
 
+    const lowPowerDevice = (navigator.deviceMemory && navigator.deviceMemory <= 4) || /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    function makePatternTexture(draw, size = 256) {
+      const can = document.createElement('canvas');
+      can.width = can.height = size;
+      const c = can.getContext('2d');
+      draw(c, size);
+      const tex = new THREE.CanvasTexture(can);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      return tex;
+    }
+
+    const stuccoTex = makePatternTexture((c, s) => {
+      c.fillStyle = '#d8bf97'; c.fillRect(0, 0, s, s);
+      for (let i = 0; i < 1200; i++) {
+        const a = Math.random() * 0.18;
+        c.fillStyle = `rgba(120,90,60,${a})`;
+        const x = Math.random() * s, y = Math.random() * s, r = Math.random() * 2.2;
+        c.fillRect(x, y, r, r);
+      }
+    });
+    stuccoTex.repeat.set(2.2, 2.2);
+
+    const roofTileTex = makePatternTexture((c, s) => {
+      c.fillStyle = '#994833'; c.fillRect(0, 0, s, s);
+      c.strokeStyle = 'rgba(255,220,180,0.2)'; c.lineWidth = 2;
+      for (let y = 8; y < s; y += 14) {
+        c.beginPath(); c.moveTo(0, y); c.lineTo(s, y); c.stroke();
+      }
+      for (let x = 6; x < s; x += 22) {
+        c.beginPath(); c.moveTo(x, 0); c.lineTo(x - 7, s); c.stroke();
+      }
+    });
+    roofTileTex.repeat.set(2.4, 2.4);
+
+    const cobbleTex = makePatternTexture((c, s) => {
+      c.fillStyle = '#baa888'; c.fillRect(0, 0, s, s);
+      c.strokeStyle = 'rgba(85,70,50,0.28)'; c.lineWidth = 1;
+      const step = 24;
+      for (let y = 0; y <= s; y += step) {
+        for (let x = 0; x <= s; x += step) {
+          const ox = ((y / step) % 2) ? 8 : 0;
+          c.strokeRect(x + ox, y, step - 3, step - 3);
+        }
+      }
+    });
+    cobbleTex.repeat.set(10, 10);
+
+    const sandTex = makePatternTexture((c, s) => {
+      c.fillStyle = '#cdb58d'; c.fillRect(0, 0, s, s);
+      for (let i = 0; i < 1800; i++) {
+        const v = 170 + (Math.random() * 60) | 0;
+        c.fillStyle = `rgba(${v},${v-22},${v-45},0.22)`;
+        c.fillRect(Math.random() * s, Math.random() * s, 1, 1);
+      }
+    });
+    sandTex.repeat.set(18, 18);
+
+    const waterTex = makePatternTexture((c, s) => {
+      const g = c.createLinearGradient(0, 0, s, s);
+      g.addColorStop(0, '#58a2d2'); g.addColorStop(1, '#2a6f9e');
+      c.fillStyle = g; c.fillRect(0, 0, s, s);
+      c.strokeStyle = 'rgba(235,248,255,0.15)';
+      for (let i = 0; i < 60; i++) {
+        const y = (i / 60) * s;
+        c.beginPath(); c.moveTo(0, y); c.quadraticCurveTo(s * .4, y + 4, s, y - 2); c.stroke();
+      }
+    });
+    waterTex.repeat.set(4, 12);
+
     const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 900);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(innerWidth, innerHeight);
@@ -139,12 +220,12 @@
     const pos = groundGeo.attributes.position;
     for (let i = 0; i < pos.count; i++) pos.setZ(i, terrainHeight(pos.getX(i), pos.getY(i)));
     groundGeo.computeVertexNormals();
-    const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ color: 0xcab28c, roughness: .98 }));
+    const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ color: 0xcab28c, roughness: .98, map: sandTex }));
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const water = new THREE.Mesh(new THREE.PlaneGeometry(190, 460), new THREE.MeshStandardMaterial({ color: 0x2f86bc, roughness: .22, transparent: true, opacity: .9 }));
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(190, 460), new THREE.MeshStandardMaterial({ color: 0x2f86bc, roughness: .22, transparent: true, opacity: .9, map: waterTex }));
     water.rotation.x = -Math.PI / 2; water.position.set(132, -3.2, 0); scene.add(water);
 
     const buildingColliders = [];
@@ -166,9 +247,9 @@
       const y = terrainHeight(x, z);
       const w = 4 + Math.random() * 5.2, d = 4 + Math.random() * 5, h = 5 + Math.random() * 16;
       const g = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bColors[(Math.random() * bColors.length) | 0], roughness: .86 }));
+      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bColors[(Math.random() * bColors.length) | 0], roughness: .86, map: stuccoTex }));
       body.position.y = h / 2;
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * .64, Math.max(.8, h * .12), 4), new THREE.MeshStandardMaterial({ color: roofColors[(Math.random() * roofColors.length) | 0], roughness: .92 }));
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * .64, Math.max(.8, h * .12), 4), new THREE.MeshStandardMaterial({ color: roofColors[(Math.random() * roofColors.length) | 0], roughness: .92, map: roofTileTex }));
       roof.rotation.y = Math.PI * 0.25; roof.position.y = h + 0.55;
       g.add(body, roof);
       if (Math.random() < .6) {
@@ -181,7 +262,7 @@
     }
 
     // streets
-    const roadMat = new THREE.MeshStandardMaterial({ color: 0xb6a98d, roughness: 0.96 });
+    const roadMat = new THREE.MeshStandardMaterial({ color: 0xb6a98d, roughness: 0.96, map: cobbleTex });
     function addPath(x1, z1, x2, z2, width = 4.2, steps = 22) {
       for (let i = 0; i <= steps; i++) {
         const t = i / steps, x = THREE.MathUtils.lerp(x1, x2, t), z = THREE.MathUtils.lerp(z1, z2, t);
@@ -464,7 +545,8 @@
     function applyQuality(q) {
       quality = q;
       const low = q === 'low';
-      renderer.setPixelRatio(Math.min(devicePixelRatio, low ? 1.05 : 2));
+      renderer.setPixelRatio(Math.min(devicePixelRatio, low ? 1 : 2));
+      renderer.shadowMap.enabled = !low;
       cullDistance = low ? 92 : 175;
       clouds.forEach(c => c.visible = !low);
       npcs.forEach((n, i) => { n.mesh.visible = low ? (i % 2 === 0) : true; });
@@ -487,6 +569,7 @@
       lockPointer();
       ui.msg.textContent = suspectState.mode === 'chase' ? 'Close in and tag the suspect.' : 'Find, reveal, then tag with E.';
     }
+    ui.qualitySel.value = lowPowerDevice ? 'low' : 'high';
     document.getElementById('startBtn').addEventListener('click', startRun);
     document.getElementById('againBtn').addEventListener('click', lockPointer);
 

@@ -57,6 +57,7 @@
         width: 100%;
         aspect-ratio: 16 / 10;
         background: #090f20;
+        background-image: radial-gradient(circle at 20% 10%, rgba(120,170,255,.2), transparent 55%);
         border: 1px solid var(--line);
         border-radius: 12px;
         display: block;
@@ -120,6 +121,13 @@
             <label for="seed">Seed (optional)</label>
             <input id="seed" type="text" placeholder="auto if blank" autocomplete="off" />
           </div>
+          <div class="field">
+            <label for="quality">Visual Quality</label>
+            <select id="quality">
+              <option value="high">High (richer FX)</option>
+              <option value="low">Low (battery saver)</option>
+            </select>
+          </div>
           <div class="btns">
             <button id="generate" class="primary" type="button">Generate + Play</button>
             <button id="replay" type="button">Replay Seed</button>
@@ -148,6 +156,7 @@
         const weatherEl = document.getElementById('weather');
         const behaviorEl = document.getElementById('behavior');
         const seedEl = document.getElementById('seed');
+        const qualityEl = document.getElementById('quality');
         const generateBtn = document.getElementById('generate');
         const replayBtn = document.getElementById('replay');
         const newSeedBtn = document.getElementById('newSeed');
@@ -188,6 +197,21 @@
           raf: null,
           lastSeed: null
         };
+
+        const lowPowerDevice = (navigator.deviceMemory && navigator.deviceMemory <= 4) || /Mobi|Android|iPhone/i.test(navigator.userAgent);
+        qualityEl.value = lowPowerDevice ? 'low' : 'high';
+
+        const makeBackdrop = (top, bottom, accent) =>
+          `data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 840 520'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='${top}'/><stop offset='1' stop-color='${bottom}'/></linearGradient></defs><rect width='840' height='520' fill='url(#g)'/><path d='M0 360 L130 300 L220 330 L320 260 L460 310 L560 280 L690 320 L840 250 L840 520 L0 520 Z' fill='${accent}' opacity='.55'/><g fill='rgba(255,255,255,.1)'><rect x='55' y='220' width='70' height='170'/><rect x='160' y='180' width='95' height='210'/><rect x='292' y='200' width='76' height='190'/><rect x='412' y='168' width='110' height='222'/><rect x='568' y='192' width='84' height='198'/><rect x='690' y='152' width='100' height='238'/></g></svg>`)}`;
+
+        const districtArt = {
+          'Neon Market': makeBackdrop('#191b46', '#071024', '#7a2d8f'),
+          'Harbor Grid': makeBackdrop('#183b5a', '#07131f', '#2a6f9e'),
+          'Old Tram Quarter': makeBackdrop('#43322c', '#120d13', '#87583f'),
+          'Skybridge Loop': makeBackdrop('#2e3f6f', '#071226', '#4f74b2'),
+          'Warehouse Fringe': makeBackdrop('#3f3c39', '#0d1118', '#4a565f')
+        };
+        const districtImages = Object.fromEntries(Object.entries(districtArt).map(([k, src]) => { const img = new Image(); img.src = src; return [k, img]; }));
 
         const hash = (s) => {
           let h = 2166136261;
@@ -257,7 +281,8 @@
             trailP: [],
             score: 0,
             caught: false,
-            events
+            events,
+            quality: qualityEl.value
           };
         };
 
@@ -267,8 +292,16 @@
           ctx.clearRect(0, 0, w, h);
 
           const weather = run.weather;
+          const bg = districtImages[run.district] || districtImages['Harbor Grid'];
+          if (bg.complete) ctx.drawImage(bg, 0, 0, w, h);
+          else {
+            const grd = ctx.createLinearGradient(0, 0, 0, h);
+            grd.addColorStop(0, '#1a2546'); grd.addColorStop(1, '#070f20');
+            ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
+          }
           if (weather === 'Rain Burst') {
-            for (let i = 0; i < 120; i += 1) {
+            const rainCount = run.quality === 'low' ? 60 : 150;
+            for (let i = 0; i < rainCount; i += 1) {
               const x = (i * 57 + run.time * 120) % w;
               const y = (i * 89 + run.time * 220) % h;
               ctx.strokeStyle = 'rgba(135,180,255,0.35)';
@@ -278,19 +311,31 @@
               ctx.stroke();
             }
           } else if (weather === 'Dense Fog') {
-            ctx.fillStyle = 'rgba(200,220,255,0.12)';
+            ctx.fillStyle = 'rgba(200,220,255,0.14)';
+            ctx.fillRect(0, 0, w, h);
+            if (run.quality !== 'low') {
+              for (let i = 0; i < 18; i += 1) {
+                ctx.fillStyle = 'rgba(230,240,255,0.05)';
+                ctx.beginPath();
+                ctx.ellipse((i * 61 + run.time * 12) % w, (i * 37) % h, 80, 24, 0, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            }
+          } else if (weather === 'Heat Shimmer' && run.quality !== 'low') {
+            ctx.fillStyle = 'rgba(255,180,130,0.06)';
             ctx.fillRect(0, 0, w, h);
           }
 
           ctx.strokeStyle = 'rgba(118,240,207,0.2)';
           ctx.lineWidth = 1;
-          for (let x = 20; x < w; x += 40) {
+          const gridStep = run.quality === 'low' ? 56 : 40;
+          for (let x = 20; x < w; x += gridStep) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
             ctx.lineTo(x, h);
             ctx.stroke();
           }
-          for (let y = 20; y < h; y += 40) {
+          for (let y = 20; y < h; y += gridStep) {
             ctx.beginPath();
             ctx.moveTo(0, y);
             ctx.lineTo(w, y);
@@ -322,10 +367,25 @@
           ctx.arc(run.pursuer.x, run.pursuer.y, 9, 0, Math.PI * 2);
           ctx.fill();
 
+          if (run.quality !== 'low') {
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+            for (let i = 0; i < 12; i += 1) {
+              ctx.beginPath();
+              ctx.moveTo(0, (i * 42 + run.time * 35) % h);
+              ctx.lineTo(w, (i * 42 + run.time * 35 + 20) % h);
+              ctx.stroke();
+            }
+          }
+          const v = ctx.createRadialGradient(w * 0.5, h * 0.55, h * 0.25, w * 0.5, h * 0.55, h * 0.72);
+          v.addColorStop(0, 'rgba(0,0,0,0)');
+          v.addColorStop(1, 'rgba(0,0,0,0.35)');
+          ctx.fillStyle = v;
+          ctx.fillRect(0, 0, w, h);
+
           ctx.fillStyle = '#d6e6ff';
           ctx.font = '13px Inter, sans-serif';
           ctx.fillText(run.district, 14, 20);
-          ctx.fillText(`${run.weather} / ${run.behavior}`, 14, 38);
+          ctx.fillText(`${run.weather} / ${run.behavior} / ${run.quality}`, 14, 38);
         };
 
         const tick = (run, dt) => {
@@ -452,6 +512,11 @@
 
         newSeedBtn.addEventListener('click', () => {
           seedEl.value = randomSeed();
+        });
+
+        qualityEl.addEventListener('change', () => {
+          if (!state.lastSeed) return;
+          startRun(state.lastSeed);
         });
 
         seedEl.value = randomSeed();
