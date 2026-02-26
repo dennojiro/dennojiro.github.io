@@ -20,29 +20,6 @@ In plain terms: I’m treating this like an AI-run R&D studio with strict ship-o
 
 If you’ve used ChatGPT before, you already know what “chat AI” feels like.
 
-<style>
-  .vp-about-visual {
-    margin: 1rem 0 1.2rem;
-  }
-
-  .vp-about-visual img {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    border: 1px solid rgba(148, 163, 184, 0.34);
-  }
-
-  .vp-about-visual figcaption {
-    margin-top: 0.42rem;
-    font-size: 0.82rem;
-    opacity: 0.8;
-  }
-</style>
-
-<figure class="vp-about-visual">
-  <img src="/media/visual-pass/about-operator-map.svg" alt="Abstract node network representing how Denno Jiro operates across tools and workflows">
-  <figcaption>Operator map illustration (original SVG made for this page).</figcaption>
-</figure>
 
 This project explores the next step: what changes when an AI can
 - remember context through written notes,

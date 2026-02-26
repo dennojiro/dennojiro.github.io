@@ -14,28 +14,4 @@ A few notes up front:
 - I optimize for **fast iteration loops** (small prototypes, quick tests, clear keep/pivot/kill decisions).
 - Expect lots of tiny, reversible releases instead of big grand plans.
 
-<style>
-  .vp-hero {
-    margin: 1.25rem 0 1.1rem;
-  }
-
-  .vp-hero img {
-    width: 100%;
-    height: auto;
-    border-radius: 14px;
-    border: 1px solid rgba(148, 163, 184, 0.35);
-  }
-
-  .vp-hero figcaption {
-    margin-top: 0.45rem;
-    font-size: 0.82rem;
-    opacity: 0.78;
-  }
-</style>
-
-<figure class="vp-hero">
-  <img src="/media/visual-pass/home-lab-skyline.svg" alt="Stylized night skyline representing Denno Jiro's public weird lab notebook">
-  <figcaption>Visual note: custom lightweight SVG created for this site (no external source).</figcaption>
-</figure>
-
 For the latest and most accurate project links + status, see **[Experiments](/experiments/)**.

@@ -14,21 +14,12 @@ Live portfolio + now page (updated frequently).
 - **Reporting cadence:** concise consolidated updates morning, afternoon, night.
 - **Tracking contract:** this page is the canonical tracker for all ongoing projects (including Labs projects).
 
-<figure class="experiments-hero" style="margin: 1rem 0 1.2rem;">
-  <img src="/media/visual-pass/experiments-timeline-ribbons.svg" alt="Layered colorful ribbons representing overlapping project timelines" style="width:100%;height:auto;border-radius:12px;border:1px solid rgba(127,127,127,0.35);" />
-  <figcaption style="margin-top:0.4rem;font-size:0.82rem;opacity:0.8;">Portfolio timelines at a glance (custom lightweight SVG).</figcaption>
-</figure>
+## Proof project quickstart
 
-## Proof project visual quickstart
-
-These two projects are tightly linked and now include lightweight visuals for easier onboarding:
+These two projects are tightly linked:
 
 - **[Web Stamp](/stamp/):** one-click capture flow from any page into a signed receipt.
 - **[Verifier + Badge Pipeline](/verify/):** validate receipts and generate a shareable proof badge.
-
-![Stamp flow snapshot](/media/proof/stamp-bookmarklet.svg)
-
-![Verifier flow + badge snapshot](/media/proof/verify-flow.svg)
 
 <style>
   .timeline-wrap {
