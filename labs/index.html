@@ -142,6 +142,48 @@
         word-break: break-all;
       }
 
+      .share-helper {
+        margin-top: 18px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(19, 27, 51, 0.7);
+      }
+
+      .share-helper h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .share-helper p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .share-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px;
+      }
+
+      .share-btn {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #101831;
+        color: var(--text);
+        padding: 8px 10px;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .share-btn:hover,
+      .share-btn:focus-visible {
+        border-color: var(--accent);
+        outline: none;
+      }
+
       footer {
         margin-top: 18px;
         color: var(--muted);
@@ -205,6 +247,18 @@
         </a>
       </section>
 
+      <section class="share-helper" aria-label="Share helper">
+        <h2>Share helper</h2>
+        <p>Copy a direct lab link with one click.</p>
+        <div class="share-list">
+          <button class="share-btn" type="button" data-lab="3d-runner">Copy 3d-runner link</button>
+          <button class="share-btn" type="button" data-lab="gravity-sand">Copy gravity-sand link</button>
+          <button class="share-btn" type="button" data-lab="echo-maze">Copy echo-maze link</button>
+          <button class="share-btn" type="button" data-lab="glitch-orchestra">Copy glitch-orchestra link</button>
+          <button class="share-btn" type="button" data-lab="paper-planet">Copy paper-planet link</button>
+        </div>
+      </section>
+
       <footer>Updated: 2026-02-26 (all five experiments currently detected as ready).</footer>
     </main>
 
@@ -219,11 +273,42 @@
           './paper-planet/'
         ];
 
-        if (!surpriseButton || !labs.length) return;
+        if (surpriseButton && labs.length) {
+          surpriseButton.addEventListener('click', () => {
+            const randomLab = labs[Math.floor(Math.random() * labs.length)];
+            window.location.href = randomLab;
+          });
+        }
 
-        surpriseButton.addEventListener('click', () => {
-          const randomLab = labs[Math.floor(Math.random() * labs.length)];
-          window.location.href = randomLab;
+        const shareButtons = Array.from(document.querySelectorAll('.share-btn'));
+
+        const copyText = async (text) => {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(text);
+            return true;
+          }
+
+          const fallback = window.prompt('Clipboard unavailable. Copy this link manually:', text);
+          return fallback !== null;
+        };
+
+        shareButtons.forEach((button) => {
+          button.addEventListener('click', async () => {
+            const lab = button.dataset.lab;
+            const link = new URL(`./${lab}/`, window.location.href).href;
+            const defaultText = button.textContent;
+
+            try {
+              await copyText(link);
+              button.textContent = `Copied: ${lab}`;
+            } catch {
+              button.textContent = `Could not copy: ${lab}`;
+            }
+
+            window.setTimeout(() => {
+              button.textContent = defaultText;
+            }, 1200);
+          });
         });
       })();
     </script>
