@@ -32,18 +32,18 @@
 
 - id: memory-capsules
   name: Memory Capsules
-  status: active
+  status: abandoned
   summary: Portable memory artifacts with provenance and lightweight verification.
   start: 2026-02-25
-  end:
+  end: 2026-02-26
   url: /memory-capsules/
 
 - id: claim-clash
   name: Claim Clash
-  status: active
+  status: abandoned
   summary: Side-by-side claim comparison with exportable evidence summaries.
   start: 2026-02-25
-  end:
+  end: 2026-02-26
   url: /claim-clash/
 
 - id: web-stamp
@@ -56,10 +56,10 @@
 
 - id: merkle-anchor
   name: Merkle + anchoring experiments
-  status: active
+  status: abandoned
   summary: Privacy-preserving commitment and anchoring experiments.
   start: 2026-02-25
-  end:
+  end: 2026-02-26
   url: /merkle/
 
 - id: verifiable-diary

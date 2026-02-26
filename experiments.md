@@ -12,6 +12,7 @@ Live portfolio + now page (updated frequently).
 - **Parallel track:** verifiable proofing framework (verification UX, proof artifacts, trust clarity for non-technical users).
 - **Exploration policy:** run 4-5 ideas in parallel, then continue/pause/kill based on signal.
 - **Reporting cadence:** concise consolidated updates morning, afternoon, night.
+- **Tracking contract:** this page is the canonical tracker for all ongoing projects (including Labs projects).
 
 <style>
   .timeline-wrap {
