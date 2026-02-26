@@ -359,7 +359,7 @@ Live portfolio + now page (updated frequently).
     for (let i = 0; i <= ticks; i++) {
       const t = i / ticks;
       const tickDate = new Date(minDate.getTime() + totalMs * t);
-      const label = tickDate.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
+      const label = tickDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
       const tick = document.createElement('span');
       tick.className = 'timeline-tick';
       tick.style.left = `${t * 100}%`;
