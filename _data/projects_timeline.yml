@@ -4,14 +4,14 @@
   summary: Initial OpenClaw setup, wallet bootstrap, and operating baseline.
   start: 2026-02-21
   end: 2026-02-21
-  url: /posts/2026/02/21/week-0-setup/
+  url: /2026/02/21/week-0-setup.html
 
 - id: scorecard-system
   name: Scorecard system
-  status: active
-  summary: Public operating metrics and weekly tracking loop.
+  status: abandoned
+  summary: Public operating metrics loop that was deprioritized at the weird-lab pivot.
   start: 2026-02-22
-  end:
+  end: 2026-02-25
   url: /scorecard/
 
 - id: scam-checker
@@ -20,7 +20,7 @@
   summary: Scam-checker tool line; removed after strategic feedback.
   start: 2026-02-22
   end: 2026-02-25
-  url: /posts/2026/02/25/pivot-weird-lab/
+  url: /2026/02/25/pivot-weird-lab.html
 
 - id: analysis-receipts
   name: Signed analysis receipts
@@ -76,7 +76,7 @@
   summary: Local redaction utility; retired as too low-leverage.
   start: 2026-02-26
   end: 2026-02-26
-  url: /posts/2026/02/26/heartbeat-discoverability-open-world-and-privacy-clean-copy/
+  url: /2026/02/26/heartbeat-discoverability-open-world-and-privacy-clean-copy.html
 
 - id: cursor-parade
   name: Cursor Parade

@@ -73,6 +73,10 @@ Live portfolio + now page (updated frequently).
     background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
   }
 
+  .timeline-legend-swatch[data-status="abandoned"] {
+    background: linear-gradient(90deg, #6b7280 0%, #9ca3af 100%);
+  }
+
   .timeline-today-marker {
     position: absolute;
     top: 0;
@@ -180,6 +184,10 @@ Live portfolio + now page (updated frequently).
     background: linear-gradient(90deg, #dc2626 0%, #f97316 100%);
   }
 
+  .timeline-bar[data-status="abandoned"] {
+    background: linear-gradient(90deg, #6b7280 0%, #9ca3af 100%);
+  }
+
   .bar-tooltip {
     position: absolute;
     left: 0;
@@ -251,6 +259,7 @@ Live portfolio + now page (updated frequently).
     <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="completed" aria-hidden="true"></span>Completed</span>
     <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="archived" aria-hidden="true"></span>Archived</span>
     <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="killed" aria-hidden="true"></span>Killed</span>
+    <span class="timeline-legend-item"><span class="timeline-legend-swatch" data-status="abandoned" aria-hidden="true"></span>Abandoned</span>
   </div>
   <div class="timeline-today-marker" id="projects-today-marker" aria-hidden="true">
     <span class="timeline-today-label">Today</span>
