@@ -3,763 +3,442 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mediterranean Port City Prototype</title>
+  <title>Mediterranean Chase Prototype</title>
   <style>
-    html, body { margin: 0; height: 100%; overflow: hidden; background: #0e1a2e; color: #e6edf7; font-family: Inter, system-ui, sans-serif; }
-    #overlay {
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #0d1f35; color: #eaf2ff; font-family: Inter, system-ui, sans-serif; }
+    #overlay, #finish {
       position: fixed; inset: 0; display: grid; place-items: center; z-index: 20;
-      background: linear-gradient(rgba(9,16,33,0.72), rgba(9,16,33,0.72));
+      background: linear-gradient(rgba(9,16,33,.72), rgba(9,16,33,.72));
       backdrop-filter: blur(2px);
     }
-    #panel {
-      width: min(640px, calc(100vw - 32px)); border-radius: 14px; padding: 18px 20px;
-      border: 1px solid rgba(148,163,184,.4); background: rgba(9,16,33,.88);
+    #finish { display: none; z-index: 25; }
+    .card {
+      width: min(650px, calc(100vw - 32px)); border-radius: 14px; padding: 18px 20px;
+      border: 1px solid rgba(148,163,184,.4); background: rgba(9,16,33,.9);
       box-shadow: 0 20px 48px rgba(0,0,0,.34);
     }
-    button { margin-top: 12px; border: 0; border-radius: 9px; padding: 10px 14px; font-weight: 700; color: white; background: #2b79ff; cursor: pointer; }
+    button, select {
+      margin-top: 12px; border: 0; border-radius: 9px; padding: 10px 14px; font-weight: 700;
+      color: white; background: #2b79ff;
+    }
+    select { background: #1f3f73; }
     #hud {
-      position: fixed; top: 10px; left: 10px; z-index: 10;
-      min-width: 330px; border-radius: 10px; padding: 10px 12px;
-      border: 1px solid rgba(148,163,184,.36); background: rgba(9,16,33,.74);
-      font-size: 13px; line-height: 1.35;
+      position: fixed; top: 10px; left: 10px; z-index: 10; min-width: 350px;
+      border-radius: 10px; padding: 10px 12px; border: 1px solid rgba(148,163,184,.36);
+      background: rgba(9,16,33,.74); font-size: 13px; line-height: 1.35;
     }
-    #msg { min-height: 18px; margin-top: 6px; color: #9ef0bf; }
-    #scoreLine { margin-top: 6px; color: #ffe8a6; }
-    #reward { margin-left: 6px; color: #ffd56a; font-size: 12px; }
-    #milestones { margin: 8px 0 0 0; padding-left: 16px; display: grid; gap: 2px; color: #c8d4e6; font-size: 12px; }
-    #milestones li.done { color: #93f3b7; text-decoration: line-through; }
-    #radarWrap {
-      position: fixed; top: 10px; right: 10px; z-index: 10; border-radius: 10px;
-      border: 1px solid rgba(148,163,184,.36); background: rgba(9,16,33,.74); padding: 8px;
-    }
-    #radarLabel { font-size: 12px; color: #d6dfec; text-align: center; margin-bottom: 4px; }
-    #radar { display: block; width: 150px; height: 150px; }
-    #npcBubble {
-      position: fixed; left: 0; top: 0; transform: translate(-50%, -120%);
-      padding: 6px 8px; border-radius: 8px; font-size: 12px; pointer-events: none;
-      color: #102132; background: rgba(255,244,216,.96); border: 1px solid rgba(246,198,107,.9);
-      display: none; z-index: 11; white-space: nowrap;
-    }
-    #crosshair {
-      position: fixed; left: 50%; top: 50%; margin-left: -6px; margin-top: -6px;
-      width: 12px; height: 12px; pointer-events: none; opacity: .78; z-index: 8;
-    }
-    #crosshair:before, #crosshair:after { content: ""; position: absolute; background: #eef6ff; }
-    #crosshair:before { left: 0; top: 5px; width: 12px; height: 2px; }
-    #crosshair:after { left: 5px; top: 0; width: 2px; height: 12px; }
-    #winPanel {
-      position: fixed; inset: 0; z-index: 15; display: none; place-items: center;
-      background: rgba(5,10,20,.62); backdrop-filter: blur(2px);
-    }
-    #winCard {
-      width: min(460px, calc(100vw - 30px)); border-radius: 12px; padding: 16px;
-      border: 1px solid rgba(148,163,184,.42); background: rgba(10,18,36,.92);
-      box-shadow: 0 18px 44px rgba(0,0,0,.35);
-    }
-    #winStats { margin: 10px 0 0; padding-left: 18px; color: #d7e1ef; font-size: 14px; }
+    #msg { color: #a6f2c4; min-height: 18px; margin-top: 4px; }
+    #crosshair { position: fixed; left: 50%; top: 50%; width: 12px; height: 12px; margin-left: -6px; margin-top: -6px; pointer-events: none; z-index: 9; }
+    #crosshair::before, #crosshair::after { content:""; position:absolute; background:#f4fbff; }
+    #crosshair::before { left:0; top:5px; width:12px; height:2px; }
+    #crosshair::after { left:5px; top:0; width:2px; height:12px; }
   </style>
 </head>
 <body>
   <div id="hud">
-    <div><strong>Objective:</strong> Restore harbor signal pylons (<span id="count">0</span>/5) + recover smugglers' beacon (<span id="beaconState">missing</span>)</div>
-    <div><strong>Ceramic shards:</strong> <span id="shardCount">0</span>/10 <span id="speedState" style="font-size:12px;color:#c8d4e6;margin-left:6px;">Collect all for sprint boost</span></div>
-    <div id="scoreLine"><strong>Prestige:</strong> <span id="score">0</span> <span id="reward">Explore alleys and rooftops.</span></div>
-    <ul id="milestones">
-      <li id="ms-first">Relight first pylon</li>
-      <li id="ms-three">Relight 3 pylons</li>
-      <li id="ms-all">Relight all pylons</li>
-      <li id="ms-beacon">Recover hidden beacon</li>
-      <li id="ms-win">Port fully re-charted</li>
-    </ul>
-    <div>Move: <b>W A S D</b> · Look: <b>Mouse</b> · Interact: <b>E</b></div>
-    <div id="msg">Follow the climbing streets, find the pylons, and power the harbor.</div>
+    <div><strong>Mode:</strong> <span id="modeLabel">Chase</span> · <strong>Quality:</strong> <span id="qLabel">High</span></div>
+    <div><strong>Distance:</strong> <span id="dist">--</span>m · <strong>Rubber-band:</strong> <span id="rb">neutral</span></div>
+    <div><strong>Catches:</strong> <span id="score">0</span> · <strong>Time:</strong> <span id="time">0.0</span>s</div>
+    <div>WASD move · Mouse look · E interact/tag · Esc unlock</div>
+    <div id="msg">Track the suspect through the old city alleys.</div>
   </div>
-
-  <div id="radarWrap">
-    <div id="radarLabel">Harbor Radar</div>
-    <canvas id="radar" width="150" height="150"></canvas>
-  </div>
-
   <div id="crosshair"></div>
-  <div id="npcBubble"></div>
 
-  <div id="winPanel">
-    <div id="winCard">
-      <h2 style="margin:0;color:#95f6b8;">Harbor Restored ✅</h2>
-      <p style="margin:8px 0 0;color:#d6dfec;">The port city hums again. You can keep wandering and chatting with locals.</p>
-      <ul id="winStats"></ul>
-      <p style="margin:10px 0 0;font-size:12px;color:#9fb0c8;">Press Esc to release mouse.</p>
+  <div id="overlay">
+    <div class="card">
+      <h2 style="margin:0 0 10px;">Mediterranean City Chase Prototype</h2>
+      <p style="margin:0 0 8px;">Catch the fleeing spy across steep streets, plazas, and harbor lanes. The suspect adapts speed based on your performance (rubber-banding).</p>
+      <label>Game mode:
+        <select id="modeSel">
+          <option value="chase">Chase (core)</option>
+          <option value="tag">Hide-and-seek / Tag</option>
+        </select>
+      </label>
+      <label style="margin-left:10px;">Performance:
+        <select id="qualitySel">
+          <option value="high">High</option>
+          <option value="low">Low</option>
+        </select>
+      </label>
+      <button id="startBtn">Start</button>
     </div>
   </div>
 
-  <div id="overlay">
-    <div id="panel">
-      <h2 style="margin:0 0 8px;">Mediterranean Port City Prototype</h2>
-      <p style="margin:0;">A denser hilly harbor map with stacked buildings, stair streets, waterfront piers, roaming NPCs, and elevation-aware exploration. Keep the old loop: activate 5 pylons + recover hidden beacon. Bonus: gather all 10 shards for a speed boost.</p>
-      <button id="startBtn">Click to Start</button>
+  <div id="finish">
+    <div class="card">
+      <h2 style="margin:0 0 8px;color:#97f4b8;">Catch Confirmed ✅</h2>
+      <p id="finishText" style="margin:0 0 8px;"></p>
+      <button id="againBtn">Play Again</button>
     </div>
   </div>
 
   <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/loaders/GLTFLoader.js';
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x8cc7ff);
-    scene.fog = new THREE.Fog(0x8cc7ff, 45, 320);
+    scene.fog = new THREE.Fog(0x9ec9ff, 65, 290);
 
-    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 700);
+    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 800);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(innerWidth, innerHeight);
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.shadowMap.enabled = false;
     document.body.appendChild(renderer.domElement);
 
-    const hemi = new THREE.HemisphereLight(0xcbe6ff, 0x2d2c25, 1.0);
-    scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffffff, 0.95);
-    sun.position.set(120, 140, 40);
-    scene.add(sun);
+    const hemi = new THREE.HemisphereLight(0xd8ebff, 0x3a2e23, 0.95);
+    const sun = new THREE.DirectionalLight(0xffffff, 1.1);
+    sun.position.set(80, 130, 40);
+    scene.add(hemi, sun);
 
-    const worldMin = -210;
-    const worldMax = 210;
-    const eyeHeight = 1.74;
+    // Sky dome + sun glow + clouds
+    const sky = new THREE.Mesh(
+      new THREE.SphereGeometry(700, 32, 16),
+      new THREE.ShaderMaterial({
+        side: THREE.BackSide,
+        uniforms: {
+          top: { value: new THREE.Color(0x78b8ff) },
+          bottom: { value: new THREE.Color(0xf1cfa6) }
+        },
+        vertexShader: `varying vec3 vPos; void main(){ vPos=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+        fragmentShader: `uniform vec3 top; uniform vec3 bottom; varying vec3 vPos; void main(){ float h=normalize(vPos).y*0.5+0.5; gl_FragColor=vec4(mix(bottom,top,smoothstep(0.0,1.0,h)),1.0);} `
+      })
+    );
+    scene.add(sky);
 
+    const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0xffe4a0, transparent: true, opacity: 0.5 }));
+    sunGlow.scale.set(34, 34, 1);
+    sunGlow.position.set(130, 120, -80);
+    scene.add(sunGlow);
+
+    const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.16 });
+    const clouds = [];
+    for (let i = 0; i < 22; i++) {
+      const c = new THREE.Mesh(new THREE.PlaneGeometry(24 + Math.random() * 32, 8 + Math.random() * 6), cloudMat);
+      c.position.set(-180 + Math.random() * 360, 62 + Math.random() * 36, -180 + Math.random() * 360);
+      c.rotation.x = -Math.PI / 2;
+      scene.add(c); clouds.push(c);
+    }
+
+    const worldMin = -200, worldMax = 200, eyeHeight = 1.7;
     function terrainHeight(x, z) {
-      const gentle = Math.sin(x * 0.024) * 3.8 + Math.cos(z * 0.019) * 3.1;
-      const hillN = Math.exp(-((x + 34) ** 2 + (z + 70) ** 2) / 12000) * 13.5;
-      const hillS = Math.exp(-((x - 92) ** 2 + (z - 36) ** 2) / 9000) * 11.8;
-      const ridge = Math.sin((x + z) * 0.016) * 2.2;
-      let h = gentle + hillN + hillS + ridge;
-
-      // Harbor cutout: flatter and lower near eastern waterfront.
-      if (x > 64) {
-        const t = THREE.MathUtils.smoothstep(x, 64, 122);
-        h = THREE.MathUtils.lerp(h, -2.8 + Math.sin(z * 0.05) * 0.25, t);
-      }
+      const h = Math.sin(x * 0.022) * 3.4 + Math.cos(z * 0.02) * 2.6
+        + Math.exp(-((x + 44) ** 2 + (z + 64) ** 2) / 11800) * 12
+        + Math.exp(-((x - 88) ** 2 + (z - 28) ** 2) / 9200) * 10;
+      if (x > 68) return THREE.MathUtils.lerp(h, -2.9, THREE.MathUtils.smoothstep(x, 68, 128));
       return h;
     }
 
-    // Terrain mesh
-    const groundGeo = new THREE.PlaneGeometry(450, 450, 130, 130);
-    const gp = groundGeo.attributes.position;
-    for (let i = 0; i < gp.count; i++) {
-      const x = gp.getX(i), y = gp.getY(i);
-      gp.setZ(i, terrainHeight(x, y));
-    }
+    const groundGeo = new THREE.PlaneGeometry(450, 450, 120, 120);
+    const pos = groundGeo.attributes.position;
+    for (let i = 0; i < pos.count; i++) pos.setZ(i, terrainHeight(pos.getX(i), pos.getY(i)));
     groundGeo.computeVertexNormals();
-    const ground = new THREE.Mesh(
-      groundGeo,
-      new THREE.MeshStandardMaterial({ color: 0xc2ae7f, roughness: 0.97, metalness: 0.01 })
-    );
-    ground.rotation.x = -Math.PI / 2;
-    scene.add(ground);
+    const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ color: 0xcab28c, roughness: .98 }));
+    ground.rotation.x = -Math.PI / 2; scene.add(ground);
 
-    // Sea
-    const water = new THREE.Mesh(
-      new THREE.PlaneGeometry(190, 460, 2, 2),
-      new THREE.MeshStandardMaterial({ color: 0x2b80b6, roughness: 0.2, metalness: 0.05, transparent: true, opacity: 0.9 })
-    );
-    water.rotation.x = -Math.PI / 2;
-    water.position.set(132, -3.25, 0);
-    scene.add(water);
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(190, 460), new THREE.MeshStandardMaterial({ color: 0x2f86bc, roughness: .22, transparent: true, opacity: .9 }));
+    water.rotation.x = -Math.PI / 2; water.position.set(132, -3.2, 0); scene.add(water);
 
-    // Harbor edge wall
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0xaa9e8a, roughness: 0.88 });
-    for (let z = -200; z <= 200; z += 16) {
-      const block = new THREE.Mesh(new THREE.BoxGeometry(6, 4.5, 14), wallMat);
-      block.position.set(78, terrainHeight(78, z) - 1.8, z);
-      scene.add(block);
-    }
+    const buildingColliders = [];
+    const staticDecor = [];
+    function pushDecor(o) { staticDecor.push(o); scene.add(o); }
 
-    // Docks/piers
-    const dockMat = new THREE.MeshStandardMaterial({ color: 0x7f6144, roughness: 0.93 });
-    for (let i = 0; i < 9; i++) {
-      const z = -170 + i * 40;
-      const dock = new THREE.Mesh(new THREE.BoxGeometry(54, 1.15, 7), dockMat);
-      dock.position.set(104, -2.55, z);
-      scene.add(dock);
-    }
-
-    // Building generation (dense clusters)
-    const buildingPalette = [0xf1dfbf, 0xe8d2ad, 0xd8c39b, 0xf6e9cf, 0xdcc9a6];
-    const roofPalette = [0xb64938, 0xa03e2f, 0x8e3326, 0x9a4f2d];
-    const buildingGroups = [];
-    const rand = (a, b) => a + Math.random() * (b - a);
-
-    function addBuilding(x, z, w, d, h) {
-      if (x > 70) return; // keep waterfront open
+    // fallback-style city blocks (less boxy: body + arches + roof)
+    const bColors = [0xf2dfbd, 0xe4cda5, 0xd8be95, 0xf4e5ca];
+    for (let i = 0; i < 220; i++) {
+      const x = -170 + Math.random() * 240, z = -170 + Math.random() * 340;
+      if (x > 72 || terrainHeight(x, z) < -0.8) continue;
       const y = terrainHeight(x, z);
-      const body = new THREE.Mesh(
-        new THREE.BoxGeometry(w, h, d),
-        new THREE.MeshStandardMaterial({ color: buildingPalette[(Math.random() * buildingPalette.length) | 0], roughness: 0.85 })
-      );
-      body.position.set(x, y + h / 2, z);
-
-      const roofH = Math.max(0.5, Math.min(1.8, h * 0.12));
-      const roof = new THREE.Mesh(
-        new THREE.ConeGeometry(Math.max(w, d) * 0.62, roofH, 4),
-        new THREE.MeshStandardMaterial({ color: roofPalette[(Math.random() * roofPalette.length) | 0], roughness: 0.92 })
-      );
-      roof.rotation.y = Math.PI * 0.25;
-      roof.position.set(x, y + h + roofH * 0.48, z);
-
-      scene.add(body, roof);
-      buildingGroups.push({ x, z, r: Math.max(w, d) * 0.55 + 0.65 });
-
-      if (Math.random() < 0.35) {
-        const chimney = new THREE.Mesh(
-          new THREE.BoxGeometry(0.45, 1.2, 0.45),
-          new THREE.MeshStandardMaterial({ color: 0x84715d, roughness: 1 })
-        );
-        chimney.position.set(x + rand(-w * 0.25, w * 0.25), y + h + roofH * 0.8, z + rand(-d * 0.25, d * 0.25));
-        scene.add(chimney);
+      const w = 4 + Math.random() * 4.5, d = 4 + Math.random() * 4.5, h = 5 + Math.random() * 15;
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bColors[(Math.random() * bColors.length) | 0], roughness: .86 }));
+      body.position.y = h / 2;
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * .62, Math.max(.7, h * .1), 4), new THREE.MeshStandardMaterial({ color: 0x9d4730, roughness: .92 }));
+      roof.rotation.y = Math.PI * 0.25; roof.position.y = h + 0.55;
+      g.add(body, roof);
+      if (Math.random() < .55) {
+        const arch = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.15, 8, 16, Math.PI), new THREE.MeshStandardMaterial({ color: 0xcfb892, roughness: .9 }));
+        arch.rotation.z = Math.PI; arch.position.set(0, 1.3, d * 0.51); g.add(arch);
       }
+      g.position.set(x, y, z);
+      pushDecor(g);
+      buildingColliders.push({ x, z, r: Math.max(w, d) * .55 + .5 });
     }
 
-    const clusterCenters = [
-      [-72, -30], [-95, 58], [-24, -76], [-8, 24], [18, -16], [10, 72], [-58, 110], [42, 34]
-    ];
-
-    for (const [cx, cz] of clusterCenters) {
-      for (let i = 0; i < 26; i++) {
-        const x = cx + rand(-24, 24);
-        const z = cz + rand(-24, 24);
-        const slopeY = terrainHeight(x, z);
-        if (slopeY < -0.8 || x > 66) continue;
-        addBuilding(x, z, rand(3.8, 8.4), rand(3.8, 8.0), rand(5.2, 17.5));
-      }
-    }
-
-    // Streets (flat-ish path strips)
+    // Streets
     const roadMat = new THREE.MeshStandardMaterial({ color: 0xb6a98d, roughness: 0.96 });
-    function addPath(x1, z1, x2, z2, width = 4.2, steps = 24) {
+    function addPath(x1, z1, x2, z2, width = 4.2, steps = 22) {
       for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        const x = THREE.MathUtils.lerp(x1, x2, t);
-        const z = THREE.MathUtils.lerp(z1, z2, t);
-        const y = terrainHeight(x, z) + 0.03;
-        const tile = new THREE.Mesh(new THREE.BoxGeometry(width, 0.18, width * 0.84), roadMat);
-        tile.position.set(x, y, z);
+        const t = i / steps, x = THREE.MathUtils.lerp(x1, x2, t), z = THREE.MathUtils.lerp(z1, z2, t);
+        const tile = new THREE.Mesh(new THREE.BoxGeometry(width, .2, width * .84), roadMat);
+        tile.position.set(x, terrainHeight(x, z) + .05, z);
         tile.rotation.y = Math.atan2(x2 - x1, z2 - z1);
-        scene.add(tile);
+        pushDecor(tile);
       }
     }
+    [[-150,-110,-90,-42],[-90,-42,-20,-6],[-20,-6,58,18],[-86,72,-6,40],[-6,40,54,78],[-26,96,34,126],[-8,-92,44,-56]].forEach(p=>addPath(...p));
 
-    addPath(-140, -120, -90, -55, 4.8);
-    addPath(-90, -55, -20, -14, 4.8);
-    addPath(-20, -14, 52, 14, 4.8);
-    addPath(-84, 72, -8, 38, 4.4);
-    addPath(-10, 38, 58, 78, 4.4);
-    addPath(-78, 118, -18, 86, 4.4);
-    addPath(-18, 86, 34, 120, 4.4);
-    addPath(-10, -86, 46, -56, 4.4);
+    // Asset loading + graceful fallback
+    const loader = new GLTFLoader();
+    const suspect = new THREE.Group(); scene.add(suspect);
+    let suspectVisualLoaded = false;
 
-    // Stairs linking elevation levels
-    const stairMat = new THREE.MeshStandardMaterial({ color: 0xc8bda7, roughness: 0.9 });
-    function addStaircase(startX, startZ, endX, endZ, count = 16) {
-      for (let i = 0; i < count; i++) {
-        const t = (i + 0.5) / count;
-        const x = THREE.MathUtils.lerp(startX, endX, t);
-        const z = THREE.MathUtils.lerp(startZ, endZ, t);
-        const y = terrainHeight(x, z) + 0.06;
-        const w = 3.2;
-        const step = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, 1.1), stairMat);
-        step.position.set(x, y, z);
-        step.rotation.y = Math.atan2(endX - startX, endZ - startZ);
-        scene.add(step);
-      }
+    const assetLog = [];
+    function fallbackSuspect() {
+      const body = new THREE.Mesh(new THREE.CapsuleGeometry(.43, 1.2, 4, 8), new THREE.MeshStandardMaterial({ color: 0x2d3f66 }));
+      body.position.y = 1.2;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(.3, 12, 12), new THREE.MeshStandardMaterial({ color: 0xf0d0b1 }));
+      head.position.y = 2.15;
+      suspect.add(body, head);
+    }
+    fallbackSuspect();
+
+    function loadAsset(url, onOk, onFailLabel) {
+      loader.load(url, gltf => { assetLog.push(`loaded: ${url}`); onOk(gltf.scene); }, undefined, () => assetLog.push(`fallback: ${onFailLabel}`));
     }
 
-    addStaircase(-104, -8, -76, 18, 18);
-    addStaircase(-42, 24, -10, 52, 20);
-    addStaircase(6, -48, 40, -30, 16);
-    addStaircase(-56, 88, -24, 112, 18);
+    loadAsset('https://threejs.org/examples/models/gltf/Soldier.glb', (obj) => {
+      suspect.clear();
+      obj.scale.set(1.2, 1.2, 1.2);
+      suspect.add(obj);
+      suspectVisualLoaded = true;
+    }, 'suspect primitive');
 
-    // Props: cypress and crates
-    const treeMat = new THREE.MeshStandardMaterial({ color: 0x2d5e35, roughness: 1 });
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x6c4b30, roughness: 1 });
-    function addCypress(x, z) {
-      const y = terrainHeight(x, z);
-      const g = new THREE.Group();
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.28, 2.1, 6), trunkMat);
-      trunk.position.y = 1.05;
-      const cone = new THREE.Mesh(new THREE.ConeGeometry(rand(0.7, 1.1), rand(4.2, 6.3), 8), treeMat);
-      cone.position.y = 4.2;
-      g.add(trunk, cone);
-      g.position.set(x, y, z);
-      scene.add(g);
-    }
-    for (let i = 0; i < 110; i++) {
-      const x = rand(-190, 80), z = rand(-190, 190);
-      if (Math.random() < 0.65 && terrainHeight(x, z) > -0.6) addCypress(x, z);
-    }
+    // City landmark block (building-like real asset) with fallback tower
+    const landmarkAnchor = new THREE.Group();
+    landmarkAnchor.position.set(-165, terrainHeight(-165, 145), 145);
+    scene.add(landmarkAnchor);
+    const fallbackTower = new THREE.Mesh(new THREE.CylinderGeometry(5, 7, 28, 10), new THREE.MeshStandardMaterial({ color: 0xd7c29d, roughness: .88 }));
+    fallbackTower.position.y = 14; landmarkAnchor.add(fallbackTower);
+    loadAsset('https://threejs.org/examples/models/gltf/LittlestTokyo.glb', (obj) => {
+      landmarkAnchor.clear();
+      obj.scale.set(.12, .12, .12); obj.rotation.y = Math.PI * 0.7;
+      landmarkAnchor.add(obj);
+    }, 'landmark tower');
 
-    const crateMat = new THREE.MeshStandardMaterial({ color: 0x8a6a4a, roughness: 0.95 });
-    for (let i = 0; i < 36; i++) {
-      const x = rand(78, 123), z = rand(-185, 185);
-      const c = new THREE.Mesh(new THREE.BoxGeometry(rand(1, 2.3), rand(0.8, 1.8), rand(1, 2.2)), crateMat);
-      c.position.set(x, -2.4 + c.geometry.parameters.height / 2, z);
-      scene.add(c);
-    }
+    // Prop assets around harbor
+    const propSpawns = [[92,-80],[98,-20],[102,34],[108,92]];
+    propSpawns.forEach(([x,z]) => {
+      const anchor = new THREE.Group(); anchor.position.set(x, -2.6, z); scene.add(anchor);
+      const fb = new THREE.Mesh(new THREE.BoxGeometry(1.8,1.4,1.8), new THREE.MeshStandardMaterial({ color: 0x8a6a4a, roughness:.95 }));
+      anchor.add(fb);
+      loadAsset('https://threejs.org/examples/models/gltf/DamagedHelmet/glTF-Binary/DamagedHelmet.glb', (obj) => {
+        anchor.clear(); obj.scale.set(1.3,1.3,1.3); obj.rotation.y = Math.random()*Math.PI;
+        anchor.add(obj);
+      }, 'harbor crate prop');
+      staticDecor.push(anchor);
+    });
 
-    // Objectives
-    const pylons = [];
-    const pylonMatOff = new THREE.MeshStandardMaterial({ color: 0x3e4d5f, emissive: 0x000000, roughness: 0.62 });
-    const pylonMatOn = new THREE.MeshStandardMaterial({ color: 0xa8d6ff, emissive: 0x1e64c7, emissiveIntensity: 1.2, roughness: 0.38 });
-    const pylonPos = [[-128,-84],[-84,96],[-6,-34],[36,84],[58,-74]];
+    // Player + chase state
+    const state = { forward:false, back:false, left:false, right:false, canControl:false };
+    const player = { x:-8, z:-8, yaw:0, pitch:0 };
+    const velocity = new THREE.Vector3();
+    const move = new THREE.Vector3();
+    const tempF = new THREE.Vector3(); const tempR = new THREE.Vector3();
+    const baseMove = 11.2;
 
-    for (const [x, z] of pylonPos) {
-      const y = terrainHeight(x, z);
-      const g = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.95, 5.4, 10), pylonMatOff.clone());
-      const core = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 14), new THREE.MeshStandardMaterial({ color: 0x79b3ff, emissive: 0x1f3f88, emissiveIntensity: 0.18 }));
-      body.position.y = 2.7;
-      core.position.y = 5.55;
-      g.add(body, core);
-      g.position.set(x, y, z);
-      scene.add(g);
-      pylons.push({ group: g, body, core, active: false });
-    }
-
-    const beacon = new THREE.Group();
-    const beaconStem = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.38, 3.2, 8), new THREE.MeshStandardMaterial({ color: 0x5e6774, roughness: 0.52 }));
-    beaconStem.position.y = 1.6;
-    const beaconCore = new THREE.Mesh(new THREE.IcosahedronGeometry(0.75, 0), new THREE.MeshStandardMaterial({ color: 0xffe59e, emissive: 0xf2982f, emissiveIntensity: 0.7, roughness: 0.2 }));
-    beaconCore.position.y = 3.65;
-    beacon.add(beaconStem, beaconCore);
-    const beaconBase = { x: -154, z: 132 };
-    beacon.position.set(beaconBase.x, terrainHeight(beaconBase.x, beaconBase.z), beaconBase.z);
-    scene.add(beacon);
-    let beaconFound = false;
-
-    const shardPositions = [[-138,-112],[-106,-136],[-36,-104],[18,-98],[48,-38],[52,46],[20,112],[-22,88],[-92,46],[-142,-16]];
-    const shards = [];
-    for (const [x, z] of shardPositions) {
-      const y = terrainHeight(x, z) + 1.45;
-      const shard = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.78, 0),
-        new THREE.MeshStandardMaterial({ color: 0xb798ff, emissive: 0x6b32cc, emissiveIntensity: 0.66, roughness: 0.28, metalness: 0.2 })
-      );
-      shard.position.set(x, y, z);
-      shard.rotation.set(Math.random() * .6, Math.random() * Math.PI, Math.random() * .6);
-      scene.add(shard);
-      shards.push({ mesh: shard, baseY: y, collected: false });
-    }
-
-    // NPCs
-    const npcBubble = document.getElementById('npcBubble');
-    const npcQuotes = [
-      'Fish market closes at sunset.',
-      'These stairs saved my knees.',
-      'Storms come from the east.',
-      'A pylon flickered near the upper plaza.',
-      'Old smugglers hid a beacon in the hills.'
-    ];
-
-    const npcDefs = [
-      { name: 'Mina', x: -88, z: -24 },
-      { name: 'Tariq', x: -14, z: 32 },
-      { name: 'Sofia', x: 36, z: -12 },
-      { name: 'Nikos', x: -44, z: 92 },
-      { name: 'Rafi', x: 42, z: 64 },
-      { name: 'Luca', x: -122, z: 56 }
-    ];
-
-    const npcs = [];
-    function makeNpc(def) {
-      const g = new THREE.Group();
-      const robe = new THREE.Mesh(new THREE.CapsuleGeometry(0.43, 1.2, 4, 8), new THREE.MeshStandardMaterial({ color: [0x6b92c7,0xd89d7a,0x92a17f,0xa984c0,0xc9a66b][(Math.random()*5)|0], roughness: 0.85 }));
-      robe.position.y = 1.2;
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 10), new THREE.MeshStandardMaterial({ color: 0xe8c9a8, roughness: 0.9 }));
-      head.position.y = 2.2;
-      g.add(robe, head);
-
-      g.position.set(def.x, terrainHeight(def.x, def.z), def.z);
-      scene.add(g);
-
-      return {
-        name: def.name,
-        group: g,
-        speed: rand(0.95, 1.8),
-        idleTimer: rand(0.8, 2.5),
-        target: new THREE.Vector3(def.x, terrainHeight(def.x, def.z), def.z),
-        walking: false,
-        quote: npcQuotes[(Math.random() * npcQuotes.length) | 0]
-      };
-    }
-
-    for (const d of npcDefs) npcs.push(makeNpc(d));
-
-    function pickNpcTarget(npc) {
-      for (let tries = 0; tries < 12; tries++) {
-        const nx = npc.group.position.x + rand(-22, 22);
-        const nz = npc.group.position.z + rand(-22, 22);
-        if (nx > 64 || nx < -180 || nz < -180 || nz > 180) continue;
-        const ny = terrainHeight(nx, nz);
-        if (ny < -0.8) continue;
-        npc.target.set(nx, ny, nz);
-        npc.walking = true;
-        return;
-      }
-      npc.walking = false;
-    }
-
-    // UI refs
-    const overlay = document.getElementById('overlay');
-    const startBtn = document.getElementById('startBtn');
-    const msgEl = document.getElementById('msg');
-    const countEl = document.getElementById('count');
-    const beaconStateEl = document.getElementById('beaconState');
-    const shardCountEl = document.getElementById('shardCount');
-    const speedStateEl = document.getElementById('speedState');
-    const scoreEl = document.getElementById('score');
-    const rewardEl = document.getElementById('reward');
-    const winPanelEl = document.getElementById('winPanel');
-    const winStatsEl = document.getElementById('winStats');
-    const radarCanvas = document.getElementById('radar');
-    const radarCtx = radarCanvas.getContext('2d');
-
-    const milestones = {
-      first: document.getElementById('ms-first'),
-      three: document.getElementById('ms-three'),
-      all: document.getElementById('ms-all'),
-      beacon: document.getElementById('ms-beacon'),
-      win: document.getElementById('ms-win')
+    const suspectState = {
+      path: [[-98,-78],[-60,-34],[-16,10],[28,42],[58,84],[20,106],[-26,92],[-84,52],[-120,8],[-104,-44]],
+      wp: 0,
+      speedBase: 7.2,
+      mode: 'chase',
+      hideTimer: 0,
+      visible: true,
+      catches: 0,
+      started: 0
     };
 
-    const state = { forward: false, back: false, left: false, right: false, canControl: false };
-    const progress = { score: 0, completedAt: null, startAt: performance.now() };
-    const velocity = new THREE.Vector3();
-    const moveInput = new THREE.Vector3();
-    const tempF = new THREE.Vector3();
-    const tempR = new THREE.Vector3();
+    const hideSpots = [[-98,78],[-16,82],[36,64],[-72,-18],[18,-56]].map(([x,z]) => new THREE.Vector3(x, terrainHeight(x,z), z));
 
-    const player = { x: -8, z: -14, yaw: 0, pitch: 0 };
-    const baseMoveSpeed = 11.2;
-    let speedMultiplier = 1;
-    let speedBoostUnlocked = false;
+    const ui = {
+      overlay: document.getElementById('overlay'),
+      finish: document.getElementById('finish'),
+      finishText: document.getElementById('finishText'),
+      modeSel: document.getElementById('modeSel'),
+      qualitySel: document.getElementById('qualitySel'),
+      modeLabel: document.getElementById('modeLabel'),
+      qLabel: document.getElementById('qLabel'),
+      dist: document.getElementById('dist'),
+      rb: document.getElementById('rb'),
+      score: document.getElementById('score'),
+      time: document.getElementById('time'),
+      msg: document.getElementById('msg')
+    };
 
-    function setMessage(text, timeout = 1800) {
-      msgEl.textContent = text;
-      if (timeout > 0) {
-        clearTimeout(setMessage.t);
-        setMessage.t = setTimeout(() => {
-          if (msgEl.textContent === text) msgEl.textContent = 'Explore alleys, stair routes, pylons, and waterfront.';
-        }, timeout);
-      }
-    }
-
-    function markMilestone(node) { if (node) node.classList.add('done'); }
-
-    function addReward(points, reason) {
-      progress.score += points;
-      scoreEl.textContent = String(progress.score);
-      rewardEl.textContent = `+${points} ${reason}`;
-      rewardEl.style.opacity = '1';
-      clearTimeout(addReward.t);
-      addReward.t = setTimeout(() => {
-        rewardEl.style.opacity = '.85';
-        rewardEl.textContent = 'Earn more by exploring elevation routes.';
-      }, 1900);
-    }
-
-    function showWinPanel() {
-      if (progress.completedAt) return;
-      progress.completedAt = performance.now();
-      const elapsedSec = Math.round((progress.completedAt - progress.startAt) / 1000);
-      const min = Math.floor(elapsedSec / 60);
-      const sec = String(elapsedSec % 60).padStart(2, '0');
-      const shardDone = shards.filter(s => s.collected).length;
-      winStatsEl.innerHTML = `
-        <li><strong>Final prestige:</strong> ${progress.score}</li>
-        <li><strong>Pylons relit:</strong> ${pylons.length}/${pylons.length}</li>
-        <li><strong>Beacon:</strong> recovered</li>
-        <li><strong>Shards recovered:</strong> ${shardDone}/${shards.length}</li>
-        <li><strong>Re-chart time:</strong> ${min}:${sec}</li>`;
-      winPanelEl.style.display = 'grid';
+    let quality = 'high';
+    let cullDistance = 170;
+    function applyQuality(q) {
+      quality = q;
+      const low = q === 'low';
+      renderer.setPixelRatio(Math.min(devicePixelRatio, low ? 1.1 : 2));
+      cullDistance = low ? 95 : 170;
+      clouds.forEach(c => c.visible = !low);
+      ui.qLabel.textContent = low ? 'Low' : 'High';
     }
 
     function lockPointer() { document.body.requestPointerLock(); }
-    startBtn.addEventListener('click', lockPointer);
-    winPanelEl.addEventListener('click', lockPointer);
+    document.getElementById('startBtn').addEventListener('click', () => {
+      suspectState.mode = ui.modeSel.value;
+      ui.modeLabel.textContent = suspectState.mode === 'chase' ? 'Chase' : 'Hide & Seek Tag';
+      applyQuality(ui.qualitySel.value);
+      suspectState.catches = 0; ui.score.textContent = '0'; ui.finish.style.display = 'none';
+      suspectState.started = performance.now();
+      lockPointer();
+      ui.msg.textContent = suspectState.mode === 'chase' ? 'Close in and tag the suspect.' : 'Find, reveal, then tag with E.';
+    });
+    document.getElementById('againBtn').addEventListener('click', lockPointer);
+
     document.addEventListener('pointerlockchange', () => {
       state.canControl = document.pointerLockElement === document.body;
-      overlay.style.display = state.canControl ? 'none' : 'grid';
-      if (state.canControl) winPanelEl.style.display = 'none';
+      ui.overlay.style.display = state.canControl ? 'none' : 'grid';
     });
 
-    document.addEventListener('mousemove', (e) => {
+    document.addEventListener('mousemove', e => {
       if (!state.canControl) return;
-      player.yaw -= e.movementX * 0.0021;
-      player.pitch -= e.movementY * 0.0018;
-      player.pitch = Math.max(-Math.PI / 2 + 0.02, Math.min(Math.PI / 2 - 0.02, player.pitch));
+      player.yaw -= e.movementX * .0021;
+      player.pitch = THREE.MathUtils.clamp(player.pitch - e.movementY * .0018, -Math.PI/2 + .02, Math.PI/2 - .02);
     });
-
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', e => {
       if (e.code === 'KeyW') state.forward = true;
       if (e.code === 'KeyS') state.back = true;
       if (e.code === 'KeyA') state.left = true;
       if (e.code === 'KeyD') state.right = true;
-      if (e.code === 'KeyE') tryActivate();
+      if (e.code === 'KeyE') tryTag(true);
     });
-
-    document.addEventListener('keyup', (e) => {
+    document.addEventListener('keyup', e => {
       if (e.code === 'KeyW') state.forward = false;
       if (e.code === 'KeyS') state.back = false;
       if (e.code === 'KeyA') state.left = false;
       if (e.code === 'KeyD') state.right = false;
     });
 
-    function tryActivate() {
-      const camPos = camera.position;
-      if (!beaconFound && camPos.distanceTo(beacon.position) < 8.3) {
-        beaconFound = true;
-        beaconCore.material.emissiveIntensity = 1.55;
-        beaconCore.material.color.setHex(0x95f6b8);
-        beaconStateEl.textContent = 'found';
-        beaconStateEl.style.color = '#95f6b8';
-        markMilestone(milestones.beacon);
-        addReward(250, 'Smugglers\' beacon recovered');
-        setMessage('Hidden beacon recovered! +250');
-      }
-
-      let nearest = null;
-      let nearestDist = Infinity;
-      for (const p of pylons) {
-        if (p.active) continue;
-        const d = camPos.distanceTo(p.group.position);
-        if (d < nearestDist) { nearestDist = d; nearest = p; }
-      }
-
-      if (!nearest || nearestDist > 7.6) {
-        setMessage('No pylon close enough. Climb higher streets and try again.');
-        return;
-      }
-
-      nearest.active = true;
-      nearest.body.material = pylonMatOn.clone();
-      nearest.core.material.emissiveIntensity = 1.5;
-      nearest.core.scale.setScalar(1.24);
-
-      const done = pylons.filter(p => p.active).length;
-      countEl.textContent = String(done);
-      const pylonReward = 110 + done * 16;
-      addReward(pylonReward, `Pylon ${done}/${pylons.length} relit`);
-
-      if (done >= 1) markMilestone(milestones.first);
-      if (done >= 3) markMilestone(milestones.three);
-      if (done === pylons.length) markMilestone(milestones.all);
-
-      if (done === pylons.length && beaconFound) {
-        markMilestone(milestones.win);
-        addReward(520, 'Port restoration complete');
-        setMessage('All pylons relit and beacon recovered. Port fully re-charted!', 0);
-        showWinPanel();
-      } else if (done === pylons.length) {
-        setMessage('All pylons relit. One task remains: recover the hidden beacon.', 0);
-      } else {
-        setMessage(`Pylon relit (${done}/${pylons.length}) +${pylonReward}`);
-      }
-    }
-
-    function updateShards(t) {
-      let picked = 0;
-      const camPos = camera.position;
-      for (const s of shards) {
-        if (s.collected) continue;
-        const m = s.mesh;
-        m.rotation.y += 0.03;
-        m.position.y = s.baseY + Math.sin(t * 2.5 + m.position.x * 0.02) * 0.22;
-        if (camPos.distanceTo(m.position) < 2.3) {
-          s.collected = true;
-          m.visible = false;
-          picked++;
-        }
-      }
-      if (!picked) return;
-      const collected = shards.filter(x => x.collected).length;
-      shardCountEl.textContent = String(collected);
-      addReward(35 * picked, picked > 1 ? `${picked} shards collected` : 'Shard collected');
-      if (collected === shards.length && !speedBoostUnlocked) {
-        speedBoostUnlocked = true;
-        speedMultiplier = 1.2;
-        speedStateEl.textContent = 'Sprint boost active (+20%)';
-        speedStateEl.style.color = '#95f6b8';
-        addReward(190, 'All shards bonus');
-        setMessage('All shards recovered! Movement boosted.', 2800);
-      } else {
-        setMessage(`Shard recovered (${collected}/${shards.length})`, 1200);
-      }
-    }
-
-    function drawRadar() {
-      const w = radarCanvas.width, h = radarCanvas.height;
-      const cx = w / 2, cy = h / 2;
-      const range = 120;
-      radarCtx.clearRect(0, 0, w, h);
-      radarCtx.fillStyle = '#0b1322';
-      radarCtx.fillRect(0, 0, w, h);
-      radarCtx.strokeStyle = 'rgba(148,163,184,.36)';
-      radarCtx.lineWidth = 1;
-      for (const r of [18, 34, 50, 66]) {
-        radarCtx.beginPath(); radarCtx.arc(cx, cy, r, 0, Math.PI * 2); radarCtx.stroke();
-      }
-
-      const px = camera.position.x, pz = camera.position.z;
-      function blip(wx, wz, color, size = 3) {
-        const dx = wx - px, dz = wz - pz;
-        const rx = THREE.MathUtils.clamp(dx / range, -1, 1);
-        const rz = THREE.MathUtils.clamp(dz / range, -1, 1);
-        radarCtx.fillStyle = color;
-        radarCtx.beginPath();
-        radarCtx.arc(cx + rx * 62, cy + rz * 62, size, 0, Math.PI * 2);
-        radarCtx.fill();
-      }
-
-      for (const p of pylons) if (!p.active) blip(p.group.position.x, p.group.position.z, '#7ab7ff', 2.8);
-      if (!beaconFound) blip(beacon.position.x, beacon.position.z, '#f0b24d', 2.6);
-      for (const s of shards) if (!s.collected) blip(s.mesh.position.x, s.mesh.position.z, '#c493ff', 2.1);
-      for (const n of npcs) blip(n.group.position.x, n.group.position.z, '#7ce3be', 1.7);
-
-      radarCtx.save();
-      radarCtx.translate(cx, cy);
-      radarCtx.rotate(-player.yaw);
-      radarCtx.fillStyle = '#f4f8ff';
-      radarCtx.beginPath();
-      radarCtx.moveTo(0, -7);
-      radarCtx.lineTo(5, 5);
-      radarCtx.lineTo(-5, 5);
-      radarCtx.closePath();
-      radarCtx.fill();
-      radarCtx.restore();
-    }
-
-    function resolveBuildingCollision(nx, nz) {
+    function resolveCollide(nx, nz) {
       let x = nx, z = nz;
-      for (const b of buildingGroups) {
-        const dx = x - b.x, dz = z - b.z;
-        const d2 = dx * dx + dz * dz;
-        const r2 = b.r * b.r;
+      for (const b of buildingColliders) {
+        const dx = x - b.x, dz = z - b.z, d2 = dx*dx + dz*dz, r2 = b.r*b.r;
         if (d2 < r2) {
-          const d = Math.sqrt(Math.max(0.0001, d2));
-          const push = (b.r - d) + 0.05;
-          x += (dx / d) * push;
-          z += (dz / d) * push;
+          const d = Math.sqrt(Math.max(1e-4, d2));
+          const push = (b.r - d) + .07;
+          x += (dx/d)*push; z += (dz/d)*push;
         }
       }
-      return { x, z };
+      return {x,z};
     }
 
-    function updateNpcs(dt, t) {
-      let nearest = null;
-      let nearestDist = Infinity;
-
-      for (const npc of npcs) {
-        npc.idleTimer -= dt;
-        if (npc.walking) {
-          const to = npc.target.clone().sub(npc.group.position);
-          to.y = 0;
-          const dist = to.length();
-          if (dist < 0.7) {
-            npc.walking = false;
-            npc.idleTimer = rand(1.2, 3.5);
-          } else {
-            to.normalize();
-            npc.group.position.x += to.x * npc.speed * dt;
-            npc.group.position.z += to.z * npc.speed * dt;
-            npc.group.rotation.y = Math.atan2(to.x, to.z);
-          }
-        } else if (npc.idleTimer <= 0) {
-          pickNpcTarget(npc);
-        }
-
-        const nx = npc.group.position.x, nz = npc.group.position.z;
-        npc.group.position.y = terrainHeight(nx, nz);
-        npc.group.position.y += Math.sin(t * 3.2 + nx * 0.05) * 0.02;
-
-        const d = camera.position.distanceTo(npc.group.position);
-        if (d < nearestDist) {
-          nearestDist = d;
-          nearest = npc;
-        }
+    function updateCulling(px, pz) {
+      const c2 = cullDistance * cullDistance;
+      for (const o of staticDecor) {
+        const dx = o.position.x - px, dz = o.position.z - pz;
+        o.visible = (dx*dx + dz*dz) < c2;
       }
+    }
 
-      if (nearest && nearestDist < 8.5) {
-        const p = nearest.group.position.clone().add(new THREE.Vector3(0, 2.8, 0)).project(camera);
-        const sx = (p.x * .5 + .5) * innerWidth;
-        const sy = (-p.y * .5 + .5) * innerHeight;
-        npcBubble.style.display = 'block';
-        npcBubble.style.left = `${sx}px`;
-        npcBubble.style.top = `${sy}px`;
-        npcBubble.textContent = `${nearest.name}: ${nearest.quote}`;
-      } else {
-        npcBubble.style.display = 'none';
+    function placeSuspect(x, z) {
+      suspect.position.set(x, terrainHeight(x, z), z);
+    }
+    placeSuspect(-90, -68);
+
+    function tryTag(requireE = false) {
+      const d = camera.position.distanceTo(suspect.position);
+      if (d > 2.8) return;
+      if (suspectState.mode === 'tag' && !suspectState.visible) return;
+      suspectState.catches += 1;
+      ui.score.textContent = String(suspectState.catches);
+      ui.msg.textContent = 'Tagged! Suspect relocated.';
+      suspectState.wp = (suspectState.wp + 4) % suspectState.path.length;
+      const [rx, rz] = suspectState.path[suspectState.wp];
+      placeSuspect(rx, rz);
+      if (suspectState.catches >= 3) {
+        const sec = ((performance.now() - suspectState.started) / 1000).toFixed(1);
+        ui.finishText.textContent = `You secured 3 catches in ${sec}s (${suspectState.mode === 'chase' ? 'Chase' : 'Hide-and-seek'} mode).`;
+        ui.finish.style.display = 'grid';
+        document.exitPointerLock();
       }
     }
 
     const clock = new THREE.Clock();
     function animate() {
       requestAnimationFrame(animate);
-      const dt = Math.min(clock.getDelta(), 0.05);
+      const dt = Math.min(clock.getDelta(), .05);
       const t = clock.elapsedTime;
 
-      camera.rotation.order = 'YXZ';
-      camera.rotation.y = player.yaw;
-      camera.rotation.x = player.pitch;
+      camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch;
+      move.set(0,0,0);
+      if (state.forward) move.z -= 1;
+      if (state.back) move.z += 1;
+      if (state.left) move.x -= 1;
+      if (state.right) move.x += 1;
+      if (move.lengthSq() > 0) move.normalize();
 
-      moveInput.set(0, 0, 0);
-      if (state.forward) moveInput.z -= 1;
-      if (state.back) moveInput.z += 1;
-      if (state.left) moveInput.x -= 1;
-      if (state.right) moveInput.x += 1;
-      if (moveInput.lengthSq() > 0) moveInput.normalize();
+      const accel = baseMove * (state.canControl ? 1 : 0);
+      velocity.x = THREE.MathUtils.damp(velocity.x, move.x * accel, 10, dt);
+      velocity.z = THREE.MathUtils.damp(velocity.z, move.z * accel, 10, dt);
 
-      const accel = baseMoveSpeed * speedMultiplier * (state.canControl ? 1 : 0);
-      velocity.x = THREE.MathUtils.damp(velocity.x, moveInput.x * accel, 10, dt);
-      velocity.z = THREE.MathUtils.damp(velocity.z, moveInput.z * accel, 10, dt);
-
-      tempF.set(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.yaw);
-      tempR.set(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), player.yaw);
+      tempF.set(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0), player.yaw);
+      tempR.set(1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0), player.yaw);
       player.x += tempF.x * velocity.z * dt + tempR.x * velocity.x * dt;
       player.z += tempF.z * velocity.z * dt + tempR.z * velocity.x * dt;
-
-      const collided = resolveBuildingCollision(player.x, player.z);
-      player.x = collided.x;
-      player.z = collided.z;
-
-      player.x = THREE.MathUtils.clamp(player.x, worldMin, worldMax);
+      ({x:player.x, z:player.z} = resolveCollide(player.x, player.z));
+      player.x = THREE.MathUtils.clamp(player.x, worldMin, 84);
       player.z = THREE.MathUtils.clamp(player.z, worldMin, worldMax);
-      if (player.x > 84) player.x = 84; // prevent swimming out of world
+      camera.position.set(player.x, terrainHeight(player.x, player.z) + eyeHeight, player.z);
 
-      const groundY = terrainHeight(player.x, player.z);
-      camera.position.set(player.x, groundY + eyeHeight, player.z);
+      // Suspect AI with rubber-banding
+      const toP = new THREE.Vector3(camera.position.x - suspect.position.x, 0, camera.position.z - suspect.position.z);
+      const dist = toP.length();
+      const base = suspectState.speedBase;
+      let rbFactor = 1;
+      let rbLabel = 'neutral';
+      if (dist > 42) { rbFactor = .84; rbLabel = 'assist player'; }
+      else if (dist < 14) { rbFactor = 1.2; rbLabel = 'suspect evasive'; }
 
-      // Time-of-day
-      const dayFactor = Math.sin(t * 0.045) * 0.5 + 0.5;
-      const sky = new THREE.Color().lerpColors(new THREE.Color(0x10183a), new THREE.Color(0x8cc7ff), dayFactor);
-      scene.background.copy(sky);
-      scene.fog.color.copy(sky);
-      sun.intensity = 0.25 + dayFactor * 0.95;
-      sun.position.set(Math.cos(t * 0.045) * 130, 24 + dayFactor * 122, Math.sin(t * 0.045) * 90);
-      hemi.intensity = 0.28 + dayFactor * 0.9;
-      water.material.color.set(dayFactor > 0.5 ? 0x2b80b6 : 0x1f4e7a);
-
-      // Objective animations
-      for (const p of pylons) {
-        p.core.position.y = 5.55 + Math.sin(t * 2.2 + p.group.position.x) * 0.08;
-        if (!p.active) p.core.material.emissiveIntensity = 0.15 + (Math.sin(t * 3 + p.group.position.z) + 1) * 0.09;
+      suspectState.hideTimer -= dt;
+      if (suspectState.mode === 'tag') {
+        if (suspectState.hideTimer <= 0) {
+          suspectState.visible = !suspectState.visible;
+          suspectState.hideTimer = suspectState.visible ? 10 : 6;
+          if (!suspectState.visible) {
+            const hs = hideSpots[(Math.random() * hideSpots.length) | 0];
+            placeSuspect(hs.x, hs.z);
+          }
+        }
+      } else {
+        suspectState.visible = true;
       }
-      beaconCore.rotation.y += dt * 0.8;
-      beaconCore.position.y = 3.65 + Math.sin(t * 1.6) * 0.2;
-      if (!beaconFound) beaconCore.material.emissiveIntensity = 0.5 + (Math.sin(t * 2.4) + 1) * 0.22;
+      suspect.visible = suspectState.visible;
 
-      updateShards(t);
-      updateNpcs(dt, t);
-      drawRadar();
+      const wp = suspectState.path[suspectState.wp];
+      const target = new THREE.Vector3(wp[0], terrainHeight(wp[0], wp[1]), wp[1]);
+      const dir = target.clone().sub(suspect.position); dir.y = 0;
+      if (dir.length() < 2.5) suspectState.wp = (suspectState.wp + 1) % suspectState.path.length;
+      dir.normalize();
+      if (dist < 18) {
+        const away = suspect.position.clone().sub(camera.position); away.y = 0; away.normalize();
+        dir.lerp(away, .55 + Math.sin(t * 5.5) * .15).normalize();
+      }
+      const sSpeed = base * rbFactor * (suspectState.visible ? 1 : 0.65);
+      suspect.position.x += dir.x * sSpeed * dt;
+      suspect.position.z += dir.z * sSpeed * dt;
+      suspect.position.y = terrainHeight(suspect.position.x, suspect.position.z);
+      suspect.rotation.y = Math.atan2(dir.x, dir.z);
 
+      ui.dist.textContent = dist.toFixed(1);
+      ui.rb.textContent = rbLabel;
+      ui.time.textContent = ((performance.now() - suspectState.started) / 1000).toFixed(1);
+
+      if (suspectState.mode === 'chase' && dist < 2.2) tryTag(false);
+      if (suspectState.mode === 'tag' && dist < 3.5 && suspectState.visible) ui.msg.textContent = 'Press E to tag suspect!';
+
+      // Atmo
+      const day = Math.sin(t * .04) * .5 + .5;
+      hemi.intensity = .35 + day * .9; sun.intensity = .25 + day * 1.0;
+      sun.position.set(Math.cos(t * .04) * 120, 20 + day * 130, Math.sin(t * .04) * 90);
+      sunGlow.position.copy(sun.position).multiplyScalar(.9);
+      water.material.color.set(day > .5 ? 0x2f86bc : 0x1f4f7d);
+      clouds.forEach((c, i) => { c.position.x += dt * (0.8 + i * .02); if (c.position.x > 200) c.position.x = -200; });
+
+      updateCulling(camera.position.x, camera.position.z);
       renderer.render(scene, camera);
     }
-
     animate();
 
     addEventListener('resize', () => {
@@ -767,6 +446,10 @@
       camera.updateProjectionMatrix();
       renderer.setSize(innerWidth, innerHeight);
     });
+
+    // Expose for quick manual check in console
+    window.__assetLog = assetLog;
+    window.__suspectVisualLoaded = () => suspectVisualLoaded;
   </script>
 </body>
 </html>

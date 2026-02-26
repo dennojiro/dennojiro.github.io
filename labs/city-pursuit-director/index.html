@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>City Pursuit Director</title>
+    <style>
+      :root {
+        --bg: #0a1020;
+        --panel: #121b33;
+        --panel-2: #0f1730;
+        --text: #eaf0ff;
+        --muted: #9ab0df;
+        --accent: #76f0cf;
+        --danger: #ff8ea3;
+        --line: #263a68;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: radial-gradient(900px 500px at 15% -15%, #1c2f63 0%, var(--bg) 65%);
+        color: var(--text);
+      }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 18px 14px 34px; }
+      h1 { margin: 0 0 8px; font-size: clamp(1.45rem, 4vw, 2rem); }
+      .lead { margin: 0 0 14px; color: var(--muted); line-height: 1.45; }
+      .shell { display: grid; grid-template-columns: 290px 1fr; gap: 12px; }
+      @media (max-width: 840px) { .shell { grid-template-columns: 1fr; } }
+      .card {
+        background: linear-gradient(180deg, var(--panel), var(--panel-2));
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px;
+      }
+      .controls { display: grid; gap: 10px; }
+      .field { display: grid; gap: 4px; }
+      .field label { font-size: 0.84rem; color: var(--muted); }
+      select, input, button {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #0b1330;
+        color: var(--text);
+        padding: 8px 10px;
+        font: inherit;
+      }
+      .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      button { cursor: pointer; font-weight: 700; }
+      .primary { background: linear-gradient(135deg, #77f0d0, #72b7ff); color: #0b1020; border: 0; }
+      .warn { border-color: #644056; color: #ffd6e2; }
+      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+      .stat { background: #0b1530; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+      .stat small { display: block; color: var(--muted); font-size: 0.75rem; }
+      .stat strong { font-size: 1.04rem; }
+      canvas {
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        background: #090f20;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        display: block;
+      }
+      .log {
+        margin-top: 10px;
+        min-height: 82px;
+        max-height: 130px;
+        overflow: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.77rem;
+        color: #c9dcff;
+        background: #081024;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 8px;
+        line-height: 1.35;
+      }
+      .meta { margin-top: 9px; color: var(--muted); font-size: 0.82rem; }
+      a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <h1>City Pursuit Director</h1>
+      <p class="lead">Generate a tiny chase script, then simulate and replay it with the same seed. No backend, no loading screens, instant run.</p>
+
+      <section class="shell">
+        <aside class="card controls" aria-label="Scenario controls">
+          <div class="field">
+            <label for="district">District</label>
+            <select id="district">
+              <option>Neon Market</option>
+              <option>Harbor Grid</option>
+              <option>Old Tram Quarter</option>
+              <option>Skybridge Loop</option>
+              <option>Warehouse Fringe</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="weather">Weather</label>
+            <select id="weather">
+              <option>Clear Night</option>
+              <option>Rain Burst</option>
+              <option>Crosswind Gusts</option>
+              <option>Dense Fog</option>
+              <option>Heat Shimmer</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="behavior">Target Behavior</label>
+            <select id="behavior">
+              <option>Erratic Zig-Zag</option>
+              <option>Alley Ghosting</option>
+              <option>Traffic Shielding</option>
+              <option>Straight-Line Sprinter</option>
+              <option>Decoy Dropper</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="seed">Seed (optional)</label>
+            <input id="seed" type="text" placeholder="auto if blank" autocomplete="off" />
+          </div>
+          <div class="btns">
+            <button id="generate" class="primary" type="button">Generate + Play</button>
+            <button id="replay" type="button">Replay Seed</button>
+          </div>
+          <button id="newSeed" class="warn" type="button">New random seed</button>
+          <p class="meta">Tip: replaying the same seed gives identical timing/events so runs are shareable.</p>
+          <p class="meta"><a href="../index.html">← Back to Labs</a></p>
+        </aside>
+
+        <section class="card" aria-label="Simulation">
+          <div class="hud">
+            <div class="stat"><small>Seed</small><strong id="hudSeed">-</strong></div>
+            <div class="stat"><small>Time</small><strong id="hudTime">0.0s</strong></div>
+            <div class="stat"><small>Score</small><strong id="hudScore">0</strong></div>
+            <div class="stat"><small>Status</small><strong id="hudStatus">idle</strong></div>
+          </div>
+          <canvas id="stage" width="840" height="520" aria-label="Pursuit map"></canvas>
+          <div class="log" id="eventLog" aria-live="polite"></div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const districtEl = document.getElementById('district');
+        const weatherEl = document.getElementById('weather');
+        const behaviorEl = document.getElementById('behavior');
+        const seedEl = document.getElementById('seed');
+        const generateBtn = document.getElementById('generate');
+        const replayBtn = document.getElementById('replay');
+        const newSeedBtn = document.getElementById('newSeed');
+        const hudSeed = document.getElementById('hudSeed');
+        const hudTime = document.getElementById('hudTime');
+        const hudScore = document.getElementById('hudScore');
+        const hudStatus = document.getElementById('hudStatus');
+        const eventLog = document.getElementById('eventLog');
+        const canvas = document.getElementById('stage');
+        const ctx = canvas.getContext('2d');
+
+        const weatherFactor = {
+          'Clear Night': 1,
+          'Rain Burst': 0.92,
+          'Crosswind Gusts': 0.88,
+          'Dense Fog': 0.85,
+          'Heat Shimmer': 0.9
+        };
+
+        const behaviorFactor = {
+          'Erratic Zig-Zag': 1.1,
+          'Alley Ghosting': 1.04,
+          'Traffic Shielding': 1.06,
+          'Straight-Line Sprinter': 0.96,
+          'Decoy Dropper': 1.08
+        };
+
+        const districtFactor = {
+          'Neon Market': 0.95,
+          'Harbor Grid': 1,
+          'Old Tram Quarter': 0.93,
+          'Skybridge Loop': 1.07,
+          'Warehouse Fringe': 1.03
+        };
+
+        const state = {
+          run: null,
+          raf: null,
+          lastSeed: null
+        };
+
+        const hash = (s) => {
+          let h = 2166136261;
+          for (let i = 0; i < s.length; i += 1) {
+            h ^= s.charCodeAt(i);
+            h = Math.imul(h, 16777619);
+          }
+          return h >>> 0;
+        };
+
+        const rngFromSeed = (seedValue) => {
+          let x = hash(seedValue) || 1;
+          return () => {
+            x ^= x << 13;
+            x ^= x >>> 17;
+            x ^= x << 5;
+            return ((x >>> 0) % 100000) / 100000;
+          };
+        };
+
+        const randomSeed = () => Math.random().toString(36).slice(2, 10);
+
+        const putLog = (line, reset = false) => {
+          if (reset) eventLog.textContent = '';
+          eventLog.textContent += `${line}\n`;
+          eventLog.scrollTop = eventLog.scrollHeight;
+        };
+
+        const setupRun = (seed) => {
+          const district = districtEl.value;
+          const weather = weatherEl.value;
+          const behavior = behaviorEl.value;
+          const rand = rngFromSeed(seed);
+          const duration = 22;
+          const target = {
+            x: 110 + rand() * 80,
+            y: 120 + rand() * 280,
+            speed: 82 + rand() * 45
+          };
+          const pursuer = {
+            x: 70,
+            y: 430,
+            speed: 94 + rand() * 30
+          };
+
+          const events = [];
+          for (let t = 3; t <= 19; t += 4) {
+            events.push({
+              t,
+              kind: rand() < 0.5 ? 'shortcut' : 'hazard',
+              strength: 0.8 + rand() * 0.6,
+              used: false
+            });
+          }
+
+          return {
+            seed,
+            district,
+            weather,
+            behavior,
+            rand,
+            time: 0,
+            duration,
+            target,
+            pursuer,
+            trailT: [],
+            trailP: [],
+            score: 0,
+            caught: false,
+            events
+          };
+        };
+
+        const draw = (run) => {
+          const w = canvas.width;
+          const h = canvas.height;
+          ctx.clearRect(0, 0, w, h);
+
+          const weather = run.weather;
+          if (weather === 'Rain Burst') {
+            for (let i = 0; i < 120; i += 1) {
+              const x = (i * 57 + run.time * 120) % w;
+              const y = (i * 89 + run.time * 220) % h;
+              ctx.strokeStyle = 'rgba(135,180,255,0.35)';
+              ctx.beginPath();
+              ctx.moveTo(x, y);
+              ctx.lineTo(x - 6, y + 14);
+              ctx.stroke();
+            }
+          } else if (weather === 'Dense Fog') {
+            ctx.fillStyle = 'rgba(200,220,255,0.12)';
+            ctx.fillRect(0, 0, w, h);
+          }
+
+          ctx.strokeStyle = 'rgba(118,240,207,0.2)';
+          ctx.lineWidth = 1;
+          for (let x = 20; x < w; x += 40) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, h);
+            ctx.stroke();
+          }
+          for (let y = 20; y < h; y += 40) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
+            ctx.stroke();
+          }
+
+          const drawTrail = (trail, color) => {
+            if (trail.length < 2) return;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(trail[0].x, trail[0].y);
+            for (let i = 1; i < trail.length; i += 1) {
+              ctx.lineTo(trail[i].x, trail[i].y);
+            }
+            ctx.stroke();
+          };
+
+          drawTrail(run.trailT, 'rgba(255,145,167,0.5)');
+          drawTrail(run.trailP, 'rgba(118,240,207,0.6)');
+
+          ctx.fillStyle = '#ff9eb0';
+          ctx.beginPath();
+          ctx.arc(run.target.x, run.target.y, 8, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#76f0cf';
+          ctx.beginPath();
+          ctx.arc(run.pursuer.x, run.pursuer.y, 9, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#d6e6ff';
+          ctx.font = '13px Inter, sans-serif';
+          ctx.fillText(run.district, 14, 20);
+          ctx.fillText(`${run.weather} / ${run.behavior}`, 14, 38);
+        };
+
+        const tick = (run, dt) => {
+          if (run.caught) return;
+          run.time += dt;
+
+          const wf = weatherFactor[run.weather] || 1;
+          const bf = behaviorFactor[run.behavior] || 1;
+          const df = districtFactor[run.district] || 1;
+
+          const tAngle = run.rand() * Math.PI * 2;
+          const pAngle = Math.atan2(run.target.y - run.pursuer.y, run.target.x - run.pursuer.x);
+
+          let tSpeed = run.target.speed * wf * bf;
+          let pSpeed = run.pursuer.speed * df;
+
+          for (const ev of run.events) {
+            if (!ev.used && run.time >= ev.t) {
+              ev.used = true;
+              if (ev.kind === 'hazard') {
+                pSpeed *= 0.82;
+                putLog(`[${run.time.toFixed(1)}s] hazard: street clutter slows pursuit.`);
+              } else {
+                tSpeed *= 0.84;
+                putLog(`[${run.time.toFixed(1)}s] shortcut: interceptor cuts distance.`);
+              }
+            }
+          }
+
+          run.target.x += Math.cos(tAngle) * tSpeed * dt;
+          run.target.y += Math.sin(tAngle) * tSpeed * dt;
+          run.pursuer.x += Math.cos(pAngle) * pSpeed * dt;
+          run.pursuer.y += Math.sin(pAngle) * pSpeed * dt;
+
+          const clamp = (obj) => {
+            obj.x = Math.max(10, Math.min(canvas.width - 10, obj.x));
+            obj.y = Math.max(10, Math.min(canvas.height - 10, obj.y));
+          };
+          clamp(run.target);
+          clamp(run.pursuer);
+
+          run.trailT.push({ x: run.target.x, y: run.target.y });
+          run.trailP.push({ x: run.pursuer.x, y: run.pursuer.y });
+          if (run.trailT.length > 220) run.trailT.shift();
+          if (run.trailP.length > 220) run.trailP.shift();
+
+          const dx = run.target.x - run.pursuer.x;
+          const dy = run.target.y - run.pursuer.y;
+          const dist = Math.hypot(dx, dy);
+
+          const closenessBonus = Math.max(0, 140 - dist) * 0.06;
+          run.score += (1 + closenessBonus) * dt * 9;
+
+          if (dist < 16) {
+            run.caught = true;
+            run.score += Math.max(0, (run.duration - run.time) * 16);
+            putLog(`[${run.time.toFixed(1)}s] target contained. Clean finish.`);
+          }
+        };
+
+        const finishRun = (run) => {
+          const survived = Math.max(0, run.duration - run.time);
+          if (!run.caught) putLog(`[${run.duration.toFixed(1)}s] target escaped perimeter.`);
+          const finalScore = Math.round(run.score + (run.caught ? 80 : 0) - survived * 2);
+          hudScore.textContent = String(finalScore);
+          hudStatus.textContent = run.caught ? 'caught' : 'escaped';
+          putLog(`final score=${finalScore} | time=${run.time.toFixed(1)}s | seed=${run.seed}`);
+        };
+
+        const stopLoop = () => {
+          if (state.raf) cancelAnimationFrame(state.raf);
+          state.raf = null;
+        };
+
+        const startRun = (seed) => {
+          stopLoop();
+          state.run = setupRun(seed);
+          state.lastSeed = seed;
+          hudSeed.textContent = seed;
+          hudScore.textContent = '0';
+          hudStatus.textContent = 'running';
+          hudTime.textContent = '0.0s';
+          putLog(`scenario: ${districtEl.value} | ${weatherEl.value} | ${behaviorEl.value}`, true);
+          putLog(`seed: ${seed}`);
+
+          let previous = performance.now();
+          const loop = (now) => {
+            const run = state.run;
+            const dt = Math.min(0.05, (now - previous) / 1000);
+            previous = now;
+
+            tick(run, dt);
+            draw(run);
+            hudTime.textContent = `${Math.min(run.time, run.duration).toFixed(1)}s`;
+            hudScore.textContent = String(Math.round(run.score));
+
+            if (run.time >= run.duration || run.caught) {
+              finishRun(run);
+              return;
+            }
+
+            state.raf = requestAnimationFrame(loop);
+          };
+
+          state.raf = requestAnimationFrame(loop);
+        };
+
+        generateBtn.addEventListener('click', () => {
+          const seed = (seedEl.value || '').trim() || randomSeed();
+          seedEl.value = seed;
+          startRun(seed);
+        });
+
+        replayBtn.addEventListener('click', () => {
+          if (!state.lastSeed) {
+            const seed = (seedEl.value || '').trim() || randomSeed();
+            seedEl.value = seed;
+            startRun(seed);
+            return;
+          }
+          seedEl.value = state.lastSeed;
+          startRun(state.lastSeed);
+        });
+
+        newSeedBtn.addEventListener('click', () => {
+          seedEl.value = randomSeed();
+        });
+
+        seedEl.value = randomSeed();
+        startRun(seedEl.value);
+      })();
+    </script>
+  </body>
+</html>

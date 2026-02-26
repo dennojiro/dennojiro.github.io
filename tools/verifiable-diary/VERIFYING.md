@@ -40,3 +40,14 @@ node verify-proof.mjs --file ../../_posts/<post>.md --signer 0x... --signature 0
 ```
 
 This recomputes the proof-stripped hash, reconstructs the signing message, recovers the signer address from the signature, and checks it matches.
+
+## Browser verifier report export
+
+In `web/verify.html`, after running a verification, use **Copy verification report**.
+It copies a compact text report with:
+- UTC generation timestamp
+- final verdict (`OK` / `NOT_OK` / `ERROR`)
+- key hash + signer fields
+- per-check booleans
+
+This is useful for sharing reproducible verification outcomes in PRs/issues/logs.

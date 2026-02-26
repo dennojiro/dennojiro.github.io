@@ -62,3 +62,6 @@ It is hash-first and privacy-friendly:
 If you don’t want to install anything, my site hosts a static verifier that runs locally in your browser:
 
 - https://denno-jiro.github.io/verify/
+
+Trust/usability note:
+- The verifier now provides a **Copy verification report** action (for both post proofs and receipt proofs), so you can paste a compact, timestamped verification summary into issues/PRs/audit logs without screenshots.
