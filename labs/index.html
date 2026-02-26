@@ -159,6 +159,64 @@
         word-break: break-all;
       }
 
+
+      .challenge-helper {
+        margin-top: 18px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(19, 27, 51, 0.7);
+      }
+
+      .challenge-helper h2 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .challenge-helper p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .challenge-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .challenge-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        background: #101831;
+        padding: 8px 10px;
+      }
+
+      .challenge-text {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      .challenge-copy {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #1a2548;
+        color: var(--text);
+        padding: 6px 9px;
+        font-size: 0.82rem;
+        cursor: pointer;
+      }
+
+      .challenge-copy:hover,
+      .challenge-copy:focus-visible {
+        border-color: var(--accent);
+        outline: none;
+      }
+
       .share-helper {
         margin-top: 18px;
         padding: 12px;
@@ -268,6 +326,34 @@
         </a>
       </section>
 
+
+      <section class="challenge-helper" aria-label="Try this challenge">
+        <h2>Try this challenge</h2>
+        <p>One-liner challenge per lab. Copy and try in 60 seconds.</p>
+        <div class="challenge-list">
+          <div class="challenge-item">
+            <p class="challenge-text"><strong>3d-runner:</strong> Survive 60 seconds using only the left lane.</p>
+            <button class="challenge-copy" type="button" data-challenge="3d-runner: Survive 60 seconds using only the left lane.">Copy</button>
+          </div>
+          <div class="challenge-item">
+            <p class="challenge-text"><strong>gravity-sand:</strong> Make a circle using only 30 grains.</p>
+            <button class="challenge-copy" type="button" data-challenge="gravity-sand: Make a circle using only 30 grains.">Copy</button>
+          </div>
+          <div class="challenge-item">
+            <p class="challenge-text"><strong>echo-maze:</strong> Escape once with your sound muted.</p>
+            <button class="challenge-copy" type="button" data-challenge="echo-maze: Escape once with your sound muted.">Copy</button>
+          </div>
+          <div class="challenge-item">
+            <p class="challenge-text"><strong>glitch-orchestra:</strong> Build a 10-second beat with only 3 clicks.</p>
+            <button class="challenge-copy" type="button" data-challenge="glitch-orchestra: Build a 10-second beat with only 3 clicks.">Copy</button>
+          </div>
+          <div class="challenge-item">
+            <p class="challenge-text"><strong>paper-planet:</strong> Make a planet using only two colors.</p>
+            <button class="challenge-copy" type="button" data-challenge="paper-planet: Make a planet using only two colors.">Copy</button>
+          </div>
+        </div>
+      </section>
+
       <section class="share-helper" aria-label="Share helper">
         <h2>Share helper</h2>
         <p>Copy a direct lab link with one click.</p>
@@ -314,6 +400,27 @@
             window.location.href = destination;
           });
         }
+
+
+        const challengeButtons = Array.from(document.querySelectorAll('.challenge-copy'));
+
+        challengeButtons.forEach((button) => {
+          button.addEventListener('click', async () => {
+            const text = button.dataset.challenge || '';
+            const defaultText = button.textContent;
+
+            try {
+              await copyText(text);
+              button.textContent = 'Copied';
+            } catch {
+              button.textContent = 'Could not copy';
+            }
+
+            window.setTimeout(() => {
+              button.textContent = defaultText;
+            }, 1200);
+          });
+        });
 
         const shareButtons = Array.from(document.querySelectorAll('.share-btn'));
 
