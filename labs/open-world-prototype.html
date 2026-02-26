@@ -275,28 +275,65 @@
       ui.qLabel.textContent = low ? 'Low' : 'High';
     }
 
-    function lockPointer() { document.body.requestPointerLock(); }
-    document.getElementById('startBtn').addEventListener('click', () => {
+    let dragLook = false;
+    function lockPointer() {
+      if (document.body.requestPointerLock) document.body.requestPointerLock();
+    }
+    function startRun() {
       suspectState.mode = ui.modeSel.value;
       ui.modeLabel.textContent = suspectState.mode === 'chase' ? 'Chase' : 'Hide & Seek Tag';
       applyQuality(ui.qualitySel.value);
       suspectState.catches = 0; ui.score.textContent = '0'; ui.finish.style.display = 'none';
       suspectState.started = performance.now();
+      state.canControl = true;
+      ui.overlay.style.display = 'none';
       lockPointer();
       ui.msg.textContent = suspectState.mode === 'chase' ? 'Close in and tag the suspect.' : 'Find, reveal, then tag with E.';
-    });
+    }
+    document.getElementById('startBtn').addEventListener('click', startRun);
     document.getElementById('againBtn').addEventListener('click', lockPointer);
 
     document.addEventListener('pointerlockchange', () => {
-      state.canControl = document.pointerLockElement === document.body;
-      ui.overlay.style.display = state.canControl ? 'none' : 'grid';
+      const locked = document.pointerLockElement === document.body;
+      if (locked) {
+        state.canControl = true;
+        ui.overlay.style.display = 'none';
+      } else if (!dragLook) {
+        // Keep fallback controls running after Start on browsers without pointer lock.
+        ui.overlay.style.display = state.canControl ? 'none' : 'grid';
+      }
     });
+
+    document.addEventListener('mousedown', (e) => {
+      if (!state.canControl) return;
+      if (document.pointerLockElement !== document.body && e.button === 0) dragLook = true;
+    });
+    document.addEventListener('mouseup', () => { dragLook = false; });
 
     document.addEventListener('mousemove', e => {
       if (!state.canControl) return;
+      const canLook = document.pointerLockElement === document.body || dragLook;
+      if (!canLook) return;
       player.yaw -= e.movementX * .0021;
       player.pitch = THREE.MathUtils.clamp(player.pitch - e.movementY * .0018, -Math.PI/2 + .02, Math.PI/2 - .02);
     });
+    let touchLook = null;
+    document.addEventListener('touchstart', (e) => {
+      if (!state.canControl) return;
+      const t = e.touches[0];
+      touchLook = { x: t.clientX, y: t.clientY };
+    }, { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (!state.canControl || !touchLook) return;
+      const t = e.touches[0];
+      const dx = t.clientX - touchLook.x;
+      const dy = t.clientY - touchLook.y;
+      touchLook = { x: t.clientX, y: t.clientY };
+      player.yaw -= dx * .004;
+      player.pitch = THREE.MathUtils.clamp(player.pitch - dy * .003, -Math.PI/2 + .02, Math.PI/2 - .02);
+    }, { passive: true });
+    document.addEventListener('touchend', () => { touchLook = null; }, { passive: true });
+
     document.addEventListener('keydown', e => {
       if (e.code === 'KeyW') state.forward = true;
       if (e.code === 'KeyS') state.back = true;
