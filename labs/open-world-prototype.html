@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open-World-ish Prototype</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #0f172a; color: #e2e8f0; font-family: system-ui, sans-serif; }
+    #overlay {
+      position: fixed; inset: 0; display: grid; place-items: center;
+      background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(2px); z-index: 10;
+    }
+    #panel {
+      max-width: 540px; margin: 16px; padding: 18px 20px; border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.3); background: rgba(15, 23, 42, 0.85);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    .k { color: #93c5fd; font-weight: 600; }
+    #hud {
+      position: fixed; top: 12px; left: 12px; z-index: 5;
+      background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 10px; padding: 10px 12px; min-width: 300px;
+      font-size: 14px; line-height: 1.35;
+    }
+    #msg { margin-top: 6px; color: #86efac; min-height: 20px; }
+    #scoreLine { margin-top: 6px; color: #fef3c7; }
+    #reward { color: #fde68a; font-size: 12px; margin-left: 6px; }
+    #milestones {
+      margin: 8px 0 2px 0; padding: 0 0 0 16px; font-size: 12px; color: #cbd5e1;
+      display: grid; gap: 2px;
+    }
+    #milestones li.done { color: #86efac; text-decoration: line-through; }
+    #radarWrap {
+      position: fixed; top: 12px; right: 12px; z-index: 6;
+      background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 10px; padding: 8px;
+    }
+    #radarLabel { font-size: 12px; color: #cbd5e1; margin-bottom: 4px; text-align: center; }
+    #radar { display: block; width: 150px; height: 150px; }
+    #crosshair {
+      position: fixed; left: 50%; top: 50%; width: 12px; height: 12px;
+      margin-left: -6px; margin-top: -6px; z-index: 4; pointer-events: none;
+      opacity: 0.75;
+    }
+    #crosshair:before, #crosshair:after {
+      content: ""; position: absolute; background: #e2e8f0;
+    }
+    #crosshair:before { width: 12px; height: 2px; left: 0; top: 5px; }
+    #crosshair:after { width: 2px; height: 12px; top: 0; left: 5px; }
+    #winPanel {
+      position: fixed; inset: 0; z-index: 9; display: none; place-items: center;
+      background: rgba(2, 6, 23, 0.62); backdrop-filter: blur(2px);
+    }
+    #winCard {
+      width: min(420px, calc(100vw - 28px));
+      border: 1px solid rgba(148, 163, 184, 0.42);
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.92);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.36);
+      padding: 16px;
+    }
+    #winStats { margin: 10px 0 0; padding-left: 18px; color: #cbd5e1; font-size: 14px; }
+    button {
+      margin-top: 10px; background: #2563eb; color: white; border: 0;
+      border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <div><strong>Objective:</strong> Activate all signal pylons (<span id="count">0</span>/5) + find hidden beacon (<span id="beaconState">missing</span>)</div>
+    <div id="scoreLine"><strong>Score:</strong> <span id="score">0</span> <span id="reward">Explore to earn rewards.</span></div>
+    <ul id="milestones">
+      <li id="ms-first">Bring first pylon online</li>
+      <li id="ms-three">Bring 3 pylons online</li>
+      <li id="ms-all">Bring all pylons online</li>
+      <li id="ms-beacon">Find hidden beacon</li>
+      <li id="ms-win">Region fully mapped</li>
+    </ul>
+    <div>Move: <span class="k">W A S D</span> · Look: <span class="k">Mouse</span> · Interact: <span class="k">E</span></div>
+    <div id="msg">Find a glowing pylon and press E nearby.</div>
+  </div>
+  <div id="radarWrap">
+    <div id="radarLabel">Radar</div>
+    <canvas id="radar" width="150" height="150"></canvas>
+  </div>
+  <div id="crosshair"></div>
+
+  <div id="winPanel">
+    <div id="winCard">
+      <h2 style="margin:0;color:#86efac;">Region Fully Mapped ✅</h2>
+      <p style="margin:8px 0 0 0; color:#cbd5e1;">All pylons are online and the hidden beacon has been recovered.</p>
+      <ul id="winStats"></ul>
+      <p style="margin:10px 0 0 0; font-size:12px; color:#94a3b8;">You can keep roaming. Press Esc to release mouse.</p>
+    </div>
+  </div>
+
+  <div id="overlay">
+    <div id="panel">
+      <h2 style="margin:0 0 8px 0">Tiny Open-World-ish Prototype</h2>
+      <p style="margin:0">Explore the field, locate the 5 glowing pylons, and activate them.
+      Bonus: find the hidden beacon. Mouse look uses pointer lock.</p>
+      <button id="startBtn">Click to Start</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87c5ff);
+    scene.fog = new THREE.Fog(0x87c5ff, 70, 260);
+
+    const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 600);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    document.body.appendChild(renderer.domElement);
+
+    // Lights
+    const hemi = new THREE.HemisphereLight(0xbfe3ff, 0x223322, 0.95);
+    scene.add(hemi);
+    const sun = new THREE.DirectionalLight(0xffffff, 0.9);
+    sun.position.set(50, 80, 10);
+    scene.add(sun);
+
+    // Ground
+    const groundGeo = new THREE.PlaneGeometry(420, 420, 60, 60);
+    const pos = groundGeo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i);
+      const h = Math.sin(x * 0.055) * 1.3 + Math.cos(y * 0.045) * 1.1;
+      pos.setZ(i, h);
+    }
+    groundGeo.computeVertexNormals();
+    const ground = new THREE.Mesh(
+      groundGeo,
+      new THREE.MeshStandardMaterial({ color: 0x2f6f3d, roughness: 0.95, metalness: 0.0 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+
+    // Scatter simple trees/rocks for world feel
+    const treeMat = new THREE.MeshStandardMaterial({ color: 0x1f4d2b, roughness: 1 });
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x6b4b2a, roughness: 1 });
+    const rockMat = new THREE.MeshStandardMaterial({ color: 0x80868f, roughness: 1 });
+
+    function spawnTree(x, z) {
+      const g = new THREE.Group();
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.45, 3.2, 8), trunkMat);
+      trunk.position.y = 1.6;
+      const crown = new THREE.Mesh(new THREE.ConeGeometry(1.8, 4.0, 10), treeMat);
+      crown.position.y = 4.4;
+      g.add(trunk, crown);
+      g.position.set(x, 0, z);
+      scene.add(g);
+    }
+    function spawnRock(x, z) {
+      const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(1 + Math.random() * 1.2), rockMat);
+      rock.scale.y = 0.65 + Math.random() * 0.45;
+      rock.position.set(x, 0.8, z);
+      rock.rotation.y = Math.random() * Math.PI;
+      scene.add(rock);
+    }
+    for (let i = 0; i < 120; i++) {
+      const x = (Math.random() - 0.5) * 360;
+      const z = (Math.random() - 0.5) * 360;
+      if (Math.hypot(x, z) < 16) continue;
+      (Math.random() < 0.65 ? spawnTree : spawnRock)(x, z);
+    }
+
+    // Pylons (objective targets)
+    const pylons = [];
+    const pylonMatOff = new THREE.MeshStandardMaterial({ color: 0x334155, emissive: 0x000000, metalness: 0.3, roughness: 0.6 });
+    const pylonMatOn = new THREE.MeshStandardMaterial({ color: 0x93c5fd, emissive: 0x1d4ed8, emissiveIntensity: 1.1, metalness: 0.25, roughness: 0.35 });
+    const glowGeo = new THREE.SphereGeometry(0.33, 16, 16);
+
+    const pylonPositions = [
+      [26, -34],
+      [-52, -18],
+      [62, 45],
+      [-40, 54],
+      [8, 78]
+    ];
+
+    for (const [x, z] of pylonPositions) {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.95, 5.5, 10), pylonMatOff.clone());
+      body.position.y = 2.75;
+      const core = new THREE.Mesh(glowGeo, new THREE.MeshStandardMaterial({ color: 0x60a5fa, emissive: 0x1e3a8a, emissiveIntensity: 0.15 }));
+      core.position.y = 5.7;
+      group.add(body, core);
+      group.position.set(x, 0, z);
+      scene.add(group);
+      pylons.push({ group, body, core, active: false });
+    }
+
+    // Hidden beacon (secondary exploration objective)
+    const beacon = new THREE.Group();
+    const beaconStem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.25, 0.4, 3.4, 8),
+      new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.5, metalness: 0.35 })
+    );
+    beaconStem.position.y = 1.7;
+    const beaconCore = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.75, 0),
+      new THREE.MeshStandardMaterial({ color: 0xfef08a, emissive: 0xf59e0b, emissiveIntensity: 0.65, roughness: 0.2 })
+    );
+    beaconCore.position.y = 3.8;
+    beacon.add(beaconStem, beaconCore);
+    beacon.position.set(-132, 0, 126);
+    scene.add(beacon);
+    let beaconFound = false;
+
+    // Movement / look
+    const overlay = document.getElementById('overlay');
+    const startBtn = document.getElementById('startBtn');
+    const msgEl = document.getElementById('msg');
+    const countEl = document.getElementById('count');
+    const beaconStateEl = document.getElementById('beaconState');
+    const scoreEl = document.getElementById('score');
+    const rewardEl = document.getElementById('reward');
+    const winPanelEl = document.getElementById('winPanel');
+    const winStatsEl = document.getElementById('winStats');
+    const radarCanvas = document.getElementById('radar');
+    const radarCtx = radarCanvas.getContext('2d');
+
+    const milestones = {
+      first: document.getElementById('ms-first'),
+      three: document.getElementById('ms-three'),
+      all: document.getElementById('ms-all'),
+      beacon: document.getElementById('ms-beacon'),
+      win: document.getElementById('ms-win')
+    };
+
+    const state = { forward: false, back: false, left: false, right: false, canControl: false };
+    const progress = { score: 0, completedAt: null, startAt: performance.now() };
+    const velocity = new THREE.Vector3();
+    const dir = new THREE.Vector3();
+    const moveSpeed = 11.5;
+    let yaw = 0;
+    let pitch = 0;
+
+    camera.position.set(0, 1.75, 0);
+
+    function setMessage(text, timeout = 1600) {
+      msgEl.textContent = text;
+      if (timeout > 0) {
+        clearTimeout(setMessage.t);
+        setMessage.t = setTimeout(() => {
+          if (msgEl.textContent === text) msgEl.textContent = 'Explore: activate pylons and search for the hidden beacon.';
+        }, timeout);
+      }
+    }
+
+    function markMilestone(node) {
+      if (node) node.classList.add('done');
+    }
+
+    function addReward(points, reason) {
+      progress.score += points;
+      scoreEl.textContent = String(progress.score);
+      rewardEl.textContent = `+${points} ${reason}`;
+      rewardEl.style.opacity = '1';
+      clearTimeout(addReward.t);
+      addReward.t = setTimeout(() => {
+        rewardEl.style.opacity = '0.8';
+        rewardEl.textContent = 'Keep exploring for bonus points.';
+      }, 1900);
+    }
+
+    function showWinPanel() {
+      if (progress.completedAt) return;
+      progress.completedAt = performance.now();
+      const elapsedSec = Math.round((progress.completedAt - progress.startAt) / 1000);
+      const min = Math.floor(elapsedSec / 60);
+      const sec = String(elapsedSec % 60).padStart(2, '0');
+      winStatsEl.innerHTML = `
+        <li><strong>Final score:</strong> ${progress.score}</li>
+        <li><strong>Pylons activated:</strong> ${pylons.length}/${pylons.length}</li>
+        <li><strong>Hidden beacon:</strong> recovered</li>
+        <li><strong>Time to map region:</strong> ${min}:${sec}</li>
+      `;
+      winPanelEl.style.display = 'grid';
+    }
+
+    function lockPointer() {
+      document.body.requestPointerLock();
+    }
+
+    startBtn.addEventListener('click', lockPointer);
+    winPanelEl.addEventListener('click', lockPointer);
+    document.addEventListener('pointerlockchange', () => {
+      state.canControl = document.pointerLockElement === document.body;
+      overlay.style.display = state.canControl ? 'none' : 'grid';
+      if (state.canControl) winPanelEl.style.display = 'none';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!state.canControl) return;
+      yaw -= e.movementX * 0.0021;
+      pitch -= e.movementY * 0.0017;
+      pitch = Math.max(-Math.PI / 2 + 0.02, Math.min(Math.PI / 2 - 0.02, pitch));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'KeyW') state.forward = true;
+      if (e.code === 'KeyS') state.back = true;
+      if (e.code === 'KeyA') state.left = true;
+      if (e.code === 'KeyD') state.right = true;
+      if (e.code === 'KeyE') tryActivate();
+    });
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'KeyW') state.forward = false;
+      if (e.code === 'KeyS') state.back = false;
+      if (e.code === 'KeyA') state.left = false;
+      if (e.code === 'KeyD') state.right = false;
+    });
+
+    function tryActivate() {
+      if (!beaconFound && camera.position.distanceTo(beacon.position) < 8.5) {
+        beaconFound = true;
+        beaconCore.material.emissiveIntensity = 1.5;
+        beaconCore.material.color.setHex(0x86efac);
+        beaconStateEl.textContent = 'found';
+        beaconStateEl.style.color = '#86efac';
+        markMilestone(milestones.beacon);
+        addReward(250, 'Hidden beacon discovered');
+        setMessage('Hidden beacon discovered! +250');
+      }
+
+      let nearest = null;
+      let nearestDist = Infinity;
+      for (const p of pylons) {
+        if (p.active) continue;
+        const d = camera.position.distanceTo(p.group.position);
+        if (d < nearestDist) {
+          nearestDist = d;
+          nearest = p;
+        }
+      }
+
+      if (!nearest || nearestDist > 7.5) {
+        if (!beaconFound) setMessage('No pylon in range. Keep exploring (look for a hidden beacon too).');
+        else setMessage('No pylon in range. Move closer.');
+        return;
+      }
+
+      nearest.active = true;
+      nearest.body.material = pylonMatOn.clone();
+      nearest.core.material.emissiveIntensity = 1.5;
+      nearest.core.scale.setScalar(1.25);
+
+      const done = pylons.filter(p => p.active).length;
+      countEl.textContent = String(done);
+
+      const pylonReward = 100 + done * 15;
+      addReward(pylonReward, `Pylon ${done}/${pylons.length} online`);
+
+      if (done >= 1) markMilestone(milestones.first);
+      if (done >= 3) markMilestone(milestones.three);
+      if (done === pylons.length) markMilestone(milestones.all);
+
+      if (done === pylons.length && beaconFound) {
+        markMilestone(milestones.win);
+        addReward(500, 'Region mapping bonus');
+        setMessage('All pylons active + hidden beacon found. Region fully mapped!', 0);
+        showWinPanel();
+      } else if (done === pylons.length) {
+        setMessage('All pylons active. Bonus objective remains: find the hidden beacon.', 0);
+      } else {
+        setMessage(`Pylon activated (${done}/${pylons.length}). +${pylonReward}`);
+      }
+    }
+
+    function drawRadar() {
+      const w = radarCanvas.width;
+      const h = radarCanvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const range = 105;
+
+      radarCtx.clearRect(0, 0, w, h);
+      radarCtx.fillStyle = '#0b1220';
+      radarCtx.fillRect(0, 0, w, h);
+
+      radarCtx.strokeStyle = 'rgba(148,163,184,0.35)';
+      radarCtx.lineWidth = 1;
+      for (const r of [20, 38, 56, 72]) {
+        radarCtx.beginPath();
+        radarCtx.arc(cx, cy, r, 0, Math.PI * 2);
+        radarCtx.stroke();
+      }
+
+      const px = camera.position.x;
+      const pz = camera.position.z;
+
+      function blip(wx, wz, color, size = 3) {
+        const dx = wx - px;
+        const dz = wz - pz;
+        const rx = THREE.MathUtils.clamp(dx / range, -1, 1);
+        const rz = THREE.MathUtils.clamp(dz / range, -1, 1);
+        radarCtx.fillStyle = color;
+        radarCtx.beginPath();
+        radarCtx.arc(cx + rx * 64, cy + rz * 64, size, 0, Math.PI * 2);
+        radarCtx.fill();
+      }
+
+      for (const p of pylons) {
+        if (!p.active) blip(p.group.position.x, p.group.position.z, '#60a5fa', 2.8);
+      }
+      if (!beaconFound) blip(beacon.position.x, beacon.position.z, '#f59e0b', 2.6);
+
+      // Player center + heading
+      radarCtx.save();
+      radarCtx.translate(cx, cy);
+      radarCtx.rotate(-yaw);
+      radarCtx.fillStyle = '#f8fafc';
+      radarCtx.beginPath();
+      radarCtx.moveTo(0, -7);
+      radarCtx.lineTo(5, 5);
+      radarCtx.lineTo(-5, 5);
+      radarCtx.closePath();
+      radarCtx.fill();
+      radarCtx.restore();
+    }
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(clock.getDelta(), 0.05);
+
+      // Camera orientation
+      camera.rotation.order = 'YXZ';
+      camera.rotation.y = yaw;
+      camera.rotation.x = pitch;
+
+      // Movement
+      dir.set(0, 0, 0);
+      if (state.forward) dir.z -= 1;
+      if (state.back) dir.z += 1;
+      if (state.left) dir.x -= 1;
+      if (state.right) dir.x += 1;
+      if (dir.lengthSq() > 0) dir.normalize();
+
+      const accel = moveSpeed * (state.canControl ? 1 : 0);
+      velocity.x = THREE.MathUtils.damp(velocity.x, dir.x * accel, 10, dt);
+      velocity.z = THREE.MathUtils.damp(velocity.z, dir.z * accel, 10, dt);
+
+      const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+      const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+      camera.position.addScaledVector(forward, velocity.z * dt);
+      camera.position.addScaledVector(right, velocity.x * dt);
+
+      // Keep in world bounds and eye-height
+      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -195, 195);
+      camera.position.z = THREE.MathUtils.clamp(camera.position.z, -195, 195);
+      camera.position.y = 1.75;
+
+      // Day-night cycle
+      const t = clock.elapsedTime;
+      const dayFactor = Math.sin(t * 0.05) * 0.5 + 0.5; // 0..1
+      const skyCol = new THREE.Color().lerpColors(new THREE.Color(0x0b1026), new THREE.Color(0x87c5ff), dayFactor);
+      scene.background.copy(skyCol);
+      scene.fog.color.copy(skyCol);
+      sun.intensity = 0.2 + dayFactor * 0.95;
+      sun.position.set(Math.cos(t * 0.05) * 110, 18 + dayFactor * 90, Math.sin(t * 0.05) * 90);
+      hemi.intensity = 0.22 + dayFactor * 0.9;
+
+      // Subtle pylon + beacon animation
+      for (const p of pylons) {
+        p.core.position.y = 5.7 + Math.sin(t * 2.2 + p.group.position.x) * 0.08;
+        if (!p.active) {
+          p.core.material.emissiveIntensity = 0.15 + (Math.sin(t * 3 + p.group.position.z) + 1) * 0.08;
+        }
+      }
+      beaconCore.rotation.y += dt * 0.8;
+      beaconCore.position.y = 3.8 + Math.sin(t * 1.6) * 0.18;
+      if (!beaconFound) beaconCore.material.emissiveIntensity = 0.52 + (Math.sin(t * 2.7) + 1) * 0.22;
+
+      // Radar / minimap
+      drawRadar();
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+  </script>
+</body>
+</html>

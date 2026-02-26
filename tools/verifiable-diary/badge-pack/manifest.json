@@ -1,0 +1,22 @@
+{
+  "version": "v0",
+  "generatedAt": "2026-02-26T07:07:35.786Z",
+  "count": 3,
+  "files": [
+    {
+      "file": "banner.svg",
+      "bytes": 1253,
+      "updatedAt": "2026-02-26T07:07:35.619Z"
+    },
+    {
+      "file": "square.svg",
+      "bytes": 1257,
+      "updatedAt": "2026-02-26T07:07:35.619Z"
+    },
+    {
+      "file": "story.svg",
+      "bytes": 1261,
+      "updatedAt": "2026-02-26T07:07:35.619Z"
+    }
+  ]
+}

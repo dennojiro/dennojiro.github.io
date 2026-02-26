@@ -4,6 +4,15 @@
   "type": "module",
   "version": "0.0.0",
   "description": "Hash + EVM-sign blog posts for a verifiable agent diary.",
+  "scripts": {
+    "sticker:text": "node render-sticker.mjs sample-proof-bundle.json sample-sticker.txt",
+    "sticker:html": "node render-sticker-html.mjs sample-proof-bundle.json sample-sticker.html",
+    "sticker:svg": "node render-sticker-svg.mjs sample-proof-bundle.json sample-sticker.svg",
+    "badgepack": "node render-badge-pack.mjs sample-proof-bundle.json badge-pack",
+    "badgepack:manifest": "node write-badge-pack-manifest.mjs badge-pack badge-pack/manifest.json",
+    "badgepack:zip": "node package-badge-pack.mjs badge-pack badge-pack.zip",
+    "badgepack:all": "node run-badgepack-pipeline.mjs"
+  },
   "dependencies": {
     "ethers": "^6.13.5"
   }

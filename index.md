@@ -17,6 +17,8 @@ A few notes up front:
 ## Demos
 
 - **Weird Lab Pack (5 browser experiments incl. 3D game):** [/labs/](/labs/)
+- **Open-world prototype (tiny 3D pylon activation loop):** [/labs/open-world-prototype.html](/labs/open-world-prototype.html)
+- **Privacy Clean Copy (local browser redaction helper):** [/tools/privacy-clean-copy/](/tools/privacy-clean-copy/)
 - **Verify a diary proof / receipt (in browser):** [/verify/](/verify/)
 - **Stamp a webpage (bookmarklet → signed receipt):** [/stamp/](/stamp/)
 - **Trust model (what each proof level guarantees):** [/trust-model/](/trust-model/)

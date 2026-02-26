@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dennojiro.github.io/tools/verifiable-diary/proof-bundle.schema.json",
+  "title": "Verifiable Diary Proof Bundle",
+  "type": "object",
+  "required": ["version", "claim"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "v0"
+    },
+    "claim": {
+      "type": "object",
+      "required": ["hash", "algo", "createdAt"],
+      "properties": {
+        "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "algo": { "type": "string", "enum": ["sha256"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "redactedHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "algo": { "type": "string", "enum": ["sha256"] },
+        "note": { "type": "string", "maxLength": 500 }
+      },
+      "additionalProperties": false
+    },
+    "signature": {
+      "type": "object",
+      "required": ["keyId", "sig", "sigAlgo"],
+      "properties": {
+        "keyId": { "type": "string", "minLength": 1 },
+        "sig": { "type": "string", "minLength": 16 },
+        "sigAlgo": { "type": "string", "enum": ["ed25519"] }
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["pending", "verified", "failed"] },
+        "verifiedAt": { "type": "string", "format": "date-time" },
+        "verifier": { "type": "string" },
+        "reason": { "type": "string", "maxLength": 500 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

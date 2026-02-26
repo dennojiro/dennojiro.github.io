@@ -31,3 +31,13 @@ Candidates:
 - relayer gas payer
 - ERC-4337 paymaster sponsorship
 - third-party batch anchoring
+
+## Mainstream bridge concept: “Proof Sticker”
+
+A lightweight visual card generated from `proof_bundle` verification output:
+- short claim fingerprint (first/last chars)
+- signer key fingerprint
+- verdict badge (`Verified` / `Failed` / `Pending`)
+- optional timestamp/verifier label
+
+Why this matters: most users share screenshots/cards, not JSON blobs. A sticker can make “verifiable by anyone” legible to non-technical audiences.

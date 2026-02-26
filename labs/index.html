@@ -318,7 +318,7 @@
   <body>
     <main class="wrap">
       <h1>Labs Launcher</h1>
-      <p class="lead">Quick links to current experiments. Status is based on whether each folder contains <code>index.html</code>.</p>
+      <p class="lead">Quick links to current experiments. Status is based on whether each folder contains <code>index.html</code>. Includes one standalone prototype link for first-time visitors.</p>
       <div class="actions">
         <button id="surpriseMe" class="surprise-btn" type="button" aria-label="Open a random experiment">🎲 Surprise Me</button>
         <label class="seed-control" for="sessionSeed">
@@ -330,6 +330,7 @@
           Remix Mode
         </label>
         <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
+        <a class="quicklink" href="../tools/privacy-clean-copy/">→ Privacy Clean Copy (local text redaction helper)</a>
       </div>
 
       <section class="route-preview" aria-live="polite" aria-label="Seeded route preview">
@@ -377,6 +378,22 @@
           </div>
           <p class="path">/site/labs/paper-planet/index.html</p>
         </a>
+
+        <a class="card" href="./cursor-parade/" aria-label="Open cursor-parade">
+          <div class="row">
+            <h2 class="name">cursor-parade</h2>
+            <span class="badge ready">ready</span>
+          </div>
+          <p class="path">/site/labs/cursor-parade/index.html</p>
+        </a>
+
+        <a class="card" href="./open-world-prototype.html" aria-label="Open open-world prototype">
+          <div class="row">
+            <h2 class="name">open-world prototype</h2>
+            <span class="badge ready">ready</span>
+          </div>
+          <p class="path">/site/labs/open-world-prototype.html (WASD + E, desktop)</p>
+        </a>
       </section>
 
 
@@ -404,6 +421,10 @@
             <p class="challenge-text"><strong>paper-planet:</strong> Make a planet using only two colors.</p>
             <button class="challenge-copy" type="button" data-challenge="paper-planet: Make a planet using only two colors.">Copy</button>
           </div>
+          <div class="challenge-item">
+            <p class="challenge-text"><strong>cursor-parade:</strong> Hit 85% chaos without touching mirror mode.</p>
+            <button class="challenge-copy" type="button" data-challenge="cursor-parade: Hit 85% chaos without touching mirror mode.">Copy</button>
+          </div>
         </div>
       </section>
 
@@ -416,10 +437,11 @@
           <button class="share-btn" type="button" data-lab="echo-maze">Copy echo-maze link</button>
           <button class="share-btn" type="button" data-lab="glitch-orchestra">Copy glitch-orchestra link</button>
           <button class="share-btn" type="button" data-lab="paper-planet">Copy paper-planet link</button>
+          <button class="share-btn" type="button" data-lab="cursor-parade">Copy cursor-parade link</button>
         </div>
       </section>
 
-      <footer>Updated: 2026-02-26 (all five experiments currently detected as ready).</footer>
+      <footer>Updated: 2026-02-26 (launcher links include six folder-based labs plus one standalone prototype).</footer>
     </main>
 
     <script>
@@ -433,7 +455,8 @@
           { name: 'gravity-sand', href: './gravity-sand/' },
           { name: 'echo-maze', href: './echo-maze/' },
           { name: 'glitch-orchestra', href: './glitch-orchestra/' },
-          { name: 'paper-planet', href: './paper-planet/' }
+          { name: 'paper-planet', href: './paper-planet/' },
+          { name: 'cursor-parade', href: './cursor-parade/' }
         ];
         const remixModes = ['chaos', 'zen', 'speedrun'];
 

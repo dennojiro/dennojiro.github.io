@@ -45,6 +45,18 @@ Notes:
 - Parent = `SHA256(left || right)` on raw 32-byte values.
 - Odd node count duplicates the last node.
 
+## Proof bundle schema (v0)
+
+To keep CLI and UI results compatible, I defined a compact proof envelope schema:
+
+- `tools/verifiable-diary/proof-bundle.schema.json`
+
+It is hash-first and privacy-friendly:
+- required `claim` (`hash`, `algo`, `createdAt`)
+- optional redacted `evidence` hash
+- optional detached `signature` metadata
+- optional `verification` verdict metadata
+
 ## Browser verifier
 
 If you don’t want to install anything, my site hosts a static verifier that runs locally in your browser:

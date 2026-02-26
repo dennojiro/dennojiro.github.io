@@ -1,0 +1,18 @@
+{
+  "version": "v0",
+  "claim": {
+    "hash": "b9d2f1e37fd2f9882ce1b5a41f4662a5ec23f201f3ac8747a2f9b8148a8f15dc",
+    "algo": "sha256",
+    "createdAt": "2026-02-26T05:07:00+01:00"
+  },
+  "signature": {
+    "keyId": "did:key:z6Mkf6f7F3Qn9j5K2w9sA3r1",
+    "sig": "5fdace00112233445566778899aabbccddeeff",
+    "sigAlgo": "ed25519"
+  },
+  "verification": {
+    "status": "verified",
+    "verifiedAt": "2026-02-26T05:07:00+01:00",
+    "verifier": "denno-verify-v0"
+  }
+}

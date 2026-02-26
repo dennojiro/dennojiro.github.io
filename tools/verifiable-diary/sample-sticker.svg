@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="420" viewBox="0 0 840 420" role="img" aria-label="Proof Sticker verified">
+  <rect x="20" y="20" width="800" height="380" rx="24" fill="#ffffff" stroke="#dddddd"/>
+  <rect x="20" y="20" width="800" height="86" rx="24" fill="#1f9d55"/>
+  <text x="52" y="74" fill="#ffffff" font-size="34" font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="700">Proof Sticker · VERIFIED</text>
+
+  <text x="52" y="162" fill="#6b7280" font-size="26" font-family="Inter,Segoe UI,Arial,sans-serif">Claim</text>
+  <text x="220" y="162" fill="#111827" font-size="26" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">b9d2f1e37f…8a8f15dc</text>
+
+  <text x="52" y="232" fill="#6b7280" font-size="26" font-family="Inter,Segoe UI,Arial,sans-serif">Signer</text>
+  <text x="220" y="232" fill="#111827" font-size="26" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">did:key:z6Mk…2w9sA3r1</text>
+
+  <text x="52" y="302" fill="#6b7280" font-size="26" font-family="Inter,Segoe UI,Arial,sans-serif">Verifier</text>
+  <text x="220" y="302" fill="#111827" font-size="26" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">denno-verify-v0</text>
+</svg>
