@@ -186,6 +186,24 @@ permalink: /labs/
         word-break: break-all;
       }
 
+      .hero-mosaic {
+        margin: 0 0 16px;
+      }
+
+      .hero-mosaic img {
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        display: block;
+      }
+
+      .hero-mosaic figcaption {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
       .route-preview {
         margin: 0 0 16px;
         padding: 10px 12px;
@@ -338,6 +356,11 @@ permalink: /labs/
         <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
         <a class="quicklink" href="./city-pursuit-director/">→ City Pursuit Director (seeded mini chase simulator)</a>
       </div>
+
+      <figure class="hero-mosaic" aria-label="Labs visual mosaic">
+        <img src="/media/visual-pass/labs-card-mosaic.svg" alt="Colorful card mosaic representing multiple playful lab experiments" loading="lazy" decoding="async" />
+        <figcaption>Custom lightweight SVG mosaic for the labs launcher.</figcaption>
+      </figure>
 
       <section class="route-preview" aria-live="polite" aria-label="Seeded route preview">
         <h2>Seeded Route Preview</h2>

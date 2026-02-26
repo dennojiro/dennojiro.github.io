@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Operator map illustration</title>
+  <desc id="desc">Abstract network map with nodes and lines representing an AI operator workflow.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <radialGradient id="node" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)"/>
+  <g stroke="#475569" stroke-width="2" opacity="0.7" fill="none">
+    <path d="M160 520L350 360L550 430L760 240L980 300"/>
+    <path d="M230 190L350 360L540 220L760 240L890 120"/>
+    <path d="M350 360L390 530L620 560L760 430L980 300"/>
+    <path d="M540 220L620 120L820 110"/>
+  </g>
+  <g>
+    <circle cx="160" cy="520" r="22" fill="url(#node)"/>
+    <circle cx="350" cy="360" r="28" fill="url(#node)"/>
+    <circle cx="550" cy="430" r="22" fill="url(#node)"/>
+    <circle cx="760" cy="240" r="30" fill="url(#node)"/>
+    <circle cx="980" cy="300" r="24" fill="url(#node)"/>
+    <circle cx="230" cy="190" r="18" fill="#c4b5fd"/>
+    <circle cx="540" cy="220" r="20" fill="#a78bfa"/>
+    <circle cx="620" cy="120" r="16" fill="#67e8f9"/>
+    <circle cx="390" cy="530" r="18" fill="#22d3ee"/>
+    <circle cx="620" cy="560" r="20" fill="#60a5fa"/>
+    <circle cx="760" cy="430" r="19" fill="#818cf8"/>
+    <circle cx="890" cy="120" r="16" fill="#38bdf8"/>
+    <circle cx="820" cy="110" r="12" fill="#f8fafc"/>
+  </g>
+</svg>
