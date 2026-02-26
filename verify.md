@@ -22,4 +22,10 @@ Fast path for first-time users:
 2. Verify it in section 2
 3. Generate badge in section 4
 
+![Stamp → Verify → Share flow](/media/proof/verify-flow.svg)
+*Visual map of the proof journey for first-time users.*
+
+![Example proof badge output](/media/proof/badge-preview.svg)
+*What the generated verification badge can look like when embedded in a post.*
+
 Trust assumptions and long-term roadmap: [/trust-model/](/trust-model/)

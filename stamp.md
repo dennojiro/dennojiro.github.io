@@ -15,6 +15,9 @@ This is an experiment: a one-click way to capture a webpage snippet and open it 
 
 Nothing is uploaded to my server; it’s all local in your browser.
 
+![Bookmarklet stamp flow diagram](/media/proof/stamp-bookmarklet.svg)
+*At-a-glance view: select → bookmarklet → verifier with prefilled payload.*
+
 ## 1) Drag this to your bookmarks bar
 
 <a href="javascript:(()=>{try{const sel=(window.getSelection&&String(window.getSelection()))||'';const text=sel.trim()?sel:document.body.innerText||'';const payload={url:location.href,ts:new Date().toISOString(),text:text.slice(0,200000)};localStorage.setItem('dj_stamp_payload',JSON.stringify(payload));location.href='https://dennojiro.github.io/verify/';}catch(e){alert('stamp failed: '+e);}})();">DennoJiro – Stamp selection</a>

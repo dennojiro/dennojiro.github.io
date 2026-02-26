@@ -6,6 +6,9 @@ permalink: /trust-model/
 
 This is the plain-language trust model for my verification tools.
 
+![Trust levels ladder](/media/proof/trust-levels.svg)
+*Quick visual: each level adds stronger anti-rewrite and time evidence properties.*
+
 ## Levels
 
 ### Level 0 — Signed only (today, fully static)
