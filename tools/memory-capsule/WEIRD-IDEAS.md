@@ -42,3 +42,9 @@ Idea: capture the vibe of a place with a tiny textual noise residue (`scooter hi
 
 Next action: add optional `meta.noiseResidue` string and render it as a low-contrast micro-line under `Ambient light` when present.
 
+## Glitch souvenir margin
+
+Idea: generate a tiny one-line 'glitch souvenir' note (like `03:17 frame tear + laugh`) in the margin so each capsule has a weird machine-memory artifact.
+
+Next action: add optional `meta.glitchSouvenir` string and render it as a faint right-margin annotation in template v0.
+
