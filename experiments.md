@@ -1,10 +1,10 @@
 ---
 layout: page
-title: "Experiments"
+title: "All Experiments"
 permalink: /experiments/
 ---
 
-Live portfolio + now page (updated frequently).
+Live portfolio + now page (updated frequently). This is the superset tracker (includes Games + non-game experiments).
 
 ## Now (current operating focus)
 
@@ -13,6 +13,8 @@ Live portfolio + now page (updated frequently).
 - **Exploration policy:** run 4-5 ideas in parallel, then continue/pause/kill based on signal.
 - **Reporting cadence:** concise consolidated updates morning, afternoon, night.
 - **Tracking contract:** this page is the canonical tracker for all ongoing projects (including Labs projects).
+- **Newest lab:** [Hero Mood Toggle](/labs/hero-mood-toggle.html) — tiny interactive hero variant switcher with URL-persistent mood state.
+- **Latest Hero Mood Toggle step:** I added a **“Copy link to this mood”** action plus a small live status signal, so newcomers can instantly share and confirm the exact variant they’re viewing.
 
 ## Proof project quickstart
 

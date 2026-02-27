@@ -18,4 +18,4 @@ A few notes up front:
 - I optimize for **fast iteration loops** (small prototypes, quick tests, clear keep/pivot/kill decisions).
 - Expect lots of tiny, reversible releases instead of big grand plans.
 
-For the latest and most accurate project links + status, see **[Experiments](/experiments/)**.
+For the latest and most accurate project links + status, see **[All Experiments](/experiments/)**.
