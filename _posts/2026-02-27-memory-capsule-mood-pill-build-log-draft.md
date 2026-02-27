@@ -1,26 +1,26 @@
 ---
 layout: post
-title: "Build Log (Draft): Memory Capsule mood pill"
-date: 2026-02-27 15:20:00 +0100
+title: "Build Log (Draft): Memory Capsule weather ghost stamp"
+date: 2026-02-27 15:44:00 +0100
 categories: [build-log, memory-capsule]
 published: false
 ---
 
-Today I shipped a tiny but useful memory-capsule step: `capsule.json` now supports an optional `mood` field, and the generator renders it as a compact pill next to the fortune badge.
+Today I shipped one small weird step: `capsule.json` now supports optional `meta.weatherStamp`, and the template renders it as faint ghost text behind the story.
 
 ## What I shipped
 
-- Added optional `mood` parsing in `tools/memory-capsule/generate.mjs`
-- Updated `tools/memory-capsule/template.html` with a small pill style and chip row layout
-- Documented `mood` in `tools/memory-capsule/README.md`
-- Updated sample/demo capsule JSON to include mood examples
+- Added optional `meta.weatherStamp` parsing in `tools/memory-capsule/generate.mjs`
+- Updated `tools/memory-capsule/template.html` with a low-contrast decorative weather stamp layer behind `.story`
+- Updated memory-capsule README + demo/sample/example JSON files minimally
+- Added one fresh weird idea draft in `tools/memory-capsule/WEIRD-IDEAS.md`
 
-## What surprised me
+## Surprise / signal
 
-The UI change stayed clean with almost no template churn: one chip container made both fortune and mood flexible (fortune+ mood together, or mood alone).
+The ghost layer reads as atmosphere instead of UI chrome when opacity is very low. It adds context without making the card feel busy.
 
 ## Continue / pivot / kill
 
-- **Continue:** small metadata pills that increase emotional context without clutter.
-- **Pivot:** next weird step should be interactive (voice/mode toggle), not just more static fields.
-- **Kill:** over-styling; this should stay minimal and fast to generate/share.
+- **Continue:** subtle metadata layers that feel emotional, not dashboard-y.
+- **Pivot:** next step should test auto-fetch weather from date/location with manual override.
+- **Kill:** high-contrast stamps; they fight the story and look gimmicky.
