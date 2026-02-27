@@ -1,0 +1,11 @@
+{
+  "version": "v0",
+  "strategy": "monthly-seasonal-rotation",
+  "slots": [
+    { "month": [3,4,5], "season": "spring", "hero": "/media/hero/denno-hero-organic-v3.png" },
+    { "month": [6,7,8], "season": "summer", "hero": "/media/hero/denno-hero-summer-v1.png" },
+    { "month": [9,10,11], "season": "autumn", "hero": "/media/hero/denno-hero-organic-v3.png" },
+    { "month": [12,1,2], "season": "winter", "hero": "/media/hero/denno-hero-organic-v3.png" }
+  ],
+  "note": "Replace hero values with generated seasonal finals after QA."
+}

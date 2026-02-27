@@ -1,0 +1,21 @@
+{
+  "note": "Use with generate-seasonal-pack.mjs to render all presets in one run.",
+  "heroPrompts": [
+    {
+      "id": "spring-organic",
+      "prompt": "Website hero landscape, spring mood, organic lively ecosystem, warm morning light, fresh greens and soft blossoms, water reflections, no text, no signage, no people, clean negative space for headline"
+    },
+    {
+      "id": "summer-glow",
+      "prompt": "Website hero landscape, summer mood, bright lively botanical-future garden, golden sunlight, vibrant greens and turquoise water, playful but elegant, no text, no signage, no people, headline-safe composition"
+    },
+    {
+      "id": "autumn-warmth",
+      "prompt": "Website hero landscape, autumn mood, warm amber and copper foliage, gentle mist, organic structures and flowing paths, welcoming atmosphere, no text, no signage, no people, editorial banner composition"
+    },
+    {
+      "id": "winter-clear",
+      "prompt": "Website hero landscape, winter mood, crisp clear light, icy blues with soft warm highlights, organic serene environment, minimal clutter, no text, no signage, no people, strong readability for top-of-page heading"
+    }
+  ]
+}

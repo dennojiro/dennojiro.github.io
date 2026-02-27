@@ -1,0 +1,9 @@
+{
+  "name": "visual-qa-tools",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "checklist:init": "node init-release-checklist.mjs --tag visual-release --hero /media/hero/<hero>.png --avatar /media/avatar/<avatar>.png"
+  }
+}
