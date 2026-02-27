@@ -28,7 +28,8 @@ Example `capsule.json`:
   "soundtrack": "Optional one-line now-playing note",
   "meta": {
     "weatherStamp": "Optional faint ghost stamp behind the story, e.g. drizzle · 8°C · wind east",
-    "memoryCue": "Optional tiny italic note under the story, e.g. smell of rain on concrete"
+    "memoryCue": "Optional tiny italic note under the story, e.g. smell of rain on concrete",
+    "echoFromFuture": "Optional muted footer whisper near the bottom, e.g. you were right to keep this day."
   }
 }
 ```
@@ -37,6 +38,7 @@ Example `capsule.json`:
 `mood` is optional. If present, it renders as a compact pill next to the fortune badge (or alone if fortune is omitted).
 `meta.weatherStamp` is optional. If present, it renders as low-contrast decorative text behind the story block; if missing, nothing is rendered.
 `meta.memoryCue` is optional. If present, it renders as a tiny italic line under the story (`Memory cue: ...`); if missing, nothing is rendered.
+`meta.echoFromFuture` is optional. If present, it renders as a subtle bottom whisper line (`Echo from future: ...`) near the end of the card; if missing, nothing is rendered.
 `soundtrack` is optional. If present, it renders as a subtle one-line “Now playing: …” chip under mood/fortune; if missing, nothing is rendered.
 
 ## Generate

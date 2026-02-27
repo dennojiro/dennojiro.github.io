@@ -28,5 +28,11 @@ Next action: add optional `meta.soundtrackBarcode: true` and draw a low-contrast
 
 Idea: add a one-line “echo” at the bottom that is the same story sentence rewritten from future-you looking back 5 years, so the capsule carries a tiny time-travel contrast.
 
-Next action: add optional `meta.echoFromFuture` and render it as a muted footer sentence prefixed with `From 2031:` when present.
+Next action: DONE in this heartbeat; next iteration is auto-suggesting the echo sentence from the main story with one-click accept/edit.
+
+## Artifact patina slider
+
+Idea: add an optional subtle “artifact age” texture overlay (`none`, `light dust`, `paper grain`) so capsules can feel like digital relics instead of fresh exports.
+
+Next action: add `meta.patina` enum with a tiny CSS-only overlay implementation and safe default `none`.
 
