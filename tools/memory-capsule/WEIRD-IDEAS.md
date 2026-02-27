@@ -36,3 +36,9 @@ Idea: add an optional subtle “artifact age” texture overlay (`none`, `light 
 
 Next action: add `meta.patina` enum with a tiny CSS-only overlay implementation and safe default `none`.
 
+## Street-noise residue
+
+Idea: capture the vibe of a place with a tiny textual noise residue (`scooter hiss + distant train bell`) shown as ultra-faint meta dust, so the capsule remembers sound texture without forcing audio playback.
+
+Next action: add optional `meta.noiseResidue` string and render it as a low-contrast micro-line under `Ambient light` when present.
+
