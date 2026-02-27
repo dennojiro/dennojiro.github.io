@@ -11,6 +11,8 @@ const tempoSlider = document.getElementById('tempo');
 const tempoValue = document.getElementById('tempoValue');
 const chordToggle = document.getElementById('chordModeToggle');
 const ghostBandToggle = document.getElementById('ghostBandToggle');
+const ghostBandLevelSlider = document.getElementById('ghostBandLevel');
+const ghostBandLevelValue = document.getElementById('ghostBandLevelValue');
 const presetButtons = [...document.querySelectorAll('[data-preset]')];
 const chordButtons = [...document.querySelectorAll('[data-chord]')];
 
@@ -25,6 +27,7 @@ let nextStepAt = 0;
 
 let chordMode = chordToggle.checked;
 let ghostBandEnabled = ghostBandToggle.checked;
+let ghostBandLevel = +ghostBandLevelSlider.value;
 let stageFlash = 0;
 let activeChordSet = 'lofi';
 let activeChordIndex = 0;
@@ -131,7 +134,9 @@ function modeLabel() {
 }
 
 function ghostLabel() {
-  return `Ghost Band ${ghostBandEnabled ? 'ON' : 'OFF'}`;
+  return ghostBandEnabled
+    ? `Ghost Band ON (level ${ghostBandLevel.toFixed(2)})`
+    : 'Ghost Band OFF';
 }
 
 function setStatus(prefix = `Audio: ${running ? 'running' : 'paused'}`) {
@@ -144,6 +149,7 @@ function triggerGhostBandPhrase() {
   const now = audioCtx.currentTime;
   const secPerBeat = 60 / tempo;
   const phraseStep = secPerBeat * 0.32;
+  const intensity = Math.max(0, Math.min(0.6, ghostBandLevel));
   const chord = chordForStep(0);
   const phrase = [chord[1] ?? chord[0], chord[2] ?? chord[0], (chord[0] ?? chord[1]) + 12];
 
@@ -165,7 +171,7 @@ function triggerGhostBandPhrase() {
     const start = now + i * phraseStep;
     const end = start + 0.24;
     gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.linearRampToValueAtTime(0.015, start + 0.045);
+    gain.gain.linearRampToValueAtTime(0.004 + intensity * 0.05, start + 0.045);
     gain.gain.exponentialRampToValueAtTime(0.0001, end);
 
     osc.connect(filter).connect(gain).connect(panner).connect(masterGain);
@@ -173,7 +179,7 @@ function triggerGhostBandPhrase() {
     osc.stop(end + 0.03);
   });
 
-  stageFlash = Math.min(1, stageFlash + 0.1);
+  stageFlash = Math.min(1, stageFlash + 0.04 + intensity * 0.2);
 }
 
 class OrbitNode {
@@ -566,6 +572,12 @@ ghostBandToggle.addEventListener('change', () => {
   setStatus();
 });
 
+ghostBandLevelSlider.addEventListener('input', () => {
+  ghostBandLevel = +ghostBandLevelSlider.value;
+  ghostBandLevelValue.textContent = ghostBandLevel.toFixed(2);
+  setStatus();
+});
+
 toggleBtn.addEventListener('click', async () => {
   ensureAudio();
   if (running) {
@@ -630,6 +642,7 @@ window.addEventListener('resize', () => {
   canvas.width = Math.round(rect.width * ratio);
   canvas.height = Math.round((rect.width / (16 / 9)) * ratio);
   tempoValue.textContent = `${tempo} BPM`;
+  ghostBandLevelValue.textContent = ghostBandLevel.toFixed(2);
   setChordPreset('lofi');
   requestAnimationFrame(frame);
 })();

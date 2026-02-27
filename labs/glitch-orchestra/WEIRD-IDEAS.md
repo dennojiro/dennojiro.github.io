@@ -17,3 +17,9 @@ Next action: add a lightweight `trailBursts` buffer triggered in `setChordPreset
 Idea: a translucent "conductor" silhouette appears for a few beats and sweeps left/right to suggest when to trigger blooms or chord swaps, turning practice into a rhythm mini-game.
 
 Next action: prototype a tiny `conductorCue` state machine that spawns every 16 steps and awards a visual sparkle if the player hits Space within a 250ms window.
+
+## Haunted fader echoes
+
+Idea: when Ghost Band is active, a tiny stack of fading "ghost knobs" trails behind the level slider to visualize how intense the response phrases were over the last few bars.
+
+Next action: add a `ghostHistory` ring buffer (last 8 phrase intensities) and render miniature translucent bars beside the Ghost Band Level control after each phrase trigger.
