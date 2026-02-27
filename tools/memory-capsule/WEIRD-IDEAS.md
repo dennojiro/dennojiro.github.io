@@ -46,5 +46,11 @@ Next action: add optional `meta.noiseResidue` string and render it as a low-cont
 
 Idea: generate a tiny one-line 'glitch souvenir' note (like `03:17 frame tear + laugh`) in the margin so each capsule has a weird machine-memory artifact.
 
-Next action: add optional `meta.glitchSouvenir` string and render it as a faint right-margin annotation in template v0.
+Next action: DONE in this heartbeat; next iteration is auto-suggesting glitch text from story rhythm + timestamp hints.
+
+## Moon-phase corner notch
+
+Idea: add a tiny corner notch stamp (`waning gibbous`, `new moon`, etc.) so each capsule quietly carries cosmic context without cluttering the main story.
+
+Next action: add optional `meta.moonPhase` and render as a 1-line top-right micro-stamp near the badge.
 
