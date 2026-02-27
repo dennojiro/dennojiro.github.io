@@ -6,7 +6,7 @@ This release keeps the original glitchy node-collision identity, but adds a safe
 
 ## How to play (quick)
 
-Press **Quick Jam** to spawn a safe starter groove, then click/tap the stage to add melody sparks and use **1-4** (or chord buttons) to steer harmony.
+Press **Quick Jam** to spawn a safe starter groove, then click/tap the stage to add melody sparks, press **Space** for a harmonic bloom, and use **1-4** (or chord buttons) to steer harmony.
 
 ## Controls
 
@@ -19,6 +19,7 @@ Press **Quick Jam** to spawn a safe starter groove, then click/tap the stage to 
   - **4 · Tense Drive**
 - **PANIC MUTE**: immediate near-silent master gain (for runaway loudness)
 - **Quick Jam**: one-click starter groove with beginner-safe spacing/timbres
+- **Space**: spawn a 3-note harmonic bloom around the center (good for intuitive chord hits)
 - **Reset**: panic mute + remove all nodes
 - **Pause / Resume**: suspend/resume audio context + sequencer motion
 - **Master** slider: output level

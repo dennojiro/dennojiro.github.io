@@ -432,6 +432,34 @@ function quickJam() {
   statusEl.textContent = `Audio: running • Quick Jam (${chordMode ? chordPresets[activeChordSet].label : 'Free Mode'})`;
 }
 
+function harmonyBloom() {
+  ensureAudio();
+  const chord = chordForStep(0);
+  const centerX = canvas.width * 0.5;
+  const centerY = canvas.height * 0.48;
+
+  chord.slice(0, 3).forEach((_, i) => {
+    const angle = (i / 3) * TWO_PI - Math.PI / 2;
+    const radius = 110;
+    spawnNode(
+      centerX + Math.cos(angle) * radius,
+      centerY + Math.sin(angle) * radius,
+      {
+        wave: i === 1 ? 'triangle' : 'sine',
+        scale: chordMode ? 'safe' : 'minor',
+        oct: 2,
+        density: 1 + i,
+        hue: 280 + i * 28,
+        speed: 1.1,
+        radius: 11
+      }
+    );
+  });
+
+  stageFlash = Math.min(1, stageFlash + 0.45);
+  statusEl.textContent = `Audio: running • Harmony Bloom (${chordMode ? chordPresets[activeChordSet].label : 'Free Mode'})`;
+}
+
 function setChordPreset(name) {
   if (!chordPresets[name]) return;
   activeChordSet = name;
@@ -511,6 +539,12 @@ chordButtons.forEach(btn => {
 });
 
 window.addEventListener('keydown', (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault();
+    harmonyBloom();
+    return;
+  }
+
   const keyMap = { '1': 'lofi', '2': 'dreamy', '3': 'bright', '4': 'tense' };
   const chord = keyMap[e.key];
   if (!chord) return;
