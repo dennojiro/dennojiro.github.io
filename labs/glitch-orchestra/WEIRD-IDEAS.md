@@ -29,3 +29,9 @@ Next action: add a `ghostHistory` ring buffer (last 8 phrase intensities) and re
 Idea: every time the user taps `G`, briefly flash a color-coded pulse strip showing whether Ghost Band is armed, so beginners instantly understand the mode shift without reading status text.
 
 Next action: add a `ghostBandPulseUntil` timestamp and render a 400ms top-edge pulse in green (ON) or magenta (OFF) inside the animation frame loop.
+
+## Phantom applause detector
+
+Idea: when Ghost Band is ON, let fast repeated taps/collisions within one bar trigger a tiny “applause shimmer” burst, making chaotic play feel like the crowd reacted to your groove.
+
+Next action: track `lastManualHitTimes` for player-triggered spawns, and if 4+ hits happen within ~900ms, emit a short canvas sparkle burst plus a soft noise clap.

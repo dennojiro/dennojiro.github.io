@@ -13,6 +13,7 @@ const chordToggle = document.getElementById('chordModeToggle');
 const ghostBandToggle = document.getElementById('ghostBandToggle');
 const ghostBandLevelSlider = document.getElementById('ghostBandLevel');
 const ghostBandLevelValue = document.getElementById('ghostBandLevelValue');
+const ghostToast = document.getElementById('ghostToast');
 const presetButtons = [...document.querySelectorAll('[data-preset]')];
 const chordButtons = [...document.querySelectorAll('[data-chord]')];
 
@@ -32,6 +33,7 @@ let stageFlash = 0;
 let activeChordSet = 'lofi';
 let activeChordIndex = 0;
 let ghostBandCooldownUntilStep = 0;
+let ghostToastTimer;
 
 const TWO_PI = Math.PI * 2;
 const safeScale = [0, 2, 4, 7, 9, 12]; // major pentatonic
@@ -549,11 +551,22 @@ function toggleChordMode(on) {
   setStatus();
 }
 
+function showGhostToast(message) {
+  if (!ghostToast) return;
+  ghostToast.textContent = message;
+  ghostToast.classList.add('show');
+  clearTimeout(ghostToastTimer);
+  ghostToastTimer = setTimeout(() => {
+    ghostToast.classList.remove('show');
+  }, 1200);
+}
+
 function setGhostBandEnabled(on) {
   ghostBandEnabled = on;
   ghostBandToggle.checked = on;
   ghostBandCooldownUntilStep = step + 8;
   setStatus();
+  showGhostToast(`Ghost Band ${on ? 'ON' : 'OFF'}`);
 }
 
 canvas.addEventListener('pointerdown', (e) => {
