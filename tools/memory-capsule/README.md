@@ -23,11 +23,13 @@ Example `capsule.json`:
   "date": "2026-02-22",
   "location": "Berlin",
   "story": "A few sentences...",
-  "fortune": "Optional short line shown as a badge"
+  "fortune": "Optional short line shown as a badge",
+  "mood": "Optional compact label, e.g. cozy"
 }
 ```
 
 `fortune` is optional. If present, it renders as a small highlighted quote badge under the date/location line.
+`mood` is optional. If present, it renders as a compact pill next to the fortune badge (or alone if fortune is omitted).
 
 ## Generate
 
