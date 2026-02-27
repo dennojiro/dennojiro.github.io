@@ -52,5 +52,11 @@ Next action: DONE in this heartbeat; next iteration is auto-suggesting glitch te
 
 Idea: add a tiny corner notch stamp (`waning gibbous`, `new moon`, etc.) so each capsule quietly carries cosmic context without cluttering the main story.
 
-Next action: add optional `meta.moonPhase` and render as a 1-line top-right micro-stamp near the badge.
+Next action: DONE in this heartbeat; next iteration is auto-suggesting moon phase from date/location with manual override.
+
+## Constellation route thread
+
+Idea: draw a faint dotted “walk route” threading the 3-grid photos so the capsule feels like one stitched memory path instead of separate tiles.
+
+Next action: add optional `meta.routeThread` boolean and render a subtle CSS-only dotted overlay line with safe default off.
 

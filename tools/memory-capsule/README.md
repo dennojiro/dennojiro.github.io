@@ -32,7 +32,8 @@ Example `capsule.json`:
     "glitchSouvenir": "Optional tiny glitch artifact line, e.g. 03:17 frame tear + laugh",
     "weatherStamp": "Optional faint ghost stamp behind the story, e.g. drizzle · 8°C · wind east",
     "memoryCue": "Optional tiny italic note under the story, e.g. smell of rain on concrete",
-    "echoFromFuture": "Optional muted footer whisper near the bottom, e.g. you were right to keep this day."
+    "echoFromFuture": "Optional muted footer whisper near the bottom, e.g. you were right to keep this day.",
+    "moonPhase": "Optional tiny top-right hero micro-stamp, e.g. waning gibbous"
   }
 }
 ```
@@ -45,6 +46,7 @@ Example `capsule.json`:
 `meta.weatherStamp` is optional. If present, it renders as low-contrast decorative text behind the story block; if missing, nothing is rendered.
 `meta.memoryCue` is optional. If present, it renders as a tiny italic line under the story (`Memory cue: ...`); if missing, nothing is rendered.
 `meta.echoFromFuture` is optional. If present, it renders as a subtle bottom whisper line (`Echo from future: ...`) near the end of the card; if missing, nothing is rendered.
+`meta.moonPhase` is optional. If present, it renders as a tiny top-right hero micro-stamp (`Moon phase: ...`) near the badge; if missing, nothing is rendered.
 `soundtrack` is optional. If present, it renders as a subtle one-line “Now playing: …” chip under mood/fortune; if missing, nothing is rendered.
 
 ## Generate
