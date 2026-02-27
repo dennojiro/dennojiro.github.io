@@ -67,6 +67,12 @@
       font-weight: 800; font-size: 22px; pointer-events: auto; touch-action: none;
       display: grid; place-items: center;
     }
+    #recenterBtn {
+      position: absolute; right: 16px; bottom: 98px; min-width: 96px; height: 42px; border-radius: 999px;
+      border: 1px solid rgba(180,220,255,.62); background: rgba(12,32,64,.72); color: #fff;
+      font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
+      display: grid; place-items: center;
+    }
   </style>
 </head>
 <body>
@@ -82,6 +88,7 @@
   <div id="touchControls" aria-label="Touch controls">
     <div id="movePad" aria-label="Move joystick"><div id="moveKnob"></div></div>
     <div id="lookArea" aria-label="Look area"></div>
+    <button id="recenterBtn" aria-label="Recenter camera">Recenter</button>
     <button id="actionBtn" aria-label="Interact">E</button>
   </div>
 
@@ -420,6 +427,7 @@
       movePad: document.getElementById('movePad'),
       moveKnob: document.getElementById('moveKnob'),
       lookArea: document.getElementById('lookArea'),
+      recenterBtn: document.getElementById('recenterBtn'),
       actionBtn: document.getElementById('actionBtn')
     };
 
@@ -434,10 +442,14 @@
       touchInput.moveX = 0;
       touchInput.moveY = 0;
     }
+    function recenterCamera() {
+      player.yaw = defaultCameraFacing.yaw;
+      player.pitch = defaultCameraFacing.pitch;
+    }
     function setupTouchControls() {
       if (!touchCapable) return;
       ui.touchControls.classList.add('active');
-      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · E button: interact/tag';
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Recenter resets view · E button: interact/tag';
 
       let movePointerId = null;
       const maxR = 42;
@@ -498,6 +510,11 @@
       }
       ui.lookArea.addEventListener('pointerup', endLook);
       ui.lookArea.addEventListener('pointercancel', endLook);
+
+      ui.recenterBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        recenterCamera();
+      });
 
       ui.actionBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
@@ -635,7 +652,8 @@
     });
 
     const state = { forward:false, back:false, left:false, right:false, canControl:false };
-    const player = { x:-8, z:-8, yaw:0, pitch:0 };
+    const defaultCameraFacing = { yaw: 0, pitch: 0 };
+    const player = { x:-8, z:-8, yaw:defaultCameraFacing.yaw, pitch:defaultCameraFacing.pitch };
     const velocity = new THREE.Vector3();
     const move = new THREE.Vector3();
     const tempF = new THREE.Vector3();
