@@ -10,6 +10,7 @@ const masterSlider = document.getElementById('masterGain');
 const tempoSlider = document.getElementById('tempo');
 const tempoValue = document.getElementById('tempoValue');
 const chordToggle = document.getElementById('chordModeToggle');
+const ghostBandToggle = document.getElementById('ghostBandToggle');
 const presetButtons = [...document.querySelectorAll('[data-preset]')];
 const chordButtons = [...document.querySelectorAll('[data-chord]')];
 
@@ -23,9 +24,11 @@ let step = 0;
 let nextStepAt = 0;
 
 let chordMode = chordToggle.checked;
+let ghostBandEnabled = ghostBandToggle.checked;
 let stageFlash = 0;
 let activeChordSet = 'lofi';
 let activeChordIndex = 0;
+let ghostBandCooldownUntilStep = 0;
 
 const TWO_PI = Math.PI * 2;
 const safeScale = [0, 2, 4, 7, 9, 12]; // major pentatonic
@@ -97,7 +100,7 @@ function ensureAudio() {
 
   masterGain.connect(limiter).connect(audioCtx.destination);
   nextStepAt = audioCtx.currentTime;
-  statusEl.textContent = `Audio: running • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
+  setStatus('Audio: running');
 }
 
 function quantizeSemitone(value, scale = safeScale) {
@@ -121,6 +124,56 @@ function chordForStep(stepOffset = 0) {
   const preset = chordPresets[activeChordSet] || chordPresets.lofi;
   const idx = (activeChordIndex + stepOffset + preset.progression.length) % preset.progression.length;
   return preset.progression[idx].map(interval => preset.root + interval);
+}
+
+function modeLabel() {
+  return chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode';
+}
+
+function ghostLabel() {
+  return `Ghost Band ${ghostBandEnabled ? 'ON' : 'OFF'}`;
+}
+
+function setStatus(prefix = `Audio: ${running ? 'running' : 'paused'}`) {
+  statusEl.textContent = `${prefix} • ${modeLabel()} • ${ghostLabel()}`;
+}
+
+function triggerGhostBandPhrase() {
+  if (!audioCtx || !ghostBandEnabled || !running || nodes.length === 0) return;
+
+  const now = audioCtx.currentTime;
+  const secPerBeat = 60 / tempo;
+  const phraseStep = secPerBeat * 0.32;
+  const chord = chordForStep(0);
+  const phrase = [chord[1] ?? chord[0], chord[2] ?? chord[0], (chord[0] ?? chord[1]) + 12];
+
+  phrase.forEach((note, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const filter = audioCtx.createBiquadFilter();
+    const panner = audioCtx.createStereoPanner();
+
+    osc.type = i === 1 ? 'sine' : 'triangle';
+    osc.frequency.value = 27.5 * 2 ** (note / 12);
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 1300 + i * 220;
+    filter.Q.value = 0.6;
+
+    panner.pan.value = -0.12 + i * 0.12;
+
+    const start = now + i * phraseStep;
+    const end = start + 0.24;
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.linearRampToValueAtTime(0.015, start + 0.045);
+    gain.gain.exponentialRampToValueAtTime(0.0001, end);
+
+    osc.connect(filter).connect(gain).connect(panner).connect(masterGain);
+    osc.start(start);
+    osc.stop(end + 0.03);
+  });
+
+  stageFlash = Math.min(1, stageFlash + 0.1);
 }
 
 class OrbitNode {
@@ -305,6 +358,11 @@ function sequencerTick() {
       activeChordIndex = (activeChordIndex + 1) % chordPresets[activeChordSet].progression.length;
     }
 
+    if (ghostBandEnabled && step > 0 && step % 16 === 0 && step >= ghostBandCooldownUntilStep) {
+      triggerGhostBandPhrase();
+      ghostBandCooldownUntilStep = step + 14;
+    }
+
     step++;
     nextStepAt += secPerBeat / 2;
   }
@@ -335,7 +393,7 @@ function panicMute() {
   const now = audioCtx.currentTime;
   masterGain.gain.cancelScheduledValues(now);
   masterGain.gain.setTargetAtTime(0.0001, now, 0.01);
-  statusEl.textContent = 'Audio: muted (panic)';
+  setStatus('Audio: muted (panic)');
 }
 
 function setMaster(level) {
@@ -353,7 +411,7 @@ function resetAll() {
   clearNodes();
   setTimeout(() => {
     if (audioCtx) setMaster(+masterSlider.value);
-    statusEl.textContent = `Audio: ${running ? 'running' : 'paused'} • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
+    setStatus();
   }, 90);
 }
 
@@ -402,7 +460,7 @@ function applyPreset(name) {
   };
 
   presets[name]?.();
-  statusEl.textContent = `Audio: running (${name})`;
+  setStatus(`Audio: running (${name})`);
 }
 
 function quickJam() {
@@ -429,7 +487,7 @@ function quickJam() {
   });
 
   stageFlash = Math.min(1, stageFlash + 0.35);
-  statusEl.textContent = `Audio: running • Quick Jam (${chordMode ? chordPresets[activeChordSet].label : 'Free Mode'})`;
+  setStatus('Audio: running • Quick Jam');
 }
 
 function harmonyBloom() {
@@ -457,7 +515,7 @@ function harmonyBloom() {
   });
 
   stageFlash = Math.min(1, stageFlash + 0.45);
-  statusEl.textContent = `Audio: running • Harmony Bloom (${chordMode ? chordPresets[activeChordSet].label : 'Free Mode'})`;
+  setStatus('Audio: running • Harmony Bloom');
 }
 
 function setChordPreset(name) {
@@ -471,7 +529,7 @@ function setChordPreset(name) {
 
   if (chordMode) {
     nodes.forEach(node => node.setPitchFromPos(0));
-    statusEl.textContent = `Audio: running • Chord Mode (${chordPresets[name].label})`;
+    setStatus('Audio: running');
   }
 }
 
@@ -482,7 +540,7 @@ function toggleChordMode(on) {
     node.setPitchFromPos(0);
   });
 
-  statusEl.textContent = `Audio: ${running ? 'running' : 'paused'} • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
+  setStatus();
 }
 
 canvas.addEventListener('pointerdown', (e) => {
@@ -501,19 +559,26 @@ chordToggle.addEventListener('change', () => {
   toggleChordMode(chordToggle.checked);
 });
 
+ghostBandToggle.addEventListener('change', () => {
+  ensureAudio();
+  ghostBandEnabled = ghostBandToggle.checked;
+  ghostBandCooldownUntilStep = step + 8;
+  setStatus();
+});
+
 toggleBtn.addEventListener('click', async () => {
   ensureAudio();
   if (running) {
     running = false;
     toggleBtn.textContent = 'Resume';
     await audioCtx.suspend();
-    statusEl.textContent = 'Audio: paused';
+    setStatus('Audio: paused');
   } else {
     running = true;
     toggleBtn.textContent = 'Pause';
     await audioCtx.resume();
     nextStepAt = audioCtx.currentTime;
-    statusEl.textContent = `Audio: running • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
+    setStatus('Audio: running');
   }
 });
 
