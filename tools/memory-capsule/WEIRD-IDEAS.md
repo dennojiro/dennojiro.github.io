@@ -17,3 +17,10 @@ Next action: DONE in this heartbeat; next iteration is auto-weather lookup by da
 Idea: let users add up to three tiny “missing object” notes (`lost glove`, `forgotten song lyric`), then render them as faint star labels over the photo grid so ordinary absence becomes visual texture.
 
 Next action: add optional `meta.missingObjects` array and render subtle labels at fixed low-risk positions in the grid overlay.
+
+## Pocket soundtrack barcode
+
+Idea: render a tiny decorative barcode-style stripe that encodes the soundtrack string so every capsule has a machine-ish music fingerprint without screaming for attention.
+
+Next action: add optional `meta.soundtrackBarcode: true` and draw a low-contrast CSS barcode block seeded from soundtrack text hash.
+

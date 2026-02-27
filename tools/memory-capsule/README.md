@@ -25,6 +25,7 @@ Example `capsule.json`:
   "story": "A few sentences...",
   "fortune": "Optional short line shown as a badge",
   "mood": "Optional compact label, e.g. cozy",
+  "soundtrack": "Optional one-line now-playing note",
   "meta": {
     "weatherStamp": "Optional faint ghost stamp behind the story, e.g. drizzle · 8°C · wind east"
   }
@@ -34,6 +35,7 @@ Example `capsule.json`:
 `fortune` is optional. If present, it renders as a small highlighted quote badge under the date/location line.
 `mood` is optional. If present, it renders as a compact pill next to the fortune badge (or alone if fortune is omitted).
 `meta.weatherStamp` is optional. If present, it renders as low-contrast decorative text behind the story block; if missing, nothing is rendered.
+`soundtrack` is optional. If present, it renders as a subtle one-line “Now playing: …” chip under mood/fortune; if missing, nothing is rendered.
 
 ## Generate
 
