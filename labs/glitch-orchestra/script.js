@@ -549,6 +549,13 @@ function toggleChordMode(on) {
   setStatus();
 }
 
+function setGhostBandEnabled(on) {
+  ghostBandEnabled = on;
+  ghostBandToggle.checked = on;
+  ghostBandCooldownUntilStep = step + 8;
+  setStatus();
+}
+
 canvas.addEventListener('pointerdown', (e) => {
   ensureAudio();
   if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -567,9 +574,7 @@ chordToggle.addEventListener('change', () => {
 
 ghostBandToggle.addEventListener('change', () => {
   ensureAudio();
-  ghostBandEnabled = ghostBandToggle.checked;
-  ghostBandCooldownUntilStep = step + 8;
-  setStatus();
+  setGhostBandEnabled(ghostBandToggle.checked);
 });
 
 ghostBandLevelSlider.addEventListener('input', () => {
@@ -619,6 +624,12 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Space') {
     e.preventDefault();
     harmonyBloom();
+    return;
+  }
+
+  if (e.code === 'KeyG') {
+    ensureAudio();
+    setGhostBandEnabled(!ghostBandEnabled);
     return;
   }
 

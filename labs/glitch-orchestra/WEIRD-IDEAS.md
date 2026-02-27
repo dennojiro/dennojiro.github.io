@@ -23,3 +23,9 @@ Next action: prototype a tiny `conductorCue` state machine that spawns every 16 
 Idea: when Ghost Band is active, a tiny stack of fading "ghost knobs" trails behind the level slider to visualize how intense the response phrases were over the last few bars.
 
 Next action: add a `ghostHistory` ring buffer (last 8 phrase intensities) and render miniature translucent bars beside the Ghost Band Level control after each phrase trigger.
+
+## Harmony lockscreen pulses
+
+Idea: every time the user taps `G`, briefly flash a color-coded pulse strip showing whether Ghost Band is armed, so beginners instantly understand the mode shift without reading status text.
+
+Next action: add a `ghostBandPulseUntil` timestamp and render a 400ms top-edge pulse in green (ON) or magenta (OFF) inside the animation frame loop.

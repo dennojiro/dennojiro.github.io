@@ -96,6 +96,13 @@ button.active {
 
 input[type='range'] { width: 130px; }
 
+.controls-shortcuts {
+  margin: 0.1rem 0 0;
+  width: 100%;
+  font-size: 0.82rem;
+  opacity: 0.78;
+}
+
 .howto {
   margin: 0.7rem 0 0;
   color: #c3d4ff;
