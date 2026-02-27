@@ -24,3 +24,9 @@ Idea: render a tiny decorative barcode-style stripe that encodes the soundtrack 
 
 Next action: add optional `meta.soundtrackBarcode: true` and draw a low-contrast CSS barcode block seeded from soundtrack text hash.
 
+## Reverse-chronology echo line
+
+Idea: add a one-line “echo” at the bottom that is the same story sentence rewritten from future-you looking back 5 years, so the capsule carries a tiny time-travel contrast.
+
+Next action: add optional `meta.echoFromFuture` and render it as a muted footer sentence prefixed with `From 2031:` when present.
+
