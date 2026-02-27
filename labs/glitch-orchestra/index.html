@@ -43,7 +43,14 @@
       <input id="ghostBandLevel" type="range" min="0" max="0.6" step="0.01" value="0.25" />
       <span id="ghostBandLevelValue">0.25</span>
       <p id="modeStrip" class="mode-strip" aria-live="polite">Lo-Fi Flow · Ghost OFF 0.25</p>
-      <p class="controls-shortcuts">1-4 chords, Space bloom, G ghost band</p>
+      <button id="shortcutHelpToggle" class="help-toggle" aria-expanded="false" aria-controls="shortcutLegend" aria-label="Toggle keyboard shortcut help">?</button>
+      <p class="controls-shortcuts">Keyboard: press ? for shortcut help</p>
+      <div id="shortcutLegend" class="shortcut-legend" hidden>
+        <strong>Shortcuts</strong>
+        <span><kbd>1</kbd>-<kbd>4</kbd> Chord presets</span>
+        <span><kbd>Space</kbd> Harmony bloom</span>
+        <span><kbd>G</kbd> Ghost Band toggle</span>
+      </div>
     </section>
 
     <section class="presets">

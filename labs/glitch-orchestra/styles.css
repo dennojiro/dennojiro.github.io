@@ -84,6 +84,16 @@ button.active {
   background: #103124;
 }
 
+.help-toggle {
+  margin-left: auto;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 999px;
+  padding: 0;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .switch {
   display: inline-flex;
   align-items: center;
@@ -110,6 +120,32 @@ input[type='range'] { width: 130px; }
   width: 100%;
   font-size: 0.82rem;
   opacity: 0.78;
+}
+
+.shortcut-legend {
+  width: 100%;
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.2rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid #2f365b;
+  border-radius: 8px;
+  background: rgba(15, 21, 44, 0.72);
+  font-size: 0.8rem;
+}
+
+.shortcut-legend strong {
+  color: #b9f4ff;
+}
+
+.shortcut-legend kbd {
+  display: inline-block;
+  padding: 0.04rem 0.34rem;
+  border: 1px solid #516094;
+  border-radius: 4px;
+  background: #121831;
+  font-size: 0.74rem;
+  color: #dff6ff;
 }
 
 .howto {

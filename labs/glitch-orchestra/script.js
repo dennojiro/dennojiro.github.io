@@ -14,6 +14,8 @@ const ghostBandToggle = document.getElementById('ghostBandToggle');
 const ghostBandLevelSlider = document.getElementById('ghostBandLevel');
 const ghostBandLevelValue = document.getElementById('ghostBandLevelValue');
 const modeStripEl = document.getElementById('modeStrip');
+const shortcutHelpToggleBtn = document.getElementById('shortcutHelpToggle');
+const shortcutLegendEl = document.getElementById('shortcutLegend');
 const ghostToast = document.getElementById('ghostToast');
 const presetButtons = [...document.querySelectorAll('[data-preset]')];
 const chordButtons = [...document.querySelectorAll('[data-chord]')];
@@ -34,6 +36,7 @@ let stageFlash = 0;
 let activeChordSet = 'lofi';
 let activeChordIndex = 0;
 let ghostBandCooldownUntilStep = 0;
+let shortcutsHelpOpen = false;
 let ghostToastTimer;
 
 const TWO_PI = Math.PI * 2;
@@ -565,6 +568,20 @@ function toggleChordMode(on) {
   setStatus();
 }
 
+function setShortcutLegendOpen(open) {
+  shortcutsHelpOpen = open;
+  if (shortcutLegendEl) {
+    shortcutLegendEl.hidden = !open;
+  }
+  if (shortcutHelpToggleBtn) {
+    shortcutHelpToggleBtn.setAttribute('aria-expanded', String(open));
+  }
+}
+
+function toggleShortcutLegend() {
+  setShortcutLegendOpen(!shortcutsHelpOpen);
+}
+
 function showGhostToast(message) {
   if (!ghostToast) return;
   ghostToast.textContent = message;
@@ -610,6 +627,10 @@ ghostBandLevelSlider.addEventListener('input', () => {
   setStatus();
 });
 
+shortcutHelpToggleBtn?.addEventListener('click', () => {
+  toggleShortcutLegend();
+});
+
 toggleBtn.addEventListener('click', async () => {
   ensureAudio();
   if (running) {
@@ -648,6 +669,12 @@ chordButtons.forEach(btn => {
 });
 
 window.addEventListener('keydown', (e) => {
+  if (e.key === '?') {
+    e.preventDefault();
+    toggleShortcutLegend();
+    return;
+  }
+
   if (e.code === 'Space') {
     e.preventDefault();
     harmonyBloom();
@@ -681,6 +708,7 @@ window.addEventListener('resize', () => {
   canvas.height = Math.round((rect.width / (16 / 9)) * ratio);
   tempoValue.textContent = `${tempo} BPM`;
   ghostBandLevelValue.textContent = ghostBandLevel.toFixed(2);
+  setShortcutLegendOpen(false);
   setChordPreset('lofi');
   requestAnimationFrame(frame);
 })();

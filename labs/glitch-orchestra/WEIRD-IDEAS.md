@@ -1,8 +1,8 @@
-# Glitch Orchestra — Weird ideas
+# Glitch Orchestra - Weird ideas
 
 ## Call-and-response ghost band
 
-Idea: after every 2 bars of user input, a subtle “ghost band” answers with one harmonic phrase that fits the current chord preset, so beginners feel like they’re jamming with an intelligent partner.
+Idea: after every 2 bars of user input, a subtle "ghost band" answers with one harmonic phrase that fits the current chord preset, so beginners feel like they're jamming with an intelligent partner.
 
 Next action: add optional `Ghost Band` toggle that records recent note triggers and schedules a low-volume response pattern on the next phrase boundary.
 
@@ -32,12 +32,18 @@ Next action: add a `ghostBandPulseUntil` timestamp and render a 400ms top-edge p
 
 ## Phantom applause detector
 
-Idea: when Ghost Band is ON, let fast repeated taps/collisions within one bar trigger a tiny “applause shimmer” burst, making chaotic play feel like the crowd reacted to your groove.
+Idea: when Ghost Band is ON, let fast repeated taps/collisions within one bar trigger a tiny "applause shimmer" burst, making chaotic play feel like the crowd reacted to your groove.
 
 Next action: track `lastManualHitTimes` for player-triggered spawns, and if 4+ hits happen within ~900ms, emit a short canvas sparkle burst plus a soft noise clap.
 
 ## Chord weather ticker
 
-Idea: show a tiny poetic "forecast" line under the controls that mutates with harmony state (e.g., "Lo-Fi Flow: soft neon drizzle" vs "Tense Drive: red static storm"), turning mode changes into a narrative mood instrument.
+Idea: show a tiny poetic "forecast" line under the controls that mutates with harmony state (e.g., "Lo‑Fi Flow: soft neon drizzle" vs "Tense Drive: red static storm"), turning mode changes into a narrative mood instrument.
 
 Next action: add a `chordWeatherMap` keyed by chord preset and a `renderChordWeather()` call inside `setChordPreset()`/`toggleChordMode()` that updates one lightweight text node.
+
+## Shortcut comet pings
+
+Idea: every time a keyboard shortcut is used (`1-4`, `Space`, `G`, `?`), launch a tiny comet from the matching help legend row so players learn controls through peripheral motion instead of reading docs.
+
+Next action: add a `shortcutPings` queue with `{key, bornAt}` events from keyboard handlers and render short 500ms comet streaks anchored to each legend row in the animation loop.
