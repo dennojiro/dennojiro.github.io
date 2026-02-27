@@ -61,6 +61,10 @@
       position: absolute; right: 0; top: 18%; width: 58%; height: 64%;
       pointer-events: auto; touch-action: none;
     }
+    #touchControls.look-left #lookArea {
+      left: 0;
+      right: auto;
+    }
     #actionBtn {
       position: absolute; right: 16px; bottom: 20px; width: 68px; height: 68px; border-radius: 50%;
       border: 1px solid rgba(180,220,255,.7); background: rgba(43,121,255,.78); color: #fff;
@@ -72,6 +76,18 @@
       border: 1px solid rgba(180,220,255,.62); background: rgba(12,32,64,.72); color: #fff;
       font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
       display: grid; place-items: center;
+    }
+    #swapSideBtn {
+      position: absolute; right: 16px; bottom: 146px; min-width: 112px; height: 42px; border-radius: 999px;
+      border: 1px solid rgba(180,220,255,.62); background: rgba(12,32,64,.72); color: #fff;
+      font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
+      display: grid; place-items: center;
+    }
+    #touchControls.look-left #swapSideBtn,
+    #touchControls.look-left #recenterBtn,
+    #touchControls.look-left #actionBtn {
+      left: 16px;
+      right: auto;
     }
   </style>
 </head>
@@ -88,6 +104,7 @@
   <div id="touchControls" aria-label="Touch controls">
     <div id="movePad" aria-label="Move joystick"><div id="moveKnob"></div></div>
     <div id="lookArea" aria-label="Look area"></div>
+    <button id="swapSideBtn" aria-label="Swap look side">Swap Side</button>
     <button id="recenterBtn" aria-label="Recenter camera">Recenter</button>
     <button id="actionBtn" aria-label="Interact">E</button>
   </div>
@@ -427,6 +444,7 @@
       movePad: document.getElementById('movePad'),
       moveKnob: document.getElementById('moveKnob'),
       lookArea: document.getElementById('lookArea'),
+      swapSideBtn: document.getElementById('swapSideBtn'),
       recenterBtn: document.getElementById('recenterBtn'),
       actionBtn: document.getElementById('actionBtn')
     };
@@ -435,7 +453,7 @@
       ui.assetStatus.textContent = `${loadedAssets.ok} loaded / ${loadedAssets.fail} fallback`;
     }
 
-    const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0 };
+    const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0, lookSide: 'right' };
     function resetMoveKnob() {
       ui.moveKnob.style.left = '46px';
       ui.moveKnob.style.top = '46px';
@@ -449,7 +467,16 @@
     function setupTouchControls() {
       if (!touchCapable) return;
       ui.touchControls.classList.add('active');
-      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Recenter resets view · E button: interact/tag';
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Swap Side flips look pad · Recenter resets view · E button: interact/tag';
+
+      function applyLookSide() {
+        ui.touchControls.classList.toggle('look-left', touchInput.lookSide === 'left');
+      }
+      function swapLookSide() {
+        touchInput.lookSide = touchInput.lookSide === 'right' ? 'left' : 'right';
+        applyLookSide();
+      }
+      applyLookSide();
 
       let movePointerId = null;
       const maxR = 42;
@@ -510,6 +537,11 @@
       }
       ui.lookArea.addEventListener('pointerup', endLook);
       ui.lookArea.addEventListener('pointercancel', endLook);
+
+      ui.swapSideBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        swapLookSide();
+      });
 
       ui.recenterBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
