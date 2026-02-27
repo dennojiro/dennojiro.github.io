@@ -22,8 +22,9 @@ node generate-pack.mjs --dry-run
 After generating variants, score quickly using:
 
 - `scorecard-template.json`
+- `selection-log-template.md`
 
-Use 1-5 scores for each criterion from `STYLE_GUIDE.md`.
+Use 1-5 scores for each criterion from `STYLE_GUIDE.md`, then record final pick + rationale in the selection log.
 
 ## Fast usage
 
