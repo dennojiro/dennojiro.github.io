@@ -22,9 +22,12 @@ Example `capsule.json`:
   "title": "Weekend in Berlin",
   "date": "2026-02-22",
   "location": "Berlin",
-  "story": "A few sentences..."
+  "story": "A few sentences...",
+  "fortune": "Optional short line shown as a badge"
 }
 ```
+
+`fortune` is optional. If present, it renders as a small highlighted quote badge under the date/location line.
 
 ## Generate
 
