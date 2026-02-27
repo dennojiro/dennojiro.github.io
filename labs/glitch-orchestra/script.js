@@ -13,6 +13,7 @@ const chordToggle = document.getElementById('chordModeToggle');
 const ghostBandToggle = document.getElementById('ghostBandToggle');
 const ghostBandLevelSlider = document.getElementById('ghostBandLevel');
 const ghostBandLevelValue = document.getElementById('ghostBandLevelValue');
+const modeStripEl = document.getElementById('modeStrip');
 const ghostToast = document.getElementById('ghostToast');
 const presetButtons = [...document.querySelectorAll('[data-preset]')];
 const chordButtons = [...document.querySelectorAll('[data-chord]')];
@@ -141,7 +142,18 @@ function ghostLabel() {
     : 'Ghost Band OFF';
 }
 
+function modeStripText() {
+  const preset = chordPresets[activeChordSet]?.label || chordPresets.lofi.label;
+  return `${preset} · Ghost ${ghostBandEnabled ? 'ON' : 'OFF'} ${ghostBandLevel.toFixed(2)}`;
+}
+
+function updateModeStrip() {
+  if (!modeStripEl) return;
+  modeStripEl.textContent = modeStripText();
+}
+
 function setStatus(prefix = `Audio: ${running ? 'running' : 'paused'}`) {
+  updateModeStrip();
   statusEl.textContent = `${prefix} • ${modeLabel()} • ${ghostLabel()}`;
 }
 
@@ -534,6 +546,8 @@ function setChordPreset(name) {
   chordButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.chord === name);
   });
+
+  updateModeStrip();
 
   if (chordMode) {
     nodes.forEach(node => node.setPitchFromPos(0));

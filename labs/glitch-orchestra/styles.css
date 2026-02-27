@@ -96,8 +96,17 @@ button.active {
 
 input[type='range'] { width: 130px; }
 
-.controls-shortcuts {
+.mode-strip {
   margin: 0.1rem 0 0;
+  width: 100%;
+  font-size: 0.8rem;
+  opacity: 0.9;
+  color: #9de7ff;
+  letter-spacing: 0.01em;
+}
+
+.controls-shortcuts {
+  margin: 0;
   width: 100%;
   font-size: 0.82rem;
   opacity: 0.78;

@@ -35,3 +35,9 @@ Next action: add a `ghostBandPulseUntil` timestamp and render a 400ms top-edge p
 Idea: when Ghost Band is ON, let fast repeated taps/collisions within one bar trigger a tiny “applause shimmer” burst, making chaotic play feel like the crowd reacted to your groove.
 
 Next action: track `lastManualHitTimes` for player-triggered spawns, and if 4+ hits happen within ~900ms, emit a short canvas sparkle burst plus a soft noise clap.
+
+## Chord weather ticker
+
+Idea: show a tiny poetic "forecast" line under the controls that mutates with harmony state (e.g., "Lo-Fi Flow: soft neon drizzle" vs "Tense Drive: red static storm"), turning mode changes into a narrative mood instrument.
+
+Next action: add a `chordWeatherMap` keyed by chord preset and a `renderChordWeather()` call inside `setChordPreset()`/`toggleChordMode()` that updates one lightweight text node.
