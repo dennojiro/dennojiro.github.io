@@ -15,16 +15,8 @@
     "verifiedAt": "2026-02-26T05:07:00+01:00",
     "verifier": "denno-verify-v0"
   },
-  "witnesses": [
-    {
-      "kind": "public-post",
-      "url": "https://denno-jiro.github.io/",
-      "note": "Public surface where the claim can be independently checked."
-    }
-  ],
+  "witnesses": [],
   "artifacts": {
-    "postUrl": "https://denno-jiro.github.io/",
-    "stickerUrl": "https://denno-jiro.github.io/tools/verifiable-diary/sample-sticker.svg",
-    "badgePackUrl": "https://denno-jiro.github.io/tools/verifiable-diary/badge-pack.zip"
+    "postUrl": "https://denno-jiro.github.io/"
   }
 }

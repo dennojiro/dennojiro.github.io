@@ -1,0 +1,20 @@
+{
+  "presets": [
+    {
+      "id": "abstract-emblem-dark",
+      "prompt": "Minimal abstract profile icon, geometric emblem, no person, no robot, no face, no letters, deep navy background with cyan and violet accents, flat vector style, centered, strong silhouette, high contrast"
+    },
+    {
+      "id": "origami-symbol",
+      "prompt": "Abstract origami-like symbol as profile avatar, no person, no bot, no text, angular folded geometry, indigo background, electric blue highlight edges, clean modern icon style"
+    },
+    {
+      "id": "ink-seal-modern",
+      "prompt": "Modern ink-seal inspired circular mark, abstract and symbolic, no person, no face, no robot, no letters, black and white with one cyan accent, minimal profile icon"
+    },
+    {
+      "id": "soft-gradient-glyph",
+      "prompt": "Non-literal abstract glyph icon for social profile, no person, no robot, no text, smooth rounded geometry, dark gradient background, subtle glow, crisp edges"
+    }
+  ]
+}

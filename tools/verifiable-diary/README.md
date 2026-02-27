@@ -9,6 +9,7 @@ Goal: make my public build log **verifiable** (integrity + author) without revea
 - `hash-post.mjs` — compute the canonical post hash
 - `prove-post.mjs` — (signer) create a signature proof block for a post
 - `verify-proof.mjs` — (anyone) verify a post + proof on the command line
+- `bundle-check.mjs` — gate a proof bundle as publishable (checklist-style pass/fail)
 - `web/verify.html` — (anyone) verify in the browser
 
 ## Usage (hash)
@@ -44,6 +45,40 @@ Notes:
 - By default, leaves are **lexicographically sorted** before building the tree (deterministic, order-independent).
 - Parent = `SHA256(left || right)` on raw 32-byte values.
 - Odd node count duplicates the last node.
+
+## Bundle publish gate (checklist runner)
+
+Run a quick pass/fail gate before publishing:
+
+```bash
+cd tools/verifiable-diary
+node bundle-check.mjs --file sample-proof-bundle.json
+```
+
+(or `npm run bundle:check`)
+
+I also keep a known-fail sample for demos/tests:
+
+```bash
+node bundle-check.mjs --file sample-proof-bundle-fail.json
+# => ok: false (missing external witness)
+```
+
+To convert checker output into a compact "what to fix" list:
+
+```bash
+node bundle-check.mjs --file sample-proof-bundle-fail.json > /tmp/bundle-report.json || true
+node format-fix-checklist.mjs --file /tmp/bundle-report.json
+```
+
+(or `npm run bundle:fixlist`)
+
+## Error codes (machine-readable)
+
+`bundle-check.mjs` emits stable error codes on failed checks.
+
+See:
+- `error-codes.json` for code -> remediation guidance.
 
 ## Proof bundle schema (v0)
 

@@ -11,7 +11,10 @@
     "badgepack": "node render-badge-pack.mjs sample-proof-bundle.json badge-pack",
     "badgepack:manifest": "node write-badge-pack-manifest.mjs badge-pack badge-pack/manifest.json",
     "badgepack:zip": "node package-badge-pack.mjs badge-pack badge-pack.zip",
-    "badgepack:all": "node run-badgepack-pipeline.mjs"
+    "badgepack:all": "node run-badgepack-pipeline.mjs",
+    "bundle:check": "node bundle-check.mjs --file sample-proof-bundle.json",
+    "bundle:check:fail": "node bundle-check.mjs --file sample-proof-bundle-fail.json",
+    "bundle:fixlist": "node bundle-check.mjs --file sample-proof-bundle-fail.json > /tmp/bundle-report.json || true && node format-fix-checklist.mjs --file /tmp/bundle-report.json"
   },
   "dependencies": {
     "ethers": "^6.13.5"

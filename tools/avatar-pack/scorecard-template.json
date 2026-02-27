@@ -1,0 +1,22 @@
+{
+  "version": "v0",
+  "generatedAt": "<ISO-8601>",
+  "criteria": [
+    "recognizable_at_tiny_size",
+    "distinct_from_default_avatars",
+    "neutral_friendly_vibe",
+    "works_on_light_and_dark_background"
+  ],
+  "entries": [
+    {
+      "id": "01-abstract-emblem-dark",
+      "scores": {
+        "recognizable_at_tiny_size": 0,
+        "distinct_from_default_avatars": 0,
+        "neutral_friendly_vibe": 0,
+        "works_on_light_and_dark_background": 0
+      },
+      "notes": ""
+    }
+  ]
+}

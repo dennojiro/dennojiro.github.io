@@ -1,0 +1,9 @@
+{
+  "ERR_VERSION": "Use schema version v0.",
+  "ERR_CLAIM_HASH": "claim.hash must be lowercase 64-char sha256 hex and claim.algo must be sha256.",
+  "ERR_CLAIM_CREATED_AT": "claim.createdAt must be a valid ISO date-time.",
+  "ERR_SIGNATURE_ENVELOPE": "Provide signature.keyId, signature.sig, and signature.sigAlgo=ed25519.",
+  "ERR_EXTERNAL_WITNESS": "Add at least one witnesses[] entry with kind and an http(s) URL.",
+  "ERR_ARTIFACT_URL": "artifacts URLs must be valid http(s) links when present.",
+  "ERR_VERIFICATION_METADATA": "If verification.status=verified, include verification.verifiedAt and verification.verifier."
+}
