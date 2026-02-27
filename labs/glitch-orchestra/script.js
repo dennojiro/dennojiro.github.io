@@ -3,6 +3,7 @@ const ctx = canvas.getContext('2d');
 
 const statusEl = document.getElementById('status');
 const panicBtn = document.getElementById('panicMute');
+const quickJamBtn = document.getElementById('quickJam');
 const resetBtn = document.getElementById('resetAll');
 const toggleBtn = document.getElementById('toggleRun');
 const masterSlider = document.getElementById('masterGain');
@@ -404,6 +405,33 @@ function applyPreset(name) {
   statusEl.textContent = `Audio: running (${name})`;
 }
 
+function quickJam() {
+  ensureAudio();
+  clearNodes();
+
+  const laneYs = [0.2, 0.34, 0.5, 0.66, 0.8];
+  const laneXs = [0.18, 0.36, 0.54, 0.72, 0.86];
+
+  laneXs.forEach((xNorm, i) => {
+    spawnNode(
+      canvas.width * xNorm,
+      canvas.height * laneYs[i % laneYs.length],
+      {
+        wave: i % 2 ? 'triangle' : 'sine',
+        scale: chordMode ? 'safe' : 'minor',
+        oct: 2 + (i % 2),
+        density: 2 + (i % 3),
+        hue: 165 + i * 22,
+        speed: 1.3,
+        radius: 10 + i
+      }
+    );
+  });
+
+  stageFlash = Math.min(1, stageFlash + 0.35);
+  statusEl.textContent = `Audio: running • Quick Jam (${chordMode ? chordPresets[activeChordSet].label : 'Free Mode'})`;
+}
+
 function setChordPreset(name) {
   if (!chordPresets[name]) return;
   activeChordSet = name;
@@ -437,6 +465,7 @@ canvas.addEventListener('pointerdown', (e) => {
 });
 
 panicBtn.addEventListener('click', panicMute);
+quickJamBtn.addEventListener('click', quickJam);
 resetBtn.addEventListener('click', resetAll);
 
 chordToggle.addEventListener('change', () => {

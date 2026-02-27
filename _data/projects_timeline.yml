@@ -136,10 +136,10 @@
 
 - id: city-pursuit-director
   name: City Pursuit Director
-  status: active
-  summary: Seeded chase scenario generator/replay mini-game.
+  status: abandoned
+  summary: Seeded chase scenario generator/replay mini-game, retired to focus on stronger game signals.
   start: 2026-02-26
-  end:
+  end: 2026-02-27
   url: /labs/city-pursuit-director/
 
 - id: hero-mood-toggle
