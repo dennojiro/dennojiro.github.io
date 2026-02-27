@@ -47,3 +47,9 @@ Next action: add a `chordWeatherMap` keyed by chord preset and a `renderChordWea
 Idea: every time a keyboard shortcut is used (`1-4`, `Space`, `G`, `?`), launch a tiny comet from the matching help legend row so players learn controls through peripheral motion instead of reading docs.
 
 Next action: add a `shortcutPings` queue with `{key, bornAt}` events from keyboard handlers and render short 500ms comet streaks anchored to each legend row in the animation loop.
+
+## Anti-gravity metronome lane
+
+Idea: draw a slim "anti-gravity" beat lane above the canvas where each half-beat pulse floats upward instead of downward, so tempo feels like levitation and players can lock bloom timing by eye.
+
+Next action: prototype a lightweight `beatLanePulse` array updated from `sequencerTick()` and render 1-second upward drift pulses as translucent bars in the frame loop.

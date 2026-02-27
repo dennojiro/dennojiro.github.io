@@ -146,6 +146,14 @@ input[type='range'] { width: 130px; }
   background: #121831;
   font-size: 0.74rem;
   color: #dff6ff;
+  transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease, background-color 120ms ease;
+}
+
+.shortcut-legend kbd.is-live {
+  border-color: #9de7ff;
+  background: #1b2d4b;
+  box-shadow: 0 0 0 1px rgba(157, 231, 255, 0.2), 0 0 10px rgba(91, 231, 255, 0.22);
+  transform: translateY(-1px);
 }
 
 .howto {

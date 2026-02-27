@@ -19,6 +19,7 @@ const shortcutLegendEl = document.getElementById('shortcutLegend');
 const ghostToast = document.getElementById('ghostToast');
 const presetButtons = [...document.querySelectorAll('[data-preset]')];
 const chordButtons = [...document.querySelectorAll('[data-chord]')];
+const shortcutLegendKeyEls = [...document.querySelectorAll('#shortcutLegend [data-shortcut]')];
 
 let audioCtx;
 let masterGain;
@@ -38,6 +39,12 @@ let activeChordIndex = 0;
 let ghostBandCooldownUntilStep = 0;
 let shortcutsHelpOpen = false;
 let ghostToastTimer;
+
+const shortcutLegendTimers = new WeakMap();
+const shortcutLegendKeyMap = shortcutLegendKeyEls.reduce((map, el) => {
+  map[el.dataset.shortcut] = el;
+  return map;
+}, {});
 
 const TWO_PI = Math.PI * 2;
 const safeScale = [0, 2, 4, 7, 9, 12]; // major pentatonic
@@ -582,6 +589,17 @@ function toggleShortcutLegend() {
   setShortcutLegendOpen(!shortcutsHelpOpen);
 }
 
+function pulseShortcutLegendKey(shortcutKey) {
+  if (!shortcutsHelpOpen) return;
+  const keyEl = shortcutLegendKeyMap[shortcutKey];
+  if (!keyEl) return;
+
+  keyEl.classList.add('is-live');
+  clearTimeout(shortcutLegendTimers.get(keyEl));
+  const timer = setTimeout(() => keyEl.classList.remove('is-live'), 180);
+  shortcutLegendTimers.set(keyEl, timer);
+}
+
 function showGhostToast(message) {
   if (!ghostToast) return;
   ghostToast.textContent = message;
@@ -677,11 +695,13 @@ window.addEventListener('keydown', (e) => {
 
   if (e.code === 'Space') {
     e.preventDefault();
+    pulseShortcutLegendKey('Space');
     harmonyBloom();
     return;
   }
 
   if (e.code === 'KeyG') {
+    pulseShortcutLegendKey('G');
     ensureAudio();
     setGhostBandEnabled(!ghostBandEnabled);
     return;
@@ -690,6 +710,7 @@ window.addEventListener('keydown', (e) => {
   const keyMap = { '1': 'lofi', '2': 'dreamy', '3': 'bright', '4': 'tense' };
   const chord = keyMap[e.key];
   if (!chord) return;
+  pulseShortcutLegendKey(e.key);
   ensureAudio();
   setChordPreset(chord);
 });
