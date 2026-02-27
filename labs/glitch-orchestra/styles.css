@@ -5,6 +5,7 @@
   --ink: #dce8ff;
   --accent: #5be7ff;
   --danger: #ff5f6d;
+  --pulse: 0;
 }
 
 * { box-sizing: border-box; }
@@ -30,10 +31,10 @@ body {
 }
 
 h1 { margin: 0; font-size: 1.75rem; }
-.subtitle { margin: 0.25rem 0 0; opacity: 0.85; }
+.subtitle { margin: 0.25rem 0 0; opacity: 0.9; }
 .status { font-size: 0.9rem; opacity: 0.9; }
 
-.controls, .presets {
+.controls, .presets, .chord-bank {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -43,6 +44,28 @@ h1 { margin: 0; font-size: 1.75rem; }
   border: 1px solid #252a44;
   border-radius: 10px;
   background: color-mix(in oklab, var(--panel), black 14%);
+}
+
+.chord-bank {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.chord-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  opacity: 0.95;
+}
+
+.chord-head small {
+  opacity: 0.75;
+}
+
+.chord-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.45rem;
 }
 
 button {
@@ -56,8 +79,28 @@ button {
 
 button:hover { border-color: var(--accent); }
 button.danger { border-color: #8d1f2a; background: #3b1117; }
+button.active {
+  border-color: #7efac2;
+  background: #103124;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.2rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #3b436a;
+  border-radius: 999px;
+}
 
 input[type='range'] { width: 130px; }
+
+.howto {
+  margin: 0.7rem 0 0;
+  color: #c3d4ff;
+  font-size: 0.95rem;
+}
 
 #stage {
   width: 100%;
@@ -65,13 +108,15 @@ input[type='range'] { width: 130px; }
   aspect-ratio: 16 / 9;
   border-radius: 12px;
   border: 1px solid #2d3154;
-  background: #05070f;
+  background: radial-gradient(circle at 40% 20%, rgba(42, 64, 125, calc(0.22 + var(--pulse) * 0.26)), #05070f 65%);
   touch-action: none;
   display: block;
+  box-shadow: 0 0 calc(10px + var(--pulse) * 24px) rgba(88, 135, 255, calc(0.12 + var(--pulse) * 0.18));
+  transition: box-shadow 120ms linear;
 }
 
 .hint {
   margin-top: 0.6rem;
   font-size: 0.88rem;
-  opacity: 0.8;
+  opacity: 0.85;
 }

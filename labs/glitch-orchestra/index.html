@@ -11,9 +11,9 @@
     <header class="topbar">
       <div>
         <h1>Glitch Orchestra</h1>
-        <p class="subtitle">Tap / click the stage to spawn sonic nodes. Let chaos conduct itself.</p>
+        <p class="subtitle">Play with clicks or keys. Turn on Chord Mode for instant good harmony.</p>
       </div>
-      <div class="status" id="status">Audio: idle</div>
+      <div class="status" id="status">Audio: ready</div>
     </header>
 
     <section class="controls">
@@ -22,25 +22,45 @@
       <button id="toggleRun">Pause</button>
 
       <label for="masterGain">Master</label>
-      <input id="masterGain" type="range" min="0" max="1" step="0.01" value="0.35" />
+      <input id="masterGain" type="range" min="0" max="1" step="0.01" value="0.3" />
 
       <label for="tempo">Tempo</label>
-      <input id="tempo" type="range" min="50" max="180" step="1" value="98" />
-      <span id="tempoValue">98 BPM</span>
+      <input id="tempo" type="range" min="60" max="180" step="1" value="92" />
+      <span id="tempoValue">92 BPM</span>
+
+      <label class="switch" for="chordModeToggle">
+        <input id="chordModeToggle" type="checkbox" checked />
+        <span>Chord Mode</span>
+      </label>
     </section>
 
     <section class="presets">
-      <span>Presets:</span>
+      <span>Chaos Presets:</span>
       <button data-preset="stardust">Stardust Drift</button>
       <button data-preset="gridlock">Gridlock Pulse</button>
       <button data-preset="nocturne">Nocturne Bells</button>
       <button data-preset="hazard">Hazard Sirens</button>
     </section>
 
+    <section class="chord-bank" aria-label="Chord modes">
+      <div class="chord-head">
+        <strong>Chord Presets</strong>
+        <small>Use buttons or keys 1-4</small>
+      </div>
+      <div class="chord-buttons">
+        <button data-chord="lofi">1 · Lo-Fi Flow</button>
+        <button data-chord="dreamy">2 · Dreamy Bloom</button>
+        <button data-chord="bright">3 · Bright Lift</button>
+        <button data-chord="tense">4 · Tense Drive</button>
+      </div>
+    </section>
+
+    <p class="howto">How to play: click the stage for melody sparks, then tap 1-4 to steer the harmony.</p>
+
     <canvas id="stage" width="1280" height="720" aria-label="Glitch Orchestra stage"></canvas>
 
     <footer class="hint">
-      Nodes influence neighbors: close notes entrain pitch and exchange rhythmic triggers.
+      Chord Mode quantizes to a safe pentatonic lane while keeping the glitch collisions and reactive chaos.
     </footer>
   </main>
 

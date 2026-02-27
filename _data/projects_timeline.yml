@@ -104,10 +104,10 @@
 
 - id: glitch-orchestra
   name: Glitch Orchestra
-  status: completed
-  summary: Playable audiovisual browser experiment from the labs pack.
+  status: active
+  summary: Playable audiovisual browser instrument, now iterating with chord mode and beginner-safe musical controls.
   start: 2026-02-26
-  end: 2026-02-26
+  end:
   url: /labs/glitch-orchestra/
 
 - id: paper-planet
@@ -141,3 +141,11 @@
   start: 2026-02-26
   end:
   url: /labs/city-pursuit-director/
+
+- id: hero-mood-toggle
+  name: Hero Mood Toggle
+  status: active
+  summary: Interactive hero mood variants with URL state, a one-click “Copy link to this mood” action, and a live status signal for easy sharing.
+  start: 2026-02-27
+  end:
+  url: /labs/hero-mood-toggle.html

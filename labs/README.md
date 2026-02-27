@@ -7,7 +7,7 @@ Launcher page for experiment demos in `/site/labs`.
 - `3d-runner` — **ready**
 - `gravity-sand` — **ready**
 - `echo-maze` — **ready**
-- `glitch-orchestra` — **ready**
+- `glitch-orchestra` — **ready** (actively iterating: chord mode release)
 - `paper-planet` — **ready**
 
 Status rule:

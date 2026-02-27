@@ -8,7 +8,9 @@ const toggleBtn = document.getElementById('toggleRun');
 const masterSlider = document.getElementById('masterGain');
 const tempoSlider = document.getElementById('tempo');
 const tempoValue = document.getElementById('tempoValue');
+const chordToggle = document.getElementById('chordModeToggle');
 const presetButtons = [...document.querySelectorAll('[data-preset]')];
+const chordButtons = [...document.querySelectorAll('[data-chord]')];
 
 let audioCtx;
 let masterGain;
@@ -18,14 +20,64 @@ let tempo = +tempoSlider.value;
 let nodes = [];
 let step = 0;
 let nextStepAt = 0;
-let raf = null;
+
+let chordMode = chordToggle.checked;
+let stageFlash = 0;
+let activeChordSet = 'lofi';
+let activeChordIndex = 0;
 
 const TWO_PI = Math.PI * 2;
+const safeScale = [0, 2, 4, 7, 9, 12]; // major pentatonic
+
 const baseScales = {
   minor: [0, 3, 7, 10, 12],
   pent: [0, 2, 5, 7, 10, 12],
   dissonant: [0, 1, 6, 7, 11, 12],
-  bellish: [0, 4, 7, 11, 14]
+  bellish: [0, 4, 7, 11, 14],
+  safe: safeScale
+};
+
+const chordPresets = {
+  lofi: {
+    label: 'Lo-Fi Flow',
+    root: 48,
+    progression: [
+      [0, 3, 7],
+      [5, 8, 12],
+      [7, 10, 14],
+      [3, 7, 10]
+    ]
+  },
+  dreamy: {
+    label: 'Dreamy Bloom',
+    root: 50,
+    progression: [
+      [0, 4, 9],
+      [2, 7, 11],
+      [4, 9, 12],
+      [7, 11, 14]
+    ]
+  },
+  bright: {
+    label: 'Bright Lift',
+    root: 52,
+    progression: [
+      [0, 4, 7],
+      [5, 9, 12],
+      [7, 11, 14],
+      [9, 12, 16]
+    ]
+  },
+  tense: {
+    label: 'Tense Drive',
+    root: 47,
+    progression: [
+      [0, 1, 7],
+      [3, 6, 10],
+      [5, 8, 11],
+      [1, 6, 9]
+    ]
+  }
 };
 
 function ensureAudio() {
@@ -44,7 +96,30 @@ function ensureAudio() {
 
   masterGain.connect(limiter).connect(audioCtx.destination);
   nextStepAt = audioCtx.currentTime;
-  statusEl.textContent = 'Audio: running';
+  statusEl.textContent = `Audio: running • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
+}
+
+function quantizeSemitone(value, scale = safeScale) {
+  const octave = Math.floor(value / 12);
+  const inOctave = ((value % 12) + 12) % 12;
+  let closest = scale[0];
+  let bestDiff = Infinity;
+
+  scale.forEach((note) => {
+    const diff = Math.abs(note - inOctave);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      closest = note;
+    }
+  });
+
+  return octave * 12 + closest;
+}
+
+function chordForStep(stepOffset = 0) {
+  const preset = chordPresets[activeChordSet] || chordPresets.lofi;
+  const idx = (activeChordIndex + stepOffset + preset.progression.length) % preset.progression.length;
+  return preset.progression[idx].map(interval => preset.root + interval);
 }
 
 class OrbitNode {
@@ -57,7 +132,8 @@ class OrbitNode {
     this.r = opts.radius ?? (10 + Math.random() * 12);
     this.hue = opts.hue ?? (Math.random() * 360);
     this.pan = ((x / canvas.width) * 2) - 1;
-    this.scale = opts.scale || 'minor';
+    this.scale = opts.scale || (chordMode ? 'safe' : 'minor');
+    this.baseScale = this.scale;
     this.oct = opts.oct ?? 2;
     this.density = opts.density ?? (1 + Math.floor(Math.random() * 4));
     this.energy = 0.8;
@@ -79,12 +155,22 @@ class OrbitNode {
   }
 
   setPitchFromPos(mod = 0) {
-    const scale = baseScales[this.scale] || baseScales.minor;
-    const idx = Math.floor((this.y / canvas.height) * scale.length) % scale.length;
-    const semitone = scale[(idx + mod + scale.length) % scale.length] + this.oct * 12;
-    const hz = 55 * 2 ** (semitone / 12);
+    let semitone;
+
+    if (chordMode) {
+      const chord = chordForStep(step + mod);
+      const lane = Math.floor((this.y / canvas.height) * chord.length) % chord.length;
+      semitone = chord[lane] + this.oct * 12;
+      semitone = quantizeSemitone(semitone, safeScale);
+    } else {
+      const scale = baseScales[this.scale] || baseScales.minor;
+      const idx = Math.floor((this.y / canvas.height) * scale.length) % scale.length;
+      semitone = scale[(idx + mod + scale.length) % scale.length] + this.oct * 12;
+    }
+
+    const hz = 27.5 * 2 ** (semitone / 12);
     this.osc.frequency.setTargetAtTime(hz, audioCtx.currentTime, 0.03);
-    this.filter.frequency.setTargetAtTime(Math.min(2400, hz * 3.8), audioCtx.currentTime, 0.08);
+    this.filter.frequency.setTargetAtTime(Math.min(2800, hz * 3.8), audioCtx.currentTime, 0.08);
   }
 
   pulse(strength = 1) {
@@ -95,6 +181,7 @@ class OrbitNode {
     this.gain.gain.linearRampToValueAtTime(a, now + 0.016);
     this.gain.gain.exponentialRampToValueAtTime(0.0001, now + (0.14 + 0.18 / this.density));
     this.energy = Math.min(1.5, this.energy + 0.3);
+    stageFlash = Math.min(1, stageFlash + 0.18 * strength);
   }
 
   tick(dt) {
@@ -107,9 +194,8 @@ class OrbitNode {
     this.x = Math.max(this.r, Math.min(canvas.width - this.r, this.x));
     this.y = Math.max(this.r, Math.min(canvas.height - this.r, this.y));
 
-    const friction = 0.999;
-    this.vx *= friction;
-    this.vy *= friction;
+    this.vx *= 0.999;
+    this.vy *= 0.999;
 
     this.pan = ((this.x / canvas.width) * 2) - 1;
     this.panner.pan.setTargetAtTime(this.pan, audioCtx.currentTime, 0.08);
@@ -124,7 +210,7 @@ class OrbitNode {
     ctx.fill();
 
     ctx.beginPath();
-    ctx.fillStyle = `hsla(${this.hue},95%,65%,0.85)`;
+    ctx.fillStyle = `hsla(${this.hue},95%,65%,0.88)`;
     ctx.arc(this.x, this.y, this.r, 0, TWO_PI);
     ctx.fill();
 
@@ -213,6 +299,11 @@ function sequencerTick() {
         n.pulse(0.7);
       }
     });
+
+    if (chordMode && step % 4 === 0) {
+      activeChordIndex = (activeChordIndex + 1) % chordPresets[activeChordSet].progression.length;
+    }
+
     step++;
     nextStepAt += secPerBeat / 2;
   }
@@ -224,7 +315,7 @@ function frame(ts) {
   lastTs = ts;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'rgba(10,12,24,0.3)';
+  ctx.fillStyle = 'rgba(10,12,24,0.28)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   nodes.forEach(n => n.tick(dt));
@@ -232,7 +323,10 @@ function frame(ts) {
   nodes.forEach(n => n.draw());
   sequencerTick();
 
-  raf = requestAnimationFrame(frame);
+  stageFlash = Math.max(0, stageFlash * 0.92 - 0.01);
+  document.documentElement.style.setProperty('--pulse', stageFlash.toFixed(3));
+
+  requestAnimationFrame(frame);
 }
 
 function panicMute() {
@@ -258,7 +352,7 @@ function resetAll() {
   clearNodes();
   setTimeout(() => {
     if (audioCtx) setMaster(+masterSlider.value);
-    statusEl.textContent = running ? 'Audio: running' : 'Audio: paused';
+    statusEl.textContent = `Audio: ${running ? 'running' : 'paused'} • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
   }, 90);
 }
 
@@ -310,16 +404,45 @@ function applyPreset(name) {
   statusEl.textContent = `Audio: running (${name})`;
 }
 
+function setChordPreset(name) {
+  if (!chordPresets[name]) return;
+  activeChordSet = name;
+  activeChordIndex = 0;
+
+  chordButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.chord === name);
+  });
+
+  if (chordMode) {
+    nodes.forEach(node => node.setPitchFromPos(0));
+    statusEl.textContent = `Audio: running • Chord Mode (${chordPresets[name].label})`;
+  }
+}
+
+function toggleChordMode(on) {
+  chordMode = on;
+  nodes.forEach(node => {
+    node.scale = chordMode ? 'safe' : node.baseScale;
+    node.setPitchFromPos(0);
+  });
+
+  statusEl.textContent = `Audio: ${running ? 'running' : 'paused'} • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
+}
+
 canvas.addEventListener('pointerdown', (e) => {
   ensureAudio();
   if (audioCtx.state === 'suspended') audioCtx.resume();
   const p = stagePos(e);
-  spawnNode(p.x, p.y);
+  spawnNode(p.x, p.y, { scale: chordMode ? 'safe' : 'minor', wave: chordMode ? 'triangle' : undefined });
 });
 
 panicBtn.addEventListener('click', panicMute);
-
 resetBtn.addEventListener('click', resetAll);
+
+chordToggle.addEventListener('change', () => {
+  ensureAudio();
+  toggleChordMode(chordToggle.checked);
+});
 
 toggleBtn.addEventListener('click', async () => {
   ensureAudio();
@@ -333,13 +456,11 @@ toggleBtn.addEventListener('click', async () => {
     toggleBtn.textContent = 'Pause';
     await audioCtx.resume();
     nextStepAt = audioCtx.currentTime;
-    statusEl.textContent = 'Audio: running';
+    statusEl.textContent = `Audio: running • ${chordMode ? `Chord Mode (${chordPresets[activeChordSet].label})` : 'Free Mode'}`;
   }
 });
 
-masterSlider.addEventListener('input', () => {
-  setMaster(+masterSlider.value);
-});
+masterSlider.addEventListener('input', () => setMaster(+masterSlider.value));
 
 tempoSlider.addEventListener('input', () => {
   tempo = +tempoSlider.value;
@@ -351,6 +472,21 @@ presetButtons.forEach(btn => {
     ensureAudio();
     applyPreset(btn.dataset.preset);
   });
+});
+
+chordButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    ensureAudio();
+    setChordPreset(btn.dataset.chord);
+  });
+});
+
+window.addEventListener('keydown', (e) => {
+  const keyMap = { '1': 'lofi', '2': 'dreamy', '3': 'bright', '4': 'tense' };
+  const chord = keyMap[e.key];
+  if (!chord) return;
+  ensureAudio();
+  setChordPreset(chord);
 });
 
 window.addEventListener('resize', () => {
@@ -366,5 +502,6 @@ window.addEventListener('resize', () => {
   canvas.width = Math.round(rect.width * ratio);
   canvas.height = Math.round((rect.width / (16 / 9)) * ratio);
   tempoValue.textContent = `${tempo} BPM`;
-  raf = requestAnimationFrame(frame);
+  setChordPreset('lofi');
+  requestAnimationFrame(frame);
 })();

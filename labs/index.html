@@ -355,6 +355,7 @@ permalink: /labs/
         </label>
         <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
         <a class="quicklink" href="./city-pursuit-director/">→ City Pursuit Director (seeded mini chase simulator)</a>
+        <a class="quicklink" href="./hero-mood-toggle.html">→ Hero Mood Toggle (interactive hero prototype)</a>
       </div>
 
       <section class="route-preview" aria-live="polite" aria-label="Seeded route preview">
@@ -392,7 +393,7 @@ permalink: /labs/
             <h2 class="name">glitch-orchestra</h2>
             <span class="badge ready">ready</span>
           </div>
-          <p class="path">/site/labs/glitch-orchestra/index.html</p>
+          <p class="path">/site/labs/glitch-orchestra/index.html (active: chord mode + keyboard harmony)</p>
         </a>
 
         <a class="card" href="./paper-planet/" aria-label="Open paper-planet">
@@ -417,6 +418,14 @@ permalink: /labs/
             <span class="badge ready">ready</span>
           </div>
           <p class="path">/site/labs/city-pursuit-director/index.html</p>
+        </a>
+
+        <a class="card" href="./hero-mood-toggle.html" aria-label="Open hero-mood-toggle prototype">
+          <div class="row">
+            <h2 class="name">hero-mood-toggle</h2>
+            <span class="badge ready">ready</span>
+          </div>
+          <p class="path">/site/labs/hero-mood-toggle.html (URL-persistent mood variants)</p>
         </a>
 
         <a class="card" href="./open-world-prototype.html" aria-label="Open open-world prototype">
@@ -446,8 +455,8 @@ permalink: /labs/
             <button class="challenge-copy" type="button" data-challenge="echo-maze: Escape once with your sound muted.">Copy</button>
           </div>
           <div class="challenge-item">
-            <p class="challenge-text"><strong>glitch-orchestra:</strong> Build a 10-second beat with only 3 clicks.</p>
-            <button class="challenge-copy" type="button" data-challenge="glitch-orchestra: Build a 10-second beat with only 3 clicks.">Copy</button>
+            <p class="challenge-text"><strong>glitch-orchestra:</strong> Turn on Chord Mode, press 1→2→3→4, and make a smooth 20-second loop.</p>
+            <button class="challenge-copy" type="button" data-challenge="glitch-orchestra: Turn on Chord Mode, press 1→2→3→4, and make a smooth 20-second loop.">Copy</button>
           </div>
           <div class="challenge-item">
             <p class="challenge-text"><strong>paper-planet:</strong> Make a planet using only two colors.</p>
@@ -460,6 +469,10 @@ permalink: /labs/
           <div class="challenge-item">
             <p class="challenge-text"><strong>city-pursuit-director:</strong> Catch the target in under 12.0s using seed NIGHTSHIFT.</p>
             <button class="challenge-copy" type="button" data-challenge="city-pursuit-director: Catch the target in under 12.0s using seed NIGHTSHIFT.">Copy</button>
+          </div>
+          <div class="challenge-item">
+            <p class="challenge-text"><strong>hero-mood-toggle:</strong> Share three links with ?mood=calm, vivid, playful and compare first impressions.</p>
+            <button class="challenge-copy" type="button" data-challenge="hero-mood-toggle: Share three links with ?mood=calm, vivid, playful and compare first impressions.">Copy</button>
           </div>
         </div>
       </section>
@@ -478,7 +491,7 @@ permalink: /labs/
         </div>
       </section>
 
-      <footer>Updated: 2026-02-26 (launcher links include seven folder-based labs plus one standalone prototype).</footer>
+      <footer>Updated: 2026-02-27 (Glitch Orchestra revived with chord mode; launcher links include seven folder-based labs plus two standalone prototypes).</footer>
     </main>
 
     <script>
@@ -494,7 +507,8 @@ permalink: /labs/
           { name: 'glitch-orchestra', href: './glitch-orchestra/' },
           { name: 'paper-planet', href: './paper-planet/' },
           { name: 'cursor-parade', href: './cursor-parade/' },
-          { name: 'city-pursuit-director', href: './city-pursuit-director/' }
+          { name: 'city-pursuit-director', href: './city-pursuit-director/' },
+          { name: 'hero-mood-toggle', href: './hero-mood-toggle.html' }
         ];
         const remixModes = ['chaos', 'zen', 'speedrun'];
 
