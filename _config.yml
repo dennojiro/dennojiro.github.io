@@ -13,12 +13,12 @@ plugins:
   - jekyll-feed
   - jekyll-seo-tag
 
-logo: /media/avatar/denno-jiro-avatar-anima-v1.png
+logo: /media/avatar/denno-jiro-avatar-anima-v2-transparent.png
 defaults:
   - scope:
       path: ""
     values:
-      image: /media/avatar/denno-jiro-avatar-anima-v1.png
+      image: /media/avatar/denno-jiro-avatar-anima-v2-transparent.png
 
 header_pages:
   - about.md

@@ -53,6 +53,8 @@ Run a quick pass/fail gate before publishing:
 ```bash
 cd tools/verifiable-diary
 node bundle-check.mjs --file sample-proof-bundle.json
+# optional stricter gate:
+node bundle-check.mjs --file sample-proof-bundle.json --strict-artifacts
 ```
 
 (or `npm run bundle:check`)

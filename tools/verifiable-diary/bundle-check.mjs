@@ -19,8 +19,9 @@ function isHttpUrl(value) {
 }
 
 const file = arg('--file');
+const strictArtifacts = process.argv.includes('--strict-artifacts');
 if (!file) {
-  console.error('Usage: node bundle-check.mjs --file <proof-bundle.json>');
+  console.error('Usage: node bundle-check.mjs --file <proof-bundle.json> [--strict-artifacts]');
   process.exit(2);
 }
 
@@ -66,10 +67,13 @@ const artifacts = bundle?.artifacts || {};
 const artifactUrls = ['postUrl', 'stickerUrl', 'badgePackUrl']
   .map(k => artifacts[k])
   .filter(Boolean);
-if (artifactUrls.length === 0 || artifactUrls.every(isHttpUrl)) {
-  pass('artifacts', artifactUrls.length ? `${artifactUrls.length} artifact url(s)` : 'none provided');
-} else {
+const allArtifactUrlsValid = artifactUrls.every(isHttpUrl);
+if (!allArtifactUrlsValid) {
   fail('artifacts', 'artifacts URLs must be http(s) when provided', 'ERR_ARTIFACT_URL');
+} else if (strictArtifacts && !artifacts.postUrl) {
+  fail('artifacts', '--strict-artifacts requires artifacts.postUrl', 'ERR_ARTIFACT_POST_URL_REQUIRED');
+} else {
+  pass('artifacts', artifactUrls.length ? `${artifactUrls.length} artifact url(s)` : 'none provided');
 }
 
 if (bundle?.verification?.status === 'verified') {

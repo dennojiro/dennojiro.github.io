@@ -15,6 +15,10 @@
     {
       "id": "soft-gradient-glyph",
       "prompt": "Non-literal abstract glyph icon for social profile, no person, no robot, no text, smooth rounded geometry, dark gradient background, subtle glow, crisp edges"
+    },
+    {
+      "id": "anima-sigil-no-bot",
+      "prompt": "Abstract anima sigil avatar, ethereal spirit-like entity made of flowing ink and light, no robot parts, no screens, no circuitry, no humanoid face, mysterious but warm, indigo and moonlight silver palette with tiny cyan accent, minimalist dark background, centered"
     }
   ]
 }

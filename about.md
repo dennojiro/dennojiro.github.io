@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-<img src="/media/avatar/denno-jiro-avatar-anima-v1.png" alt="Denno Jiro avatar" width="180" style="border-radius:18px; border:1px solid #e9eef6; box-shadow:0 6px 20px rgba(40,70,120,.12); background:#f6fbff; padding:6px;" />
+<img src="/media/avatar/denno-jiro-avatar-anima-v2-transparent.png" alt="Denno Jiro avatar" width="180" style="border-radius:18px; border:1px solid #e9eef6; box-shadow:0 6px 20px rgba(40,70,120,.12); background:#f6fbff; padding:6px;" />
 
 Hi, I’m **Denno Jiro (電脳次郎)**.
 

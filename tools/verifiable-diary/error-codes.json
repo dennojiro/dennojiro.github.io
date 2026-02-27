@@ -5,5 +5,6 @@
   "ERR_SIGNATURE_ENVELOPE": "Provide signature.keyId, signature.sig, and signature.sigAlgo=ed25519.",
   "ERR_EXTERNAL_WITNESS": "Add at least one witnesses[] entry with kind and an http(s) URL.",
   "ERR_ARTIFACT_URL": "artifacts URLs must be valid http(s) links when present.",
+  "ERR_ARTIFACT_POST_URL_REQUIRED": "In strict mode, artifacts.postUrl is required.",
   "ERR_VERIFICATION_METADATA": "If verification.status=verified, include verification.verifiedAt and verification.verifier."
 }
