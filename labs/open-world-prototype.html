@@ -44,6 +44,29 @@
     #crosshair::before, #crosshair::after { content:""; position:absolute; background:#f4fbff; }
     #crosshair::before { left:0; top:5px; width:12px; height:2px; }
     #crosshair::after { left:5px; top:0; width:2px; height:12px; }
+    #touchControls {
+      position: fixed; inset: 0; z-index: 15; pointer-events: none; display: none;
+    }
+    #touchControls.active { display: block; }
+    #movePad {
+      position: absolute; left: 14px; bottom: 14px; width: 132px; height: 132px; border-radius: 50%;
+      border: 1px solid rgba(220,235,255,.28); background: rgba(12,20,38,.24); pointer-events: auto;
+      touch-action: none;
+    }
+    #moveKnob {
+      position: absolute; left: 46px; top: 46px; width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(188,216,255,.78); border: 1px solid rgba(255,255,255,.72);
+    }
+    #lookArea {
+      position: absolute; right: 0; top: 18%; width: 58%; height: 64%;
+      pointer-events: auto; touch-action: none;
+    }
+    #actionBtn {
+      position: absolute; right: 16px; bottom: 20px; width: 68px; height: 68px; border-radius: 50%;
+      border: 1px solid rgba(180,220,255,.7); background: rgba(43,121,255,.78); color: #fff;
+      font-weight: 800; font-size: 22px; pointer-events: auto; touch-action: none;
+      display: grid; place-items: center;
+    }
   </style>
 </head>
 <body>
@@ -52,10 +75,15 @@
     <div><strong>Distance:</strong> <span id="dist">--</span>m · <strong>Rubber-band:</strong> <span id="rb">neutral</span></div>
     <div><strong>Catches:</strong> <span id="score">0</span> · <strong>Time:</strong> <span id="time">0.0</span>s</div>
     <div><strong>Assets:</strong> <span id="assetStatus">loading...</span></div>
-    <div>WASD move · Mouse look · E interact/tag · Esc unlock</div>
+    <div id="controlsHelp">WASD move · Mouse look · E interact/tag · Esc unlock</div>
     <div id="msg">Track the suspect through the old city alleys.</div>
   </div>
   <div id="crosshair"></div>
+  <div id="touchControls" aria-label="Touch controls">
+    <div id="movePad" aria-label="Move joystick"><div id="moveKnob"></div></div>
+    <div id="lookArea" aria-label="Look area"></div>
+    <button id="actionBtn" aria-label="Interact">E</button>
+  </div>
 
   <div id="overlay">
     <div class="card">
@@ -92,6 +120,7 @@
     scene.fog = new THREE.Fog(0x9ec9ff, 65, 300);
 
     const lowPowerDevice = (navigator.deviceMemory && navigator.deviceMemory <= 4) || /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    const touchCapable = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0 || ('ontouchstart' in window);
     function makePatternTexture(draw, size = 256) {
       const can = document.createElement('canvas');
       can.width = can.height = size;
@@ -385,11 +414,97 @@
       score: document.getElementById('score'),
       time: document.getElementById('time'),
       msg: document.getElementById('msg'),
-      assetStatus: document.getElementById('assetStatus')
+      assetStatus: document.getElementById('assetStatus'),
+      controlsHelp: document.getElementById('controlsHelp'),
+      touchControls: document.getElementById('touchControls'),
+      movePad: document.getElementById('movePad'),
+      moveKnob: document.getElementById('moveKnob'),
+      lookArea: document.getElementById('lookArea'),
+      actionBtn: document.getElementById('actionBtn')
     };
 
     function refreshAssetStatus() {
       ui.assetStatus.textContent = `${loadedAssets.ok} loaded / ${loadedAssets.fail} fallback`;
+    }
+
+    const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0 };
+    function resetMoveKnob() {
+      ui.moveKnob.style.left = '46px';
+      ui.moveKnob.style.top = '46px';
+      touchInput.moveX = 0;
+      touchInput.moveY = 0;
+    }
+    function setupTouchControls() {
+      if (!touchCapable) return;
+      ui.touchControls.classList.add('active');
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · E button: interact/tag';
+
+      let movePointerId = null;
+      const maxR = 42;
+      function updateMoveFromPointer(e) {
+        const r = ui.movePad.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        let dx = e.clientX - cx;
+        let dy = e.clientY - cy;
+        const len = Math.hypot(dx, dy) || 1;
+        if (len > maxR) {
+          const s = maxR / len;
+          dx *= s; dy *= s;
+        }
+        touchInput.moveX = dx / maxR;
+        touchInput.moveY = dy / maxR;
+        ui.moveKnob.style.left = `${46 + dx}px`;
+        ui.moveKnob.style.top = `${46 + dy}px`;
+      }
+
+      ui.movePad.addEventListener('pointerdown', (e) => {
+        movePointerId = e.pointerId;
+        ui.movePad.setPointerCapture(e.pointerId);
+        updateMoveFromPointer(e);
+      });
+      ui.movePad.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== movePointerId) return;
+        updateMoveFromPointer(e);
+      });
+      function releaseMove(e) {
+        if (e.pointerId !== movePointerId) return;
+        movePointerId = null;
+        resetMoveKnob();
+      }
+      ui.movePad.addEventListener('pointerup', releaseMove);
+      ui.movePad.addEventListener('pointercancel', releaseMove);
+
+      ui.lookArea.addEventListener('pointerdown', (e) => {
+        touchInput.lookActive = true;
+        touchInput.lookId = e.pointerId;
+        touchInput.lookX = e.clientX;
+        touchInput.lookY = e.clientY;
+        ui.lookArea.setPointerCapture(e.pointerId);
+      });
+      ui.lookArea.addEventListener('pointermove', (e) => {
+        if (!touchInput.lookActive || e.pointerId !== touchInput.lookId || !state.canControl) return;
+        const dx = e.clientX - touchInput.lookX;
+        const dy = e.clientY - touchInput.lookY;
+        touchInput.lookX = e.clientX;
+        touchInput.lookY = e.clientY;
+        player.yaw -= dx * .006;
+        player.pitch = THREE.MathUtils.clamp(player.pitch - dy * .005, -Math.PI/2 + .02, Math.PI/2 - .02);
+      });
+      function endLook(e) {
+        if (e.pointerId !== touchInput.lookId) return;
+        touchInput.lookActive = false;
+        touchInput.lookId = null;
+      }
+      ui.lookArea.addEventListener('pointerup', endLook);
+      ui.lookArea.addEventListener('pointercancel', endLook);
+
+      ui.actionBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        if (!state.canControl) return;
+        tryTag();
+      });
+      resetMoveKnob();
     }
 
     function fallbackSuspect() {
@@ -556,6 +671,7 @@
 
     let dragLook = false;
     function lockPointer() {
+      if (touchCapable) return;
       if (document.body.requestPointerLock) document.body.requestPointerLock();
     }
     function startRun() {
@@ -572,8 +688,10 @@
     ui.qualitySel.value = lowPowerDevice ? 'low' : 'high';
     document.getElementById('startBtn').addEventListener('click', startRun);
     document.getElementById('againBtn').addEventListener('click', lockPointer);
+    setupTouchControls();
 
     document.addEventListener('pointerlockchange', () => {
+      if (touchCapable) return;
       const locked = document.pointerLockElement === document.body;
       if (locked) {
         state.canControl = true;
@@ -663,11 +781,11 @@
 
       camera.rotation.order = 'YXZ'; camera.rotation.y = player.yaw; camera.rotation.x = player.pitch;
       move.set(0,0,0);
-      if (state.forward) move.z -= 1;
-      if (state.back) move.z += 1;
-      if (state.left) move.x -= 1;
-      if (state.right) move.x += 1;
-      if (move.lengthSq() > 0) move.normalize();
+      const keyX = (state.right ? 1 : 0) - (state.left ? 1 : 0);
+      const keyZ = (state.back ? 1 : 0) - (state.forward ? 1 : 0);
+      move.x = keyX + touchInput.moveX;
+      move.z = keyZ + touchInput.moveY;
+      if (move.lengthSq() > 1) move.normalize();
 
       const accel = baseMove * (state.canControl ? 1 : 0);
       velocity.x = THREE.MathUtils.damp(velocity.x, move.x * accel, 10, dt);
