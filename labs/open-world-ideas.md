@@ -29,3 +29,8 @@
 - **Idea:** When the camera faces near the sun angle, a short glare bloom creates a temporary blind wedge where the suspect can disappear unless you change heading.
 - **Why weird/fun:** It turns cinematic lighting into a gameplay bluff—players can intentionally rotate to trade visibility for speed.
 - **Next action:** Add a simple sun-angle check in the HUD loop and trigger a 0.6s glare overlay + suspect stealth bonus when yaw is within a small threshold, then tune threshold so it feels tactical not random.
+
+## Smuggler Laundry Wind Codes
+- **Idea:** Hanging laundry lines across alleys occasionally align into arrow-like wind ripples that secretly indicate where the suspect will turn next.
+- **Why weird/fun:** The city itself becomes a cryptic navigation instrument, like reading street tarot instead of a minimap.
+- **Next action:** Add one lightweight "wind pulse" shader strip on 3-5 laundry lines near intersections; when suspect picks a branch, animate the matching line for 1 second and test if players notice without tutorial text.
