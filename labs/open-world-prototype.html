@@ -403,6 +403,7 @@
     const staticDecor = [];
     const npcs = [];
     const animatedProps = [];
+    const boosts = [];
 
     function pushDecor(o) {
       staticDecor.push(o);
@@ -533,6 +534,26 @@
     for (let i = -130; i <= 48; i += 28) addLamp(i, -44);
     for (let i = -90; i <= 30; i += 24) addBench(i, 42, Math.PI * 0.1);
     [[-64,40],[-32,38],[12,66],[26,92],[-20,-20],[38,26]].forEach(([x,z]) => addPlanter(x, z));
+
+    function addBoost(x, z) {
+      const y = terrainHeight(x, z) + 1.1;
+      const g = new THREE.Group();
+      const orb = new THREE.Mesh(
+        new THREE.IcosahedronGeometry(0.45, 0),
+        new THREE.MeshStandardMaterial({ color: 0x48d7ff, emissive: 0x1f9dff, emissiveIntensity: 0.7, roughness: 0.25, metalness: 0.15 })
+      );
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(0.72, 0.08, 10, 22),
+        new THREE.MeshStandardMaterial({ color: 0xb8f3ff, emissive: 0x46cfff, emissiveIntensity: 0.35, roughness: 0.4 })
+      );
+      ring.rotation.x = Math.PI / 2;
+      g.add(orb, ring);
+      g.position.set(x, y, z);
+      scene.add(g);
+      boosts.push({ mesh: g, x, z, baseY: y, active: true, respawnAt: 0, phase: Math.random() * Math.PI * 2 });
+    }
+
+    [[-88,-24],[-36,14],[6,38],[40,74],[-18,102],[-68,62]].forEach(([x, z]) => addBoost(x, z));
 
     // harbor details
     function addDock(x, z, w = 10, d = 3) {
@@ -1045,6 +1066,7 @@
     });
 
     const state = { forward:false, back:false, left:false, right:false, canControl:false };
+    const CATCHES_TO_WIN = 1;
     const defaultCameraFacing = { yaw: 0, pitch: 0 };
     const player = { x:-8, z:-8, yaw:defaultCameraFacing.yaw, pitch:defaultCameraFacing.pitch };
     const velocity = new THREE.Vector3();
@@ -1062,6 +1084,12 @@
       visible: true,
       catches: 0,
       started: 0
+    };
+
+    const boostState = {
+      timer: 0,
+      cooldown: 18,
+      speedMul: 1.65
     };
 
     const hideSpots = [[-98,78],[-16,82],[36,64],[-72,-18],[18,-56]].map(([x,z]) => new THREE.Vector3(x, terrainHeight(x,z), z));
@@ -1189,7 +1217,7 @@
       const dist = Math.hypot(dx, dz);
       const maxRadar = 70;
       const scale = Math.min(1, dist / maxRadar);
-      const ang = Math.atan2(dx, dz) - player.yaw;
+      const ang = Math.atan2(dx, -dz) - player.yaw;
       const rx = cx + Math.sin(ang) * r * scale;
       const ry = cy - Math.cos(ang) * r * scale;
 
@@ -1207,9 +1235,9 @@
       suspectState.wp = (suspectState.wp + 4) % suspectState.path.length;
       const [rx, rz] = suspectState.path[suspectState.wp];
       placeSuspect(rx, rz);
-      if (suspectState.catches >= 3) {
+      if (suspectState.catches >= CATCHES_TO_WIN) {
         const sec = ((performance.now() - suspectState.started) / 1000).toFixed(1);
-        ui.finishText.textContent = `You secured 3 catches in ${sec}s (${suspectState.mode === 'chase' ? 'Chase' : 'Hide-and-seek'} mode).`;
+        ui.finishText.textContent = `You caught the thief in ${sec}s (${suspectState.mode === 'chase' ? 'Chase' : 'Hide-and-seek'} mode).`;
         const burst = document.getElementById('finishBurst');
         burst.style.animation = 'none';
         burst.offsetHeight;
@@ -1233,7 +1261,9 @@
       move.z = keyZ - touchInput.moveY;
       if (move.lengthSq() > 1) move.normalize();
 
-      const accel = baseMove * (state.canControl ? 1 : 0);
+      if (boostState.timer > 0) boostState.timer -= dt;
+      const currentBoostMul = boostState.timer > 0 ? boostState.speedMul : 1;
+      const accel = baseMove * currentBoostMul * (state.canControl ? 1 : 0);
       velocity.x = THREE.MathUtils.damp(velocity.x, move.x * accel, 10, dt);
       velocity.z = THREE.MathUtils.damp(velocity.z, move.z * accel, 10, dt);
 
@@ -1245,6 +1275,25 @@
       player.x = THREE.MathUtils.clamp(player.x, worldMin, 84);
       player.z = THREE.MathUtils.clamp(player.z, worldMin, worldMax);
       camera.position.set(player.x, terrainHeight(player.x, player.z) + eyeHeight, player.z);
+
+      for (const b of boosts) {
+        if (!b.active && t >= b.respawnAt) {
+          b.active = true;
+          b.mesh.visible = true;
+        }
+        if (!b.active) continue;
+        b.mesh.rotation.y += dt * 1.6;
+        b.mesh.position.y = b.baseY + Math.sin(t * 2.8 + b.phase) * 0.22;
+        const dxB = player.x - b.x;
+        const dzB = player.z - b.z;
+        if ((dxB * dxB + dzB * dzB) < 3.2 * 3.2) {
+          b.active = false;
+          b.mesh.visible = false;
+          b.respawnAt = t + boostState.cooldown;
+          boostState.timer = 6;
+          ui.msg.textContent = 'Boost collected! Sprint speed increased.';
+        }
+      }
 
       const toP = new THREE.Vector3(camera.position.x - suspect.position.x, 0, camera.position.z - suspect.position.z);
       const dist = toP.length();
@@ -1281,6 +1330,9 @@
       const sSpeed = base * rbFactor * (suspectState.visible ? 1 : 0.65);
       suspect.position.x += dir.x * sSpeed * dt;
       suspect.position.z += dir.z * sSpeed * dt;
+      const suspectResolved = resolveCollide(suspect.position.x, suspect.position.z);
+      suspect.position.x = THREE.MathUtils.clamp(suspectResolved.x, worldMin, 84);
+      suspect.position.z = THREE.MathUtils.clamp(suspectResolved.z, worldMin, worldMax);
       suspect.position.y = terrainHeight(suspect.position.x, suspect.position.z);
       suspect.rotation.y = Math.atan2(dir.x, dir.z);
 
