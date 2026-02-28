@@ -95,7 +95,21 @@
       font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
       display: grid; place-items: center;
     }
+    #touchOpacityWrap {
+      position: absolute; right: 16px; bottom: 290px; width: 124px;
+      border-radius: 10px; border: 1px solid rgba(180,220,255,.45);
+      background: rgba(12,32,64,.62); padding: 6px 8px;
+      pointer-events: auto;
+    }
+    #touchOpacityLabel {
+      display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px;
+      color: rgba(234,242,255,.92);
+    }
+    #touchOpacityRange {
+      width: 100%; margin: 0; touch-action: none;
+    }
     #touchControls.look-left #hapticToggleBtn,
+    #touchControls.look-left #touchOpacityWrap,
     #touchControls.look-left #resetTouchUiBtn,
     #touchControls.look-left #swapSideBtn,
     #touchControls.look-left #recenterBtn,
@@ -118,6 +132,10 @@
   <div id="touchControls" aria-label="Touch controls">
     <div id="movePad" aria-label="Move joystick"><div id="moveKnob"></div></div>
     <div id="lookArea" aria-label="Look area"></div>
+    <div id="touchOpacityWrap" aria-label="Touch controls opacity">
+      <label id="touchOpacityLabel" for="touchOpacityRange">Control Opacity: 85%</label>
+      <input id="touchOpacityRange" type="range" min="30" max="100" step="5" value="85" aria-label="Control Opacity" />
+    </div>
     <button id="hapticToggleBtn" aria-label="Toggle touch haptics">Haptic: On</button>
     <button id="resetTouchUiBtn" aria-label="Reset touch UI">Reset Touch UI</button>
     <button id="swapSideBtn" aria-label="Swap look side">Swap Side</button>
@@ -460,6 +478,8 @@
       movePad: document.getElementById('movePad'),
       moveKnob: document.getElementById('moveKnob'),
       lookArea: document.getElementById('lookArea'),
+      touchOpacityLabel: document.getElementById('touchOpacityLabel'),
+      touchOpacityRange: document.getElementById('touchOpacityRange'),
       hapticToggleBtn: document.getElementById('hapticToggleBtn'),
       resetTouchUiBtn: document.getElementById('resetTouchUiBtn'),
       swapSideBtn: document.getElementById('swapSideBtn'),
@@ -473,6 +493,8 @@
 
     const TOUCH_LOOK_SIDE_STORAGE_KEY = 'openWorldCity.touchLookSide';
     const TOUCH_HAPTIC_STORAGE_KEY = 'openWorldCity.touchHapticEnabled';
+    const TOUCH_CONTROLS_OPACITY_STORAGE_KEY = 'openWorldCity.touchControlsOpacity';
+    const DEFAULT_TOUCH_CONTROLS_OPACITY = 85;
     const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0, lookSide: 'right', hapticEnabled: touchCapable };
     function resetMoveKnob() {
       ui.moveKnob.style.left = '46px';
@@ -487,7 +509,7 @@
     function setupTouchControls() {
       if (!touchCapable) return;
       ui.touchControls.classList.add('active');
-      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Swap Side flips look pad · Recenter resets view · Reset Touch UI restores defaults · Haptic toggles vibration · E button: interact/tag';
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Opacity slider sets control transparency · Swap Side flips look pad · Recenter resets view · Reset Touch UI restores defaults · Haptic toggles vibration · E button: interact/tag';
 
       function triggerTouchHaptic() {
         if (!touchInput.hapticEnabled || typeof navigator.vibrate !== 'function') return;
@@ -508,6 +530,29 @@
       function saveTouchHapticPreference() {
         try {
           localStorage.setItem(TOUCH_HAPTIC_STORAGE_KEY, touchInput.hapticEnabled ? 'on' : 'off');
+        } catch (_) {
+          // ignore storage failures
+        }
+      }
+
+      function applyTouchControlsOpacity(value) {
+        const clamped = THREE.MathUtils.clamp(Number(value) || DEFAULT_TOUCH_CONTROLS_OPACITY, 30, 100);
+        ui.touchControls.style.opacity = String(clamped / 100);
+        ui.touchOpacityRange.value = String(clamped);
+        ui.touchOpacityLabel.textContent = `Control Opacity: ${clamped}%`;
+      }
+      function loadTouchControlsOpacityPreference() {
+        try {
+          const saved = Number(localStorage.getItem(TOUCH_CONTROLS_OPACITY_STORAGE_KEY));
+          if (Number.isFinite(saved) && saved >= 30 && saved <= 100) return saved;
+        } catch (_) {
+          // ignore storage failures
+        }
+        return DEFAULT_TOUCH_CONTROLS_OPACITY;
+      }
+      function saveTouchControlsOpacityPreference(value) {
+        try {
+          localStorage.setItem(TOUCH_CONTROLS_OPACITY_STORAGE_KEY, String(value));
         } catch (_) {
           // ignore storage failures
         }
@@ -547,10 +592,13 @@
         touchInput.lookSide = 'right';
         applyLookSide();
         clearTouchLookSidePreference();
+        applyTouchControlsOpacity(DEFAULT_TOUCH_CONTROLS_OPACITY);
+        saveTouchControlsOpacityPreference(DEFAULT_TOUCH_CONTROLS_OPACITY);
         recenterCamera();
       }
       loadTouchLookSidePreference();
       loadTouchHapticPreference();
+      applyTouchControlsOpacity(loadTouchControlsOpacityPreference());
       applyLookSide();
       refreshHapticToggleLabel();
 
@@ -619,6 +667,12 @@
         touchInput.hapticEnabled = !touchInput.hapticEnabled;
         refreshHapticToggleLabel();
         saveTouchHapticPreference();
+      });
+
+      ui.touchOpacityRange.addEventListener('input', (e) => {
+        const value = Number(e.target.value);
+        applyTouchControlsOpacity(value);
+        saveTouchControlsOpacityPreference(value);
       });
 
       ui.resetTouchUiBtn.addEventListener('pointerdown', (e) => {

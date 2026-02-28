@@ -24,3 +24,8 @@
 - **Idea:** A bell tower occasionally rings and rewinds the suspect’s last 4 seconds of movement as a translucent replay path you can intercept.
 - **Why weird/fun:** It makes time itself feel like a chase mechanic, turning prediction into a surreal ambush tool.
 - **Next action:** Record suspect positions into a short circular buffer, trigger one replay spline every 25-35 seconds, then test whether players can consistently cut off the real suspect using the echo trail.
+
+## Sun-Glare Blind Spot Lane
+- **Idea:** When the camera faces near the sun angle, a short glare bloom creates a temporary blind wedge where the suspect can disappear unless you change heading.
+- **Why weird/fun:** It turns cinematic lighting into a gameplay bluff—players can intentionally rotate to trade visibility for speed.
+- **Next action:** Add a simple sun-angle check in the HUD loop and trigger a 0.6s glare overlay + suspect stealth bonus when yaw is within a small threshold, then tune threshold so it feels tactical not random.
