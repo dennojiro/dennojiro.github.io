@@ -47,15 +47,6 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
       pointer-events: none;
     }
-    #mobileTip {
-      position: fixed; left: 10px; right: 10px; top: 12px; z-index: 30;
-      border-radius: 12px; border: 1px solid rgba(148,163,184,.38);
-      background: rgba(8,18,36,.92); padding: 10px 12px; font-size: 13px; line-height: 1.35;
-      display: none;
-    }
-    #mobileTip button {
-      margin-top: 8px; background: rgba(43,121,255,.9); padding: 8px 12px; font-size: 12px;
-    }
     .touch-simplified #hud { display: none; }
     .touch-simplified #hapticToggleBtn,
     .touch-simplified #compactToggleBtn,
@@ -64,7 +55,6 @@
     .touch-simplified #resetTouchUiBtn,
     .touch-simplified #swapSideBtn,
     .touch-simplified #recenterBtn { display: none !important; }
-    .touch-simplified #actionBtn { right: 16px; bottom: 18px; }
     #finishBurst {
       margin: 10px 0 2px; font-size: 26px; letter-spacing: 4px; text-align: center;
       animation: popBurst 650ms ease-out 1;
@@ -98,12 +88,6 @@
     #touchControls.look-left #lookArea {
       left: 0;
       right: auto;
-    }
-    #actionBtn {
-      position: absolute; right: 16px; bottom: 20px; width: 68px; height: 68px; border-radius: 50%;
-      border: 1px solid rgba(180,220,255,.7); background: rgba(43,121,255,.78); color: #fff;
-      font-weight: 800; font-size: 22px; pointer-events: auto; touch-action: none;
-      display: grid; place-items: center;
     }
     #recenterBtn {
       position: absolute; right: 16px; bottom: 98px; min-width: 96px; height: 42px; border-radius: 999px;
@@ -160,8 +144,7 @@
     #touchControls.look-left #touchOpacityWrap,
     #touchControls.look-left #resetTouchUiBtn,
     #touchControls.look-left #swapSideBtn,
-    #touchControls.look-left #recenterBtn,
-    #touchControls.look-left #actionBtn {
+    #touchControls.look-left #recenterBtn {
       left: 16px;
       right: auto;
     }
@@ -170,9 +153,6 @@
     }
     #touchControls.compact #moveKnob {
       left: 38px; top: 38px; width: 32px; height: 32px;
-    }
-    #touchControls.compact #actionBtn {
-      right: 12px; bottom: 14px; width: 56px; height: 56px; font-size: 18px;
     }
     #touchControls.compact #recenterBtn,
     #touchControls.compact #swapSideBtn,
@@ -199,16 +179,10 @@
     <div><strong>Distance:</strong> <span id="dist">--</span>m · <strong>Rubber-band:</strong> <span id="rb">neutral</span></div>
     <div><strong>Catches:</strong> <span id="score">0</span> · <strong>Time:</strong> <span id="time">0.0</span>s</div>
     <div><strong>Assets:</strong> <span id="assetStatus">loading...</span></div>
-    <div id="controlsHelp">WASD move · Mouse look · E interact/tag · Esc unlock</div>
+    <div id="controlsHelp">WASD move · Mouse look · Close in to auto-tag · Esc unlock</div>
     <div id="msg">Track the suspect through the old city alleys.</div>
   </div>
   <canvas id="radar" width="92" height="92" aria-hidden="true"></canvas>
-  <div id="mobileTip" role="dialog" aria-label="Quick controls help">
-    <strong>Quick start</strong><br>
-    Left thumb = move · Right side drag = look · Tap <strong>E</strong> to tag.
-    <br>Use the radar (top-right): red dot = suspect direction.
-    <br><button id="dismissMobileTip">Got it</button>
-  </div>
   <div id="crosshair"></div>
   <div id="touchControls" aria-label="Touch controls">
     <div id="movePad" aria-label="Move joystick"><div id="moveKnob"></div></div>
@@ -223,13 +197,12 @@
     <button id="resetTouchUiBtn" aria-label="Reset touch UI">Reset Touch UI</button>
     <button id="swapSideBtn" aria-label="Swap look side">Swap Side</button>
     <button id="recenterBtn" aria-label="Recenter camera">Recenter</button>
-    <button id="actionBtn" aria-label="Interact">E</button>
   </div>
 
   <div id="overlay">
     <div class="card">
       <h2 style="margin:0 0 10px;">Mediterranean City Chase Prototype</h2>
-      <p style="margin:0 0 8px;">Catch the fleeing spy across steep streets, plazas, and harbor lanes. The suspect adapts speed based on your performance (rubber-banding).</p>
+      <p style="margin:0 0 8px;">Catch the fleeing spy across steep streets, plazas, and harbor lanes. <strong>Quick start:</strong> left thumb/WASD = move, right drag/mouse = look. The top-right radar shows suspect direction (red dot).</p>
       <label>Game mode:
         <select id="modeSel">
           <option value="chase">Chase (core)</option>
@@ -622,8 +595,6 @@
       assetStatus: document.getElementById('assetStatus'),
       controlsHelp: document.getElementById('controlsHelp'),
       radar: document.getElementById('radar'),
-      mobileTip: document.getElementById('mobileTip'),
-      dismissMobileTip: document.getElementById('dismissMobileTip'),
       touchControls: document.getElementById('touchControls'),
       movePad: document.getElementById('movePad'),
       moveKnob: document.getElementById('moveKnob'),
@@ -635,8 +606,7 @@
       autoCompactToggleBtn: document.getElementById('autoCompactToggleBtn'),
       resetTouchUiBtn: document.getElementById('resetTouchUiBtn'),
       swapSideBtn: document.getElementById('swapSideBtn'),
-      recenterBtn: document.getElementById('recenterBtn'),
-      actionBtn: document.getElementById('actionBtn')
+      recenterBtn: document.getElementById('recenterBtn')
     };
 
     function refreshAssetStatus() {
@@ -672,9 +642,7 @@
       if (!touchCapable) return;
       ui.touchControls.classList.add('active');
       document.body.classList.add('touch-simplified');
-      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · E: tag suspect';
-      ui.mobileTip.style.display = 'block';
-      ui.dismissMobileTip.addEventListener('click', () => { ui.mobileTip.style.display = 'none'; });
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Close in to tag suspect';
 
       function triggerTouchHaptic() {
         if (!touchInput.hapticEnabled || typeof navigator.vibrate !== 'function') return;
@@ -939,12 +907,6 @@
         recenterCamera();
       });
 
-      ui.actionBtn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        if (!state.canControl) return;
-        triggerTouchHaptic();
-        tryTag();
-      });
       resetMoveKnob();
     }
 
@@ -1124,20 +1086,39 @@
       if (touchCapable) return;
       if (document.body.requestPointerLock) document.body.requestPointerLock();
     }
+    function resetRoundPositions() {
+      player.x = -8;
+      player.z = -8;
+      player.yaw = defaultCameraFacing.yaw;
+      player.pitch = defaultCameraFacing.pitch;
+      velocity.set(0, 0, 0);
+      suspectState.wp = 0;
+      placeSuspect(-90, -68);
+    }
+
     function startRun() {
       suspectState.mode = ui.modeSel.value;
       ui.modeLabel.textContent = suspectState.mode === 'chase' ? 'Chase' : 'Hide & Seek Tag';
       applyQuality(ui.qualitySel.value);
-      suspectState.catches = 0; ui.score.textContent = '0'; ui.finish.style.display = 'none';
+      resetRoundPositions();
+      suspectState.catches = 0;
+      ui.score.textContent = '0';
+      ui.finish.style.display = 'none';
       suspectState.started = performance.now();
       state.canControl = true;
       ui.overlay.style.display = 'none';
       lockPointer();
-      ui.msg.textContent = suspectState.mode === 'chase' ? 'Close in and tag the suspect.' : 'Find, reveal, then tag with E.';
+      ui.msg.textContent = suspectState.mode === 'chase' ? 'Close in and tag the suspect.' : 'Find and tag the suspect.';
     }
+
+    function playAgain() {
+      ui.finish.style.display = 'none';
+      startRun();
+    }
+
     ui.qualitySel.value = lowPowerDevice ? 'low' : 'high';
     document.getElementById('startBtn').addEventListener('click', startRun);
-    document.getElementById('againBtn').addEventListener('click', lockPointer);
+    document.getElementById('againBtn').addEventListener('click', playAgain);
     setupTouchControls();
 
     document.addEventListener('pointerlockchange', () => {
@@ -1170,7 +1151,6 @@
       if (e.code === 'KeyS') state.back = true;
       if (e.code === 'KeyA') state.left = true;
       if (e.code === 'KeyD') state.right = true;
-      if (e.code === 'KeyE') tryTag(true);
     });
     document.addEventListener('keyup', e => {
       if (e.code === 'KeyW') state.forward = false;
@@ -1266,6 +1246,7 @@
         burst.offsetHeight;
         burst.style.animation = '';
         ui.finish.style.display = 'grid';
+        state.canControl = false;
         document.exitPointerLock();
       }
     }
@@ -1351,13 +1332,28 @@
         dir.lerp(away, .55 + Math.sin(t * 5.5) * .15).normalize();
       }
       const sSpeed = base * rbFactor * (suspectState.visible ? 1 : 0.65);
-      suspect.position.x += dir.x * sSpeed * dt;
-      suspect.position.z += dir.z * sSpeed * dt;
-      const suspectResolved = resolveCollide(suspect.position.x, suspect.position.z, 0.95);
+      const prevSX = suspect.position.x;
+      const prevSZ = suspect.position.z;
+
+      let nx = prevSX + dir.x * sSpeed * dt;
+      let nz = prevSZ + dir.z * sSpeed * dt;
+      let suspectResolved = resolveCollide(nx, nz, 0.95);
+
+      const moved = Math.hypot(suspectResolved.x - prevSX, suspectResolved.z - prevSZ);
+      const expected = Math.max(0.001, sSpeed * dt);
+      if (moved < expected * 0.45) {
+        const sideSign = Math.sin(t * 1.7 + suspectState.wp) >= 0 ? 1 : -1;
+        const sideX = dir.z * sideSign;
+        const sideZ = -dir.x * sideSign;
+        nx = prevSX + (dir.x * 0.45 + sideX * 0.85) * sSpeed * dt;
+        nz = prevSZ + (dir.z * 0.45 + sideZ * 0.85) * sSpeed * dt;
+        suspectResolved = resolveCollide(nx, nz, 0.95);
+      }
+
       suspect.position.x = THREE.MathUtils.clamp(suspectResolved.x, worldMin, 84);
       suspect.position.z = THREE.MathUtils.clamp(suspectResolved.z, worldMin, worldMax);
       suspect.position.y = terrainHeight(suspect.position.x, suspect.position.z);
-      suspect.rotation.y = Math.atan2(dir.x, dir.z);
+      suspect.rotation.y = Math.atan2(suspect.position.x - prevSX, suspect.position.z - prevSZ);
 
       // ambient animations
       npcs.forEach((npc, i) => {
@@ -1377,7 +1373,7 @@
       ui.time.textContent = ((performance.now() - suspectState.started) / 1000).toFixed(1);
 
       if (suspectState.mode === 'chase' && dist < 2.2) tryTag(false);
-      if (suspectState.mode === 'tag' && dist < 3.5 && suspectState.visible) ui.msg.textContent = 'Press E to tag suspect!';
+      if (suspectState.mode === 'tag' && dist < 3.5 && suspectState.visible) ui.msg.textContent = 'Close in to tag suspect!';
 
       const day = Math.sin(t * .04) * .5 + .5;
       hemi.intensity = .35 + day * .9; sun.intensity = .25 + day * 1.0;
