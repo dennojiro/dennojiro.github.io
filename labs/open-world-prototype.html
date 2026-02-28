@@ -203,19 +203,8 @@
     <div class="card">
       <h2 style="margin:0 0 10px;">Mediterranean City Chase Prototype</h2>
       <p style="margin:0 0 8px;">Catch the fleeing spy across steep streets, plazas, and harbor lanes. <strong>Quick start:</strong> left thumb/WASD = move, right drag/mouse = look. The top-right radar shows suspect direction (red dot).</p>
-      <label>Game mode:
-        <select id="modeSel">
-          <option value="chase">Chase (core)</option>
-          <option value="tag">Hide-and-seek / Tag</option>
-        </select>
-      </label>
-      <label style="margin-left:10px;">Performance:
-        <select id="qualitySel">
-          <option value="high">High</option>
-          <option value="low">Low</option>
-        </select>
-      </label>
-      <button id="startBtn">Start</button>
+      <p style="margin:0 0 8px; opacity:.9;">Performance is auto-selected for your device.</p>
+      <button id="startBtn">Start Chase</button>
     </div>
   </div>
 
@@ -583,8 +572,6 @@
       overlay: document.getElementById('overlay'),
       finish: document.getElementById('finish'),
       finishText: document.getElementById('finishText'),
-      modeSel: document.getElementById('modeSel'),
-      qualitySel: document.getElementById('qualitySel'),
       modeLabel: document.getElementById('modeLabel'),
       qLabel: document.getElementById('qLabel'),
       dist: document.getElementById('dist'),
@@ -1052,8 +1039,6 @@
       path: [[-98,-78],[-60,-34],[-16,10],[28,42],[58,84],[20,106],[-26,92],[-84,52],[-120,8],[-104,-44]],
       wp: 0,
       speedBase: 7.2,
-      mode: 'chase',
-      hideTimer: 0,
       visible: true,
       catches: 0,
       started: 0
@@ -1064,8 +1049,6 @@
       cooldown: 18,
       speedMul: 1.65
     };
-
-    const hideSpots = [[-98,78],[-16,82],[36,64],[-72,-18],[18,-56]].map(([x,z]) => new THREE.Vector3(x, terrainHeight(x,z), z));
 
     let quality = 'high';
     let cullDistance = 175;
@@ -1097,9 +1080,8 @@
     }
 
     function startRun() {
-      suspectState.mode = ui.modeSel.value;
-      ui.modeLabel.textContent = suspectState.mode === 'chase' ? 'Chase' : 'Hide & Seek Tag';
-      applyQuality(ui.qualitySel.value);
+      ui.modeLabel.textContent = 'Chase';
+      applyQuality(lowPowerDevice ? 'low' : 'high');
       resetRoundPositions();
       suspectState.catches = 0;
       ui.score.textContent = '0';
@@ -1108,7 +1090,7 @@
       state.canControl = true;
       ui.overlay.style.display = 'none';
       lockPointer();
-      ui.msg.textContent = suspectState.mode === 'chase' ? 'Close in and tag the suspect.' : 'Find and tag the suspect.';
+      ui.msg.textContent = 'Close in and tag the suspect.';
     }
 
     function playAgain() {
@@ -1116,7 +1098,6 @@
       startRun();
     }
 
-    ui.qualitySel.value = lowPowerDevice ? 'low' : 'high';
     document.getElementById('startBtn').addEventListener('click', startRun);
     document.getElementById('againBtn').addEventListener('click', playAgain);
     setupTouchControls();
@@ -1219,8 +1200,23 @@
       const rightX = Math.cos(player.yaw);
       const rightZ = -Math.sin(player.yaw);
 
-      const localX = toSX * rightX + toSZ * rightZ;
-      const localY = toSX * fwdX + toSZ * fwdZ;
+      let localX = toSX * rightX + toSZ * rightZ;
+      let localY = toSX * fwdX + toSZ * fwdZ;
+
+      // Make radar intentionally ambiguous at close range for extra challenge.
+      if (dist < 22) {
+        const proximity = 1 - (dist / 22); // 0..1
+        const wobble = proximity * 0.42;
+        const tt = performance.now() * 0.0055;
+        localX += Math.sin(tt * 1.9) * wobble + (Math.random() - 0.5) * wobble * 0.35;
+        localY += Math.cos(tt * 1.6) * wobble + (Math.random() - 0.5) * wobble * 0.35;
+        const len = Math.hypot(localX, localY) || 1;
+        if (len > 1) {
+          localX /= len;
+          localY /= len;
+        }
+      }
+
       const rx = cx + localX * r * scale;
       const ry = cy - localY * r * scale;
 
@@ -1231,7 +1227,6 @@
     function tryTag() {
       const d = camera.position.distanceTo(suspect.position);
       if (d > 3.4) return;
-      if (suspectState.mode === 'tag' && !suspectState.visible) return;
       suspectState.catches += 1;
       ui.score.textContent = String(suspectState.catches);
       ui.msg.textContent = 'Tagged! Suspect relocated.';
@@ -1240,7 +1235,7 @@
       placeSuspect(rx, rz);
       if (suspectState.catches >= CATCHES_TO_WIN) {
         const sec = ((performance.now() - suspectState.started) / 1000).toFixed(1);
-        ui.finishText.textContent = `You caught the thief in ${sec}s (${suspectState.mode === 'chase' ? 'Chase' : 'Hide-and-seek'} mode).`;
+        ui.finishText.textContent = `You caught the thief in ${sec}s.`;
         const burst = document.getElementById('finishBurst');
         burst.style.animation = 'none';
         burst.offsetHeight;
@@ -1307,20 +1302,8 @@
       if (dist > 42) { rbFactor = .84; rbLabel = 'assist player'; }
       else if (dist < 14) { rbFactor = 1.2; rbLabel = 'suspect evasive'; }
 
-      suspectState.hideTimer -= dt;
-      if (suspectState.mode === 'tag') {
-        if (suspectState.hideTimer <= 0) {
-          suspectState.visible = !suspectState.visible;
-          suspectState.hideTimer = suspectState.visible ? 10 : 6;
-          if (!suspectState.visible) {
-            const hs = hideSpots[(Math.random() * hideSpots.length) | 0];
-            placeSuspect(hs.x, hs.z);
-          }
-        }
-      } else {
-        suspectState.visible = true;
-      }
-      suspect.visible = suspectState.visible;
+      suspectState.visible = true;
+      suspect.visible = true;
 
       const wp = suspectState.path[suspectState.wp];
       const target = new THREE.Vector3(wp[0], terrainHeight(wp[0], wp[1]), wp[1]);
@@ -1372,8 +1355,7 @@
       ui.rb.textContent = rbLabel;
       ui.time.textContent = ((performance.now() - suspectState.started) / 1000).toFixed(1);
 
-      if (suspectState.mode === 'chase' && dist < 2.2) tryTag(false);
-      if (suspectState.mode === 'tag' && dist < 3.5 && suspectState.visible) ui.msg.textContent = 'Close in to tag suspect!';
+      if (dist < 2.2) tryTag(false);
 
       const day = Math.sin(t * .04) * .5 + .5;
       hemi.intensity = .35 + day * .9; sun.intensity = .25 + day * 1.0;
