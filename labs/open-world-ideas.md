@@ -19,3 +19,8 @@
 - **Idea:** Random market vendors throw confetti clouds that briefly paint fake suspect footprints in the wrong direction when you run through them.
 - **Why weird/fun:** It weaponizes celebration particles as deliberate misinformation, making the chase feel playful and treacherous at the same time.
 - **Next action:** Spawn one confetti zone near plazas, draw temporary decal arrows for 3 seconds on trigger, then measure whether players overcommit to fake trails.
+
+## Bell Tower Time-Loop Chime
+- **Idea:** A bell tower occasionally rings and rewinds the suspect’s last 4 seconds of movement as a translucent replay path you can intercept.
+- **Why weird/fun:** It makes time itself feel like a chase mechanic, turning prediction into a surreal ambush tool.
+- **Next action:** Record suspect positions into a short circular buffer, trigger one replay spline every 25-35 seconds, then test whether players can consistently cut off the real suspect using the echo trail.

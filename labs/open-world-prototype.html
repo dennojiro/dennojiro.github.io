@@ -89,6 +89,13 @@
       font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
       display: grid; place-items: center;
     }
+    #hapticToggleBtn {
+      position: absolute; right: 16px; bottom: 242px; min-width: 124px; height: 42px; border-radius: 999px;
+      border: 1px solid rgba(180,220,255,.62); background: rgba(12,32,64,.72); color: #fff;
+      font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
+      display: grid; place-items: center;
+    }
+    #touchControls.look-left #hapticToggleBtn,
     #touchControls.look-left #resetTouchUiBtn,
     #touchControls.look-left #swapSideBtn,
     #touchControls.look-left #recenterBtn,
@@ -111,6 +118,7 @@
   <div id="touchControls" aria-label="Touch controls">
     <div id="movePad" aria-label="Move joystick"><div id="moveKnob"></div></div>
     <div id="lookArea" aria-label="Look area"></div>
+    <button id="hapticToggleBtn" aria-label="Toggle touch haptics">Haptic: On</button>
     <button id="resetTouchUiBtn" aria-label="Reset touch UI">Reset Touch UI</button>
     <button id="swapSideBtn" aria-label="Swap look side">Swap Side</button>
     <button id="recenterBtn" aria-label="Recenter camera">Recenter</button>
@@ -452,6 +460,7 @@
       movePad: document.getElementById('movePad'),
       moveKnob: document.getElementById('moveKnob'),
       lookArea: document.getElementById('lookArea'),
+      hapticToggleBtn: document.getElementById('hapticToggleBtn'),
       resetTouchUiBtn: document.getElementById('resetTouchUiBtn'),
       swapSideBtn: document.getElementById('swapSideBtn'),
       recenterBtn: document.getElementById('recenterBtn'),
@@ -463,7 +472,8 @@
     }
 
     const TOUCH_LOOK_SIDE_STORAGE_KEY = 'openWorldCity.touchLookSide';
-    const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0, lookSide: 'right' };
+    const TOUCH_HAPTIC_STORAGE_KEY = 'openWorldCity.touchHapticEnabled';
+    const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0, lookSide: 'right', hapticEnabled: touchCapable };
     function resetMoveKnob() {
       ui.moveKnob.style.left = '46px';
       ui.moveKnob.style.top = '46px';
@@ -477,7 +487,31 @@
     function setupTouchControls() {
       if (!touchCapable) return;
       ui.touchControls.classList.add('active');
-      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Swap Side flips look pad · Recenter resets view · Reset Touch UI restores defaults · E button: interact/tag';
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Swap Side flips look pad · Recenter resets view · Reset Touch UI restores defaults · Haptic toggles vibration · E button: interact/tag';
+
+      function triggerTouchHaptic() {
+        if (!touchInput.hapticEnabled || typeof navigator.vibrate !== 'function') return;
+        try { navigator.vibrate(10); } catch (_) { /* no-op */ }
+      }
+      function refreshHapticToggleLabel() {
+        ui.hapticToggleBtn.textContent = `Haptic: ${touchInput.hapticEnabled ? 'On' : 'Off'}`;
+      }
+      function loadTouchHapticPreference() {
+        try {
+          const saved = localStorage.getItem(TOUCH_HAPTIC_STORAGE_KEY);
+          if (saved === 'on') touchInput.hapticEnabled = true;
+          if (saved === 'off') touchInput.hapticEnabled = false;
+        } catch (_) {
+          // ignore storage failures
+        }
+      }
+      function saveTouchHapticPreference() {
+        try {
+          localStorage.setItem(TOUCH_HAPTIC_STORAGE_KEY, touchInput.hapticEnabled ? 'on' : 'off');
+        } catch (_) {
+          // ignore storage failures
+        }
+      }
 
       function loadTouchLookSidePreference() {
         try {
@@ -516,7 +550,9 @@
         recenterCamera();
       }
       loadTouchLookSidePreference();
+      loadTouchHapticPreference();
       applyLookSide();
+      refreshHapticToggleLabel();
 
       let movePointerId = null;
       const maxR = 42;
@@ -578,24 +614,35 @@
       ui.lookArea.addEventListener('pointerup', endLook);
       ui.lookArea.addEventListener('pointercancel', endLook);
 
+      ui.hapticToggleBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        touchInput.hapticEnabled = !touchInput.hapticEnabled;
+        refreshHapticToggleLabel();
+        saveTouchHapticPreference();
+      });
+
       ui.resetTouchUiBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        triggerTouchHaptic();
         resetTouchUi();
       });
 
       ui.swapSideBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        triggerTouchHaptic();
         swapLookSide();
       });
 
       ui.recenterBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
+        triggerTouchHaptic();
         recenterCamera();
       });
 
       ui.actionBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         if (!state.canControl) return;
+        triggerTouchHaptic();
         tryTag();
       });
       resetMoveKnob();
