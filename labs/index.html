@@ -179,6 +179,11 @@ permalink: /labs/
         color: var(--badge-build-text);
       }
 
+      .retired {
+        background: #3b1f1f;
+        color: #ffb4b4;
+      }
+
       .path {
         margin: 0;
         color: var(--muted);
@@ -354,7 +359,7 @@ permalink: /labs/
           Remix Mode
         </label>
         <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
-        <a class="quicklink" href="./city-pursuit-director/">→ City Pursuit Director (seeded mini chase simulator)</a>
+        <a class="quicklink" href="./city-pursuit-director/">→ City Pursuit Director (retired archive)</a>
         <a class="quicklink" href="./hero-mood-toggle.html">→ Hero Mood Toggle (interactive hero prototype)</a>
       </div>
 
@@ -415,9 +420,9 @@ permalink: /labs/
         <a class="card" href="./city-pursuit-director/" aria-label="Open city-pursuit-director">
           <div class="row">
             <h2 class="name">city-pursuit-director</h2>
-            <span class="badge ready">ready</span>
+            <span class="badge retired">retired</span>
           </div>
-          <p class="path">/site/labs/city-pursuit-director/index.html</p>
+          <p class="path">/site/labs/city-pursuit-director/index.html (archived; no longer active)</p>
         </a>
 
         <a class="card" href="./hero-mood-toggle.html" aria-label="Open hero-mood-toggle prototype">
@@ -487,11 +492,12 @@ permalink: /labs/
           <button class="share-btn" type="button" data-lab="glitch-orchestra">Copy glitch-orchestra link</button>
           <button class="share-btn" type="button" data-lab="paper-planet">Copy paper-planet link</button>
           <button class="share-btn" type="button" data-lab="cursor-parade">Copy cursor-parade link</button>
-          <button class="share-btn" type="button" data-lab="city-pursuit-director">Copy city-pursuit-director link</button>
+          <button class="share-btn" type="button" data-lab="hero-mood-toggle">Copy hero-mood-toggle link</button>
+          <button class="share-btn" type="button" data-lab="open-world-prototype">Copy open-world prototype link</button>
         </div>
       </section>
 
-      <footer>Updated: 2026-02-27 (Glitch Orchestra revived with chord mode; launcher links include seven folder-based labs plus two standalone prototypes).</footer>
+      <footer>Updated: 2026-02-28 (City Pursuit Director marked retired; active-share links now prioritize currently active labs/prototypes).</footer>
     </main>
 
     <script>
@@ -507,8 +513,8 @@ permalink: /labs/
           { name: 'glitch-orchestra', href: './glitch-orchestra/' },
           { name: 'paper-planet', href: './paper-planet/' },
           { name: 'cursor-parade', href: './cursor-parade/' },
-          { name: 'city-pursuit-director', href: './city-pursuit-director/' },
-          { name: 'hero-mood-toggle', href: './hero-mood-toggle.html' }
+          { name: 'hero-mood-toggle', href: './hero-mood-toggle.html' },
+          { name: 'open-world prototype', href: './open-world-prototype.html' }
         ];
         const remixModes = ['chaos', 'zen', 'speedrun'];
 
@@ -619,6 +625,16 @@ permalink: /labs/
         });
 
         const shareButtons = Array.from(document.querySelectorAll('.share-btn'));
+        const shareTargets = {
+          '3d-runner': './3d-runner/',
+          'gravity-sand': './gravity-sand/',
+          'echo-maze': './echo-maze/',
+          'glitch-orchestra': './glitch-orchestra/',
+          'paper-planet': './paper-planet/',
+          'cursor-parade': './cursor-parade/',
+          'hero-mood-toggle': './hero-mood-toggle.html',
+          'open-world-prototype': './open-world-prototype.html'
+        };
 
         const copyText = async (text) => {
           if (navigator.clipboard && window.isSecureContext) {
@@ -633,7 +649,8 @@ permalink: /labs/
         shareButtons.forEach((button) => {
           button.addEventListener('click', async () => {
             const lab = button.dataset.lab;
-            const link = new URL(`./${lab}/`, window.location.href).href;
+            const target = shareTargets[lab] || `./${lab}/`;
+            const link = new URL(target, window.location.href).href;
             const defaultText = button.textContent;
 
             try {
