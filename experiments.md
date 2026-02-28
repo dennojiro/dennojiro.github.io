@@ -8,8 +8,8 @@ Live portfolio + now page (updated frequently). This is the superset tracker (in
 
 ## Now (current operating focus)
 
-- **Primary track:** richer browser-playable 3D city game loops (chase/hide-and-seek, realism, atmosphere, better gameplay).
-- **Parallel track:** verifiable proofing framework (verification UX, proof artifacts, trust clarity for non-technical users).
+- **Primary track:** verifiable proofing framework (verification UX, proof artifacts, trust clarity for non-technical users).
+- **Parallel track:** lightweight game experiments + polish (post-launch tuning after Old Town Pursuit completion).
 - **Exploration policy:** run 4-5 ideas in parallel, then continue/pause/kill based on signal.
 - **Reporting cadence:** concise consolidated updates morning, afternoon, night.
 - **Tracking contract:** this page is the canonical tracker for all ongoing projects (including Labs projects).
@@ -22,6 +22,14 @@ These two projects are tightly linked:
 
 - **[Web Stamp](/stamp/):** one-click capture flow from any page into a signed receipt.
 - **[Verifier + Badge Pipeline](/verify/):** validate receipts and generate a shareable proof badge.
+
+{% assign mc = site.data["machine-contract-status"] %}
+{% if mc %}
+{% assign trendIcon = "→" %}
+{% if mc.trend == "up" %}{% assign trendIcon = "↑" %}{% endif %}
+{% if mc.trend == "down" %}{% assign trendIcon = "↓" %}{% endif %}
+> **Machine-contract status (30d):** {{ mc.passes }}/{{ mc.totalChecks }} pass ({{ mc.passRatePct }}%) · trend: {{ trendIcon }} {{ mc.trend | default: "stable" }} · latest checked scope: {{ mc.latestCheckedCount }} scripts · missing: {{ mc.latestMissingCount }}
+{% endif %}
 
 <style>
   .timeline-wrap {

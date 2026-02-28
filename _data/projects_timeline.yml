@@ -127,11 +127,11 @@
   url: /labs/cursor-parade/
 
 - id: open-world-city
-  name: Open-world Mediterranean city prototype
-  status: active
-  summary: Browser-playable 3D world; now evolving toward richer chase gameplay.
+  name: Old Town Pursuit
+  status: completed
+  summary: Browser-playable 3D chase game with radar hunting, boosts, and mobile-first controls.
   start: 2026-02-26
-  end:
+  end: 2026-02-28
   url: /labs/open-world-prototype.html
 
 - id: city-pursuit-director
