@@ -101,8 +101,14 @@
       font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
       display: grid; place-items: center;
     }
+    #autoCompactToggleBtn {
+      position: absolute; right: 16px; bottom: 338px; min-width: 154px; height: 42px; border-radius: 999px;
+      border: 1px solid rgba(180,220,255,.62); background: rgba(12,32,64,.72); color: #fff;
+      font-weight: 700; font-size: 13px; pointer-events: auto; touch-action: none;
+      display: grid; place-items: center;
+    }
     #touchOpacityWrap {
-      position: absolute; right: 16px; bottom: 338px; width: 124px;
+      position: absolute; right: 16px; bottom: 386px; width: 124px;
       border-radius: 10px; border: 1px solid rgba(180,220,255,.45);
       background: rgba(12,32,64,.62); padding: 6px 8px;
       pointer-events: auto;
@@ -116,6 +122,7 @@
     }
     #touchControls.look-left #hapticToggleBtn,
     #touchControls.look-left #compactToggleBtn,
+    #touchControls.look-left #autoCompactToggleBtn,
     #touchControls.look-left #touchOpacityWrap,
     #touchControls.look-left #resetTouchUiBtn,
     #touchControls.look-left #swapSideBtn,
@@ -137,7 +144,8 @@
     #touchControls.compact #swapSideBtn,
     #touchControls.compact #resetTouchUiBtn,
     #touchControls.compact #hapticToggleBtn,
-    #touchControls.compact #compactToggleBtn {
+    #touchControls.compact #compactToggleBtn,
+    #touchControls.compact #autoCompactToggleBtn {
       right: 12px; height: 36px; min-width: 96px; font-size: 12px;
     }
     #touchControls.compact #recenterBtn { bottom: 76px; }
@@ -145,8 +153,9 @@
     #touchControls.compact #resetTouchUiBtn { bottom: 160px; min-width: 122px; }
     #touchControls.compact #hapticToggleBtn { bottom: 202px; min-width: 112px; }
     #touchControls.compact #compactToggleBtn { bottom: 244px; min-width: 122px; }
+    #touchControls.compact #autoCompactToggleBtn { bottom: 286px; min-width: 142px; }
     #touchControls.compact #touchOpacityWrap {
-      right: 12px; bottom: 286px; width: 112px; padding: 5px 7px;
+      right: 12px; bottom: 328px; width: 112px; padding: 5px 7px;
     }
   </style>
 </head>
@@ -169,6 +178,7 @@
     </div>
     <button id="hapticToggleBtn" aria-label="Toggle touch haptics">Haptic: On</button>
     <button id="compactToggleBtn" aria-label="Toggle compact touch controls">Compact: Off</button>
+    <button id="autoCompactToggleBtn" aria-label="Toggle auto compact touch controls">Auto Compact: Off</button>
     <button id="resetTouchUiBtn" aria-label="Reset touch UI">Reset Touch UI</button>
     <button id="swapSideBtn" aria-label="Swap look side">Swap Side</button>
     <button id="recenterBtn" aria-label="Recenter camera">Recenter</button>
@@ -514,6 +524,7 @@
       touchOpacityRange: document.getElementById('touchOpacityRange'),
       hapticToggleBtn: document.getElementById('hapticToggleBtn'),
       compactToggleBtn: document.getElementById('compactToggleBtn'),
+      autoCompactToggleBtn: document.getElementById('autoCompactToggleBtn'),
       resetTouchUiBtn: document.getElementById('resetTouchUiBtn'),
       swapSideBtn: document.getElementById('swapSideBtn'),
       recenterBtn: document.getElementById('recenterBtn'),
@@ -528,8 +539,10 @@
     const TOUCH_HAPTIC_STORAGE_KEY = 'openWorldCity.touchHapticEnabled';
     const TOUCH_CONTROLS_OPACITY_STORAGE_KEY = 'openWorldCity.touchControlsOpacity';
     const TOUCH_COMPACT_STORAGE_KEY = 'openWorldCity.touchCompactControls';
+    const TOUCH_AUTO_COMPACT_STORAGE_KEY = 'openWorldCity.touchAutoCompactControls';
+    const TOUCH_AUTO_COMPACT_HEIGHT_THRESHOLD = 760;
     const DEFAULT_TOUCH_CONTROLS_OPACITY = 85;
-    const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0, lookSide: 'right', hapticEnabled: touchCapable, compactEnabled: false };
+    const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0, lookSide: 'right', hapticEnabled: touchCapable, compactEnabled: false, manualCompactEnabled: false, autoCompactEnabled: false };
     function touchMoveRadius() {
       return touchInput.compactEnabled ? 34 : 42;
     }
@@ -550,7 +563,7 @@
     function setupTouchControls() {
       if (!touchCapable) return;
       ui.touchControls.classList.add('active');
-      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Compact shrinks touch UI · Opacity slider sets control transparency · Swap Side flips look pad · Recenter resets view · Reset Touch UI restores defaults · Haptic toggles vibration · E button: interact/tag';
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Compact shrinks touch UI · Auto Compact uses compact mode on short screens · Opacity slider sets control transparency · Swap Side flips look pad · Recenter resets view · Reset Touch UI restores defaults · Haptic toggles vibration · E button: interact/tag';
 
       function triggerTouchHaptic() {
         if (!touchInput.hapticEnabled || typeof navigator.vibrate !== 'function') return;
@@ -559,11 +572,22 @@
       function refreshHapticToggleLabel() {
         ui.hapticToggleBtn.textContent = `Haptic: ${touchInput.hapticEnabled ? 'On' : 'Off'}`;
       }
+      function refreshCompactToggleLabel() {
+        ui.compactToggleBtn.textContent = `Compact: ${touchInput.manualCompactEnabled ? 'On' : 'Off'}`;
+      }
+      function refreshAutoCompactToggleLabel() {
+        ui.autoCompactToggleBtn.textContent = `Auto Compact: ${touchInput.autoCompactEnabled ? 'On' : 'Off'}`;
+      }
       function applyCompactMode(enabled) {
         touchInput.compactEnabled = !!enabled;
         ui.touchControls.classList.toggle('compact', touchInput.compactEnabled);
-        ui.compactToggleBtn.textContent = `Compact: ${touchInput.compactEnabled ? 'On' : 'Off'}`;
         resetMoveKnob();
+      }
+      function applyResponsiveCompactMode() {
+        const useCompact = touchInput.autoCompactEnabled
+          ? window.innerHeight < TOUCH_AUTO_COMPACT_HEIGHT_THRESHOLD
+          : touchInput.manualCompactEnabled;
+        applyCompactMode(useCompact);
       }
       function loadTouchCompactPreference() {
         try {
@@ -574,7 +598,21 @@
       }
       function saveTouchCompactPreference() {
         try {
-          localStorage.setItem(TOUCH_COMPACT_STORAGE_KEY, touchInput.compactEnabled ? 'on' : 'off');
+          localStorage.setItem(TOUCH_COMPACT_STORAGE_KEY, touchInput.manualCompactEnabled ? 'on' : 'off');
+        } catch (_) {
+          // ignore storage failures
+        }
+      }
+      function loadTouchAutoCompactPreference() {
+        try {
+          return localStorage.getItem(TOUCH_AUTO_COMPACT_STORAGE_KEY) === 'on';
+        } catch (_) {
+          return false;
+        }
+      }
+      function saveTouchAutoCompactPreference() {
+        try {
+          localStorage.setItem(TOUCH_AUTO_COMPACT_STORAGE_KEY, touchInput.autoCompactEnabled ? 'on' : 'off');
         } catch (_) {
           // ignore storage failures
         }
@@ -653,18 +691,27 @@
         touchInput.lookSide = 'right';
         applyLookSide();
         clearTouchLookSidePreference();
-        applyCompactMode(false);
+        touchInput.manualCompactEnabled = false;
+        touchInput.autoCompactEnabled = false;
         saveTouchCompactPreference();
+        saveTouchAutoCompactPreference();
+        refreshCompactToggleLabel();
+        refreshAutoCompactToggleLabel();
+        applyResponsiveCompactMode();
         applyTouchControlsOpacity(DEFAULT_TOUCH_CONTROLS_OPACITY);
         saveTouchControlsOpacityPreference(DEFAULT_TOUCH_CONTROLS_OPACITY);
         recenterCamera();
       }
       loadTouchLookSidePreference();
       loadTouchHapticPreference();
-      applyCompactMode(loadTouchCompactPreference());
+      touchInput.manualCompactEnabled = loadTouchCompactPreference();
+      touchInput.autoCompactEnabled = loadTouchAutoCompactPreference();
+      applyResponsiveCompactMode();
       applyTouchControlsOpacity(loadTouchControlsOpacityPreference());
       applyLookSide();
       refreshHapticToggleLabel();
+      refreshCompactToggleLabel();
+      refreshAutoCompactToggleLabel();
 
       let movePointerId = null;
       function updateMoveFromPointer(e) {
@@ -737,8 +784,24 @@
       ui.compactToggleBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         triggerTouchHaptic();
-        applyCompactMode(!touchInput.compactEnabled);
+        touchInput.manualCompactEnabled = !touchInput.manualCompactEnabled;
+        refreshCompactToggleLabel();
+        applyResponsiveCompactMode();
         saveTouchCompactPreference();
+      });
+
+      ui.autoCompactToggleBtn.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        triggerTouchHaptic();
+        touchInput.autoCompactEnabled = !touchInput.autoCompactEnabled;
+        refreshAutoCompactToggleLabel();
+        applyResponsiveCompactMode();
+        saveTouchAutoCompactPreference();
+      });
+
+      window.addEventListener('resize', () => {
+        if (!touchInput.autoCompactEnabled) return;
+        applyResponsiveCompactMode();
       });
 
       ui.touchOpacityRange.addEventListener('input', (e) => {

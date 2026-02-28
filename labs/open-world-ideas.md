@@ -34,3 +34,8 @@
 - **Idea:** Hanging laundry lines across alleys occasionally align into arrow-like wind ripples that secretly indicate where the suspect will turn next.
 - **Why weird/fun:** The city itself becomes a cryptic navigation instrument, like reading street tarot instead of a minimap.
 - **Next action:** Add one lightweight "wind pulse" shader strip on 3-5 laundry lines near intersections; when suspect picks a branch, animate the matching line for 1 second and test if players notice without tutorial text.
+
+## Alley Cat Witness Network
+- **Idea:** Stray cats on rooftops suddenly stare and meow toward the suspect’s direction for a second when the target passes nearby streets.
+- **Why weird/fun:** It turns environmental flavor into an uncanny intel system where animal behavior becomes your minimap.
+- **Next action:** Spawn 6-8 simple cat silhouettes on roof edges and trigger a 1-second head-turn + meow cue from the nearest cat when suspect enters a new block; test if players can read the signal without HUD prompts.
