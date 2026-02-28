@@ -14,3 +14,8 @@
 - **Idea:** Crowd balconies randomly emit bright camera flashes that briefly overexpose the screen and make the suspect flinch into short zig-zag dodges.
 - **Why weird/fun:** The city behaves like an unruly paparazzi arena, turning visibility spikes into emergent chase chaos.
 - **Next action:** Prototype one flash event every 12-18 seconds (0.2s white overlay + suspect lateral impulse), then tune so it feels dramatic without motion-sickness.
+
+## Street Vendor Confetti Bribe
+- **Idea:** Random market vendors throw confetti clouds that briefly paint fake suspect footprints in the wrong direction when you run through them.
+- **Why weird/fun:** It weaponizes celebration particles as deliberate misinformation, making the chase feel playful and treacherous at the same time.
+- **Next action:** Spawn one confetti zone near plazas, draw temporary decal arrows for 3 seconds on trigger, then measure whether players overcommit to fake trails.
