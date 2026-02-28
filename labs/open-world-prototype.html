@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mediterranean Chase Prototype</title>
+  <title>Old Town Pursuit</title>
   <style>
     html, body { margin: 0; height: 100%; overflow: hidden; background: #0d1f35; color: #eaf2ff; font-family: Inter, system-ui, sans-serif; }
     #overlay, #finish {
@@ -201,7 +201,7 @@
 
   <div id="overlay">
     <div class="card">
-      <h2 style="margin:0 0 10px;">Mediterranean City Chase Prototype</h2>
+      <h2 style="margin:0 0 10px;">Old Town Pursuit</h2>
       <p style="margin:0 0 8px;">Catch the fleeing spy across steep streets, plazas, and harbor lanes. <strong>Quick start:</strong> left thumb/WASD = move, right drag/mouse = look. The top-right radar shows suspect direction (red dot).</p>
       <p style="margin:0 0 8px; opacity:.9;">Performance is auto-selected for your device.</p>
       <button id="startBtn">Start Chase</button>
@@ -1038,7 +1038,7 @@
     const suspectState = {
       path: [[-98,-78],[-60,-34],[-16,10],[28,42],[58,84],[20,106],[-26,92],[-84,52],[-120,8],[-104,-44]],
       wp: 0,
-      speedBase: 7.2,
+      speedBase: 8.1,
       visible: true,
       catches: 0,
       started: 0
@@ -1204,12 +1204,12 @@
       let localY = toSX * fwdX + toSZ * fwdZ;
 
       // Make radar intentionally ambiguous at close range for extra challenge.
-      if (dist < 22) {
-        const proximity = 1 - (dist / 22); // 0..1
-        const wobble = proximity * 0.42;
-        const tt = performance.now() * 0.0055;
-        localX += Math.sin(tt * 1.9) * wobble + (Math.random() - 0.5) * wobble * 0.35;
-        localY += Math.cos(tt * 1.6) * wobble + (Math.random() - 0.5) * wobble * 0.35;
+      if (dist < 24) {
+        const proximity = 1 - (dist / 24); // 0..1
+        const wobble = proximity * 0.72;
+        const tt = performance.now() * 0.0062;
+        localX += Math.sin(tt * 2.2) * wobble + (Math.random() - 0.5) * wobble * 0.55;
+        localY += Math.cos(tt * 1.9) * wobble + (Math.random() - 0.5) * wobble * 0.55;
         const len = Math.hypot(localX, localY) || 1;
         if (len > 1) {
           localX /= len;
