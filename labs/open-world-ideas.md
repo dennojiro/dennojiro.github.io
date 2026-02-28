@@ -9,3 +9,8 @@
 - **Idea:** Add fake siren sound pings from random harbor alleys that briefly pull the suspect AI toward decoy directions before it corrects course.
 - **Why weird/fun:** The city starts feeling like a living trap where audio lies to both player and suspect.
 - **Next action:** Implement a 20-second timer that spawns a temporary decoy waypoint near water, blend suspect steering 30% toward it for 2 seconds, then snap back to main route.
+
+## Tourist Camera Flash Panic
+- **Idea:** Crowd balconies randomly emit bright camera flashes that briefly overexpose the screen and make the suspect flinch into short zig-zag dodges.
+- **Why weird/fun:** The city behaves like an unruly paparazzi arena, turning visibility spikes into emergent chase chaos.
+- **Next action:** Prototype one flash event every 12-18 seconds (0.2s white overlay + suspect lateral impulse), then tune so it feels dramatic without motion-sickness.

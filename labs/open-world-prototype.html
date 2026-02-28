@@ -453,6 +453,7 @@
       ui.assetStatus.textContent = `${loadedAssets.ok} loaded / ${loadedAssets.fail} fallback`;
     }
 
+    const TOUCH_LOOK_SIDE_STORAGE_KEY = 'openWorldCity.touchLookSide';
     const touchInput = { moveX: 0, moveY: 0, lookActive: false, lookId: null, lookX: 0, lookY: 0, lookSide: 'right' };
     function resetMoveKnob() {
       ui.moveKnob.style.left = '46px';
@@ -469,13 +470,30 @@
       ui.touchControls.classList.add('active');
       ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Swap Side flips look pad · Recenter resets view · E button: interact/tag';
 
+      function loadTouchLookSidePreference() {
+        try {
+          const savedSide = localStorage.getItem(TOUCH_LOOK_SIDE_STORAGE_KEY);
+          if (savedSide === 'left' || savedSide === 'right') touchInput.lookSide = savedSide;
+        } catch (_) {
+          // ignore storage failures
+        }
+      }
+      function saveTouchLookSidePreference() {
+        try {
+          localStorage.setItem(TOUCH_LOOK_SIDE_STORAGE_KEY, touchInput.lookSide);
+        } catch (_) {
+          // ignore storage failures
+        }
+      }
       function applyLookSide() {
         ui.touchControls.classList.toggle('look-left', touchInput.lookSide === 'left');
       }
       function swapLookSide() {
         touchInput.lookSide = touchInput.lookSide === 'right' ? 'left' : 'right';
         applyLookSide();
+        saveTouchLookSidePreference();
       }
+      loadTouchLookSidePreference();
       applyLookSide();
 
       let movePointerId = null;
