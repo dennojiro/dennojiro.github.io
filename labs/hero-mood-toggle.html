@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hero Mood Toggle</title>
+  <style>
+    :root {
+      --text: #f7fbff;
+      --muted: rgba(255,255,255,0.8);
+      --panel: rgba(10, 15, 25, 0.35);
+      --panel-border: rgba(255,255,255,0.25);
+      --focus: #fff;
+      --hero-image: none;
+      --hero-gradient: linear-gradient(135deg, #90caf9 0%, #80cbc4 55%, #a5d6a7 100%);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+      min-height: 100dvh;
+      background: #0f1720;
+    }
+
+    .hero {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: clamp(1rem, 4vw, 2rem);
+      background-image: var(--hero-image), var(--hero-gradient);
+      background-size: cover, cover;
+      background-position: center;
+      transition: background-image 300ms ease, filter 250ms ease;
+    }
+
+    .card {
+      width: min(720px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: clamp(1rem, 3vw, 2rem);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      line-height: 1.1;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+    }
+
+    .controls {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      align-items: center;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.28);
+      color: white;
+      background: rgba(255,255,255,0.1);
+      padding: 0.6rem 0.95rem;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    button[aria-pressed="true"] {
+      background: rgba(255,255,255,0.24);
+      border-color: rgba(255,255,255,0.65);
+    }
+
+    #copy-link {
+      background: rgba(255,255,255,0.16);
+      border-style: dashed;
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .hint {
+      margin-top: 0.85rem;
+      font-size: 0.82rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero" id="hero">
+    <div class="card">
+      <h1 id="title">Find your mood</h1>
+      <p id="subtitle">Switch hero vibes and keep the choice in the URL.</p>
+
+      <div class="controls" role="group" aria-label="Hero mood">
+        <button data-mood="calm" aria-pressed="false">Calm</button>
+        <button data-mood="vivid" aria-pressed="false">Vivid</button>
+        <button data-mood="playful" aria-pressed="false">Playful</button>
+        <button id="copy-link" type="button" aria-describedby="copy-status">Copy link to this mood</button>
+      </div>
+
+      <p id="copy-status" class="hint" aria-live="polite">Tip: share this page with <code>?mood=calm</code>, <code>?mood=vivid</code>, or <code>?mood=playful</code>.</p>
+    </div>
+  </section>
+
+  <script>
+    const moods = {
+      calm: {
+        title: "Calm mode",
+        subtitle: "Soft gradients and low-contrast balance for a quiet hero.",
+        gradient: "linear-gradient(135deg, #90caf9 0%, #80cbc4 55%, #a5d6a7 100%)",
+        image: "none"
+      },
+      vivid: {
+        title: "Vivid mode",
+        subtitle: "High-energy contrast for promo-heavy hero moments.",
+        gradient: "linear-gradient(120deg, #ff416c 0%, #ff4b2b 35%, #f9d423 100%)",
+        image: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3), transparent 45%)"
+      },
+      playful: {
+        title: "Playful mode",
+        subtitle: "Cheerful candy palette with a tiny geometric sprinkle.",
+        gradient: "linear-gradient(135deg, #7f7fd5 0%, #86a8e7 45%, #91eae4 100%)",
+        image: "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><circle cx=\"15\" cy=\"20\" r=\"6\" fill=\"rgba(255,255,255,0.23)\"/><circle cx=\"70\" cy=\"28\" r=\"5\" fill=\"rgba(255,255,255,0.2)\"/><circle cx=\"40\" cy=\"70\" r=\"7\" fill=\"rgba(255,255,255,0.2)\"/><circle cx=\"88\" cy=\"76\" r=\"4\" fill=\"rgba(255,255,255,0.22)\"/></svg>')"
+      }
+    };
+
+    const hero = document.getElementById('hero');
+    const title = document.getElementById('title');
+    const subtitle = document.getElementById('subtitle');
+    const buttons = Array.from(document.querySelectorAll('[data-mood]'));
+    const copyLinkBtn = document.getElementById('copy-link');
+    const copyStatus = document.getElementById('copy-status');
+    let copyFeedbackTimer;
+
+    function setMood(mood, updateUrl = true) {
+      const selected = moods[mood] ? mood : 'calm';
+      const conf = moods[selected];
+
+      hero.style.setProperty('--hero-gradient', conf.gradient);
+      hero.style.setProperty('--hero-image', conf.image);
+      title.textContent = conf.title;
+      subtitle.textContent = conf.subtitle;
+
+      buttons.forEach(btn => {
+        btn.setAttribute('aria-pressed', String(btn.dataset.mood === selected));
+      });
+
+      if (updateUrl) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('mood', selected);
+        history.replaceState({}, '', url);
+      }
+    }
+
+    function setCopyStatus(message) {
+      copyStatus.textContent = message;
+      clearTimeout(copyFeedbackTimer);
+      copyFeedbackTimer = setTimeout(() => {
+        copyStatus.textContent = 'Tip: share this page with ?mood=calm, ?mood=vivid, or ?mood=playful.';
+      }, 1800);
+    }
+
+    async function copyMoodLink() {
+      const url = window.location.href;
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(url);
+          setCopyStatus('Copied link for current mood.');
+          return;
+        }
+        throw new Error('Clipboard API unavailable');
+      } catch {
+        const helper = document.createElement('textarea');
+        helper.value = url;
+        helper.setAttribute('readonly', '');
+        helper.style.position = 'absolute';
+        helper.style.left = '-9999px';
+        document.body.appendChild(helper);
+        helper.select();
+        const copied = document.execCommand('copy');
+        document.body.removeChild(helper);
+        setCopyStatus(copied ? 'Copied link for current mood.' : 'Could not copy link. Copy from address bar instead.');
+      }
+    }
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => setMood(btn.dataset.mood, true));
+    });
+
+    copyLinkBtn.addEventListener('click', copyMoodLink);
+
+    const initialMood = new URLSearchParams(window.location.search).get('mood');
+    setMood(initialMood, Boolean(initialMood));
+  </script>
+</body>
+</html>
