@@ -421,9 +421,12 @@
       const g = new THREE.Group();
       const style = Math.random();
       const bodyColor = bColors[(Math.random() * bColors.length) | 0];
+      const baseDepth = 1.1 + Math.random() * 0.8;
+      const foundation = new THREE.Mesh(new THREE.BoxGeometry(w * 1.02, baseDepth, d * 1.02), new THREE.MeshStandardMaterial({ color: 0xb39a78, roughness: .97 }));
+      foundation.position.y = -baseDepth * 0.5;
       const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bodyColor, roughness: .86, map: stuccoTex }));
       body.position.y = h / 2;
-      g.add(body);
+      g.add(foundation, body);
 
       if (style < 0.34) {
         const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * .64, Math.max(.8, h * .12), 4), new THREE.MeshStandardMaterial({ color: roofColors[(Math.random() * roofColors.length) | 0], roughness: .92, map: roofTileTex }));
@@ -460,7 +463,7 @@
         awning.position.set(0, Math.min(h * 0.5, 4.2), d * 0.53);
         g.add(awning);
       }
-      g.position.set(x, y - 0.08, z);
+      g.position.set(x, y - 0.02, z);
       pushDecor(g);
       buildingColliders.push({ x, z, r: Math.max(w, d) * .56 + .55 });
     }
@@ -592,6 +595,13 @@
     }
 
     const suspect = new THREE.Group(); scene.add(suspect);
+    const suspectBeacon = new THREE.Mesh(
+      new THREE.ConeGeometry(0.42, 1.25, 10),
+      new THREE.MeshStandardMaterial({ color: 0xff5d5d, emissive: 0xff2f2f, emissiveIntensity: 0.75, roughness: 0.45 })
+    );
+    suspectBeacon.position.y = 3.6;
+    suspectBeacon.rotation.x = Math.PI;
+    suspect.add(suspectBeacon);
     let suspectVisualLoaded = false;
     const assetLog = [];
     const loadedAssets = { ok: 0, fail: 0 };
@@ -939,11 +949,12 @@
     }
 
     function fallbackSuspect() {
+      suspect.clear();
       const body = new THREE.Mesh(new THREE.CapsuleGeometry(.43, 1.2, 4, 8), new THREE.MeshStandardMaterial({ color: 0x2d3f66 }));
       body.position.y = 1.2;
       const head = new THREE.Mesh(new THREE.SphereGeometry(.3, 12, 12), new THREE.MeshStandardMaterial({ color: 0xf0d0b1 }));
       head.position.y = 2.15;
-      suspect.add(body, head);
+      suspect.add(body, head, suspectBeacon);
     }
     fallbackSuspect();
 
@@ -972,7 +983,7 @@
     loadAsset('https://threejs.org/examples/models/gltf/Soldier.glb', (obj) => {
       suspect.clear();
       obj.scale.set(1.2, 1.2, 1.2);
-      suspect.add(obj);
+      suspect.add(obj, suspectBeacon);
       suspectVisualLoaded = true;
     }, fallbackSuspect);
 
@@ -1168,13 +1179,14 @@
       if (e.code === 'KeyD') state.right = false;
     });
 
-    function resolveCollide(nx, nz) {
+    function resolveCollide(nx, nz, extraRadius = 0) {
       let x = nx, z = nz;
       for (const b of buildingColliders) {
-        const dx = x - b.x, dz = z - b.z, d2 = dx*dx + dz*dz, r2 = b.r*b.r;
+        const rr = b.r + extraRadius;
+        const dx = x - b.x, dz = z - b.z, d2 = dx*dx + dz*dz, r2 = rr*rr;
         if (d2 < r2) {
           const d = Math.sqrt(Math.max(1e-4, d2));
-          const push = (b.r - d) + .07;
+          const push = (rr - d) + .07;
           x += (dx/d)*push; z += (dz/d)*push;
         }
       }
@@ -1190,7 +1202,8 @@
     }
 
     function placeSuspect(x, z) {
-      suspect.position.set(x, terrainHeight(x, z), z);
+      const p = resolveCollide(x, z, 0.9);
+      suspect.position.set(p.x, terrainHeight(p.x, p.z), p.z);
     }
     placeSuspect(-90, -68);
 
@@ -1217,9 +1230,19 @@
       const dist = Math.hypot(dx, dz);
       const maxRadar = 70;
       const scale = Math.min(1, dist / maxRadar);
-      const ang = Math.atan2(dx, -dz) - player.yaw;
-      const rx = cx + Math.sin(ang) * r * scale;
-      const ry = cy - Math.cos(ang) * r * scale;
+      const inv = dist > 1e-4 ? 1 / dist : 0;
+      const toSX = dx * inv;
+      const toSZ = dz * inv;
+
+      const fwdX = -Math.sin(player.yaw);
+      const fwdZ = -Math.cos(player.yaw);
+      const rightX = Math.cos(player.yaw);
+      const rightZ = -Math.sin(player.yaw);
+
+      const localX = toSX * rightX + toSZ * rightZ;
+      const localY = toSX * fwdX + toSZ * fwdZ;
+      const rx = cx + localX * r * scale;
+      const ry = cy - localY * r * scale;
 
       c.fillStyle = suspect.visible ? '#ff6b6b' : 'rgba(255,125,125,.45)';
       c.beginPath(); c.arc(rx, ry, 4, 0, Math.PI * 2); c.fill();
@@ -1227,7 +1250,7 @@
 
     function tryTag() {
       const d = camera.position.distanceTo(suspect.position);
-      if (d > 2.8) return;
+      if (d > 3.4) return;
       if (suspectState.mode === 'tag' && !suspectState.visible) return;
       suspectState.catches += 1;
       ui.score.textContent = String(suspectState.catches);
@@ -1330,7 +1353,7 @@
       const sSpeed = base * rbFactor * (suspectState.visible ? 1 : 0.65);
       suspect.position.x += dir.x * sSpeed * dt;
       suspect.position.z += dir.z * sSpeed * dt;
-      const suspectResolved = resolveCollide(suspect.position.x, suspect.position.z);
+      const suspectResolved = resolveCollide(suspect.position.x, suspect.position.z, 0.95);
       suspect.position.x = THREE.MathUtils.clamp(suspectResolved.x, worldMin, 84);
       suspect.position.z = THREE.MathUtils.clamp(suspectResolved.z, worldMin, worldMax);
       suspect.position.y = terrainHeight(suspect.position.x, suspect.position.z);
