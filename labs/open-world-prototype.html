@@ -40,6 +40,40 @@
       background: rgba(9,16,33,.74); font-size: 13px; line-height: 1.35;
     }
     #msg { color: #a6f2c4; min-height: 18px; margin-top: 4px; }
+    #radar {
+      position: fixed; top: 12px; right: 12px; width: 92px; height: 92px; z-index: 12;
+      border-radius: 50%; border: 1px solid rgba(190,220,255,.55);
+      background: radial-gradient(circle at center, rgba(8,22,44,.82), rgba(8,18,36,.64));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      pointer-events: none;
+    }
+    #mobileTip {
+      position: fixed; left: 10px; right: 10px; top: 12px; z-index: 30;
+      border-radius: 12px; border: 1px solid rgba(148,163,184,.38);
+      background: rgba(8,18,36,.92); padding: 10px 12px; font-size: 13px; line-height: 1.35;
+      display: none;
+    }
+    #mobileTip button {
+      margin-top: 8px; background: rgba(43,121,255,.9); padding: 8px 12px; font-size: 12px;
+    }
+    .touch-simplified #hud { display: none; }
+    .touch-simplified #hapticToggleBtn,
+    .touch-simplified #compactToggleBtn,
+    .touch-simplified #autoCompactToggleBtn,
+    .touch-simplified #touchOpacityWrap,
+    .touch-simplified #resetTouchUiBtn,
+    .touch-simplified #swapSideBtn,
+    .touch-simplified #recenterBtn { display: none !important; }
+    .touch-simplified #actionBtn { right: 16px; bottom: 18px; }
+    #finishBurst {
+      margin: 10px 0 2px; font-size: 26px; letter-spacing: 4px; text-align: center;
+      animation: popBurst 650ms ease-out 1;
+    }
+    @keyframes popBurst {
+      0% { transform: scale(.45) rotate(-8deg); opacity: .15; }
+      65% { transform: scale(1.2) rotate(2deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
     #crosshair { position: fixed; left: 50%; top: 50%; width: 12px; height: 12px; margin-left: -6px; margin-top: -6px; pointer-events: none; z-index: 9; }
     #crosshair::before, #crosshair::after { content:""; position:absolute; background:#f4fbff; }
     #crosshair::before { left:0; top:5px; width:12px; height:2px; }
@@ -168,6 +202,13 @@
     <div id="controlsHelp">WASD move · Mouse look · E interact/tag · Esc unlock</div>
     <div id="msg">Track the suspect through the old city alleys.</div>
   </div>
+  <canvas id="radar" width="92" height="92" aria-hidden="true"></canvas>
+  <div id="mobileTip" role="dialog" aria-label="Quick controls help">
+    <strong>Quick start</strong><br>
+    Left thumb = move · Right side drag = look · Tap <strong>E</strong> to tag.
+    <br>Use the radar (top-right): red dot = suspect direction.
+    <br><button id="dismissMobileTip">Got it</button>
+  </div>
   <div id="crosshair"></div>
   <div id="touchControls" aria-label="Touch controls">
     <div id="movePad" aria-label="Move joystick"><div id="moveKnob"></div></div>
@@ -208,6 +249,7 @@
   <div id="finish">
     <div class="card">
       <h2 style="margin:0 0 8px;color:#97f4b8;">Catch Confirmed ✅</h2>
+      <div id="finishBurst">🎉 ✨ 🏆 ✨ 🎉</div>
       <p id="finishText" style="margin:0 0 8px;"></p>
       <button id="againBtn">Play Again</button>
     </div>
@@ -374,18 +416,50 @@
       const x = -170 + Math.random() * 240, z = -170 + Math.random() * 340;
       if (x > 72 || terrainHeight(x, z) < -0.8) continue;
       const y = terrainHeight(x, z);
-      const w = 4 + Math.random() * 5.2, d = 4 + Math.random() * 5, h = 5 + Math.random() * 16;
+      const w = 4 + Math.random() * 5.6, d = 4 + Math.random() * 5.4, h = 6 + Math.random() * 18;
       const g = new THREE.Group();
-      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bColors[(Math.random() * bColors.length) | 0], roughness: .86, map: stuccoTex }));
+      const style = Math.random();
+      const bodyColor = bColors[(Math.random() * bColors.length) | 0];
+      const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: bodyColor, roughness: .86, map: stuccoTex }));
       body.position.y = h / 2;
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * .64, Math.max(.8, h * .12), 4), new THREE.MeshStandardMaterial({ color: roofColors[(Math.random() * roofColors.length) | 0], roughness: .92, map: roofTileTex }));
-      roof.rotation.y = Math.PI * 0.25; roof.position.y = h + 0.55;
-      g.add(body, roof);
-      if (Math.random() < .6) {
-        const arch = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.15, 8, 16, Math.PI), new THREE.MeshStandardMaterial({ color: 0xcfb892, roughness: .9 }));
-        arch.rotation.z = Math.PI; arch.position.set(0, 1.3, d * 0.51); g.add(arch);
+      g.add(body);
+
+      if (style < 0.34) {
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * .64, Math.max(.8, h * .12), 4), new THREE.MeshStandardMaterial({ color: roofColors[(Math.random() * roofColors.length) | 0], roughness: .92, map: roofTileTex }));
+        roof.rotation.y = Math.PI * 0.25;
+        roof.position.y = h + 0.55;
+        g.add(roof);
+      } else if (style < 0.68) {
+        const parapet = new THREE.Mesh(new THREE.BoxGeometry(w * 1.02, 0.45, d * 1.02), new THREE.MeshStandardMaterial({ color: 0xdac7a5, roughness: .9 }));
+        parapet.position.y = h + 0.22;
+        g.add(parapet);
+        if (Math.random() < 0.6) {
+          const waterTank = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.75, 10), new THREE.MeshStandardMaterial({ color: 0x6c798f, roughness: .7, metalness: .35 }));
+          waterTank.position.set((Math.random() - 0.5) * w * 0.35, h + 0.7, (Math.random() - 0.5) * d * 0.35);
+          g.add(waterTank);
+        }
+      } else {
+        const steppedTop = new THREE.Mesh(new THREE.BoxGeometry(w * 0.72, Math.max(1.1, h * 0.12), d * 0.72), new THREE.MeshStandardMaterial({ color: 0xe9d7b9, roughness: .88 }));
+        steppedTop.position.y = h + steppedTop.geometry.parameters.height / 2;
+        g.add(steppedTop);
+        const cap = new THREE.Mesh(new THREE.ConeGeometry(Math.max(w, d) * .28, 0.9, 4), new THREE.MeshStandardMaterial({ color: roofColors[(Math.random() * roofColors.length) | 0], roughness: .92, map: roofTileTex }));
+        cap.rotation.y = Math.PI * 0.25;
+        cap.position.y = steppedTop.position.y + steppedTop.geometry.parameters.height / 2 + 0.45;
+        g.add(cap);
       }
-      g.position.set(x, y, z);
+
+      if (Math.random() < .58) {
+        const arch = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.15, 8, 16, Math.PI), new THREE.MeshStandardMaterial({ color: 0xcfb892, roughness: .9 }));
+        arch.rotation.z = Math.PI;
+        arch.position.set(0, 1.3, d * 0.51);
+        g.add(arch);
+      }
+      if (Math.random() < 0.45) {
+        const awning = new THREE.Mesh(new THREE.BoxGeometry(w * 0.55, 0.12, 0.9), new THREE.MeshStandardMaterial({ color: 0xb35e3e, roughness: .85 }));
+        awning.position.set(0, Math.min(h * 0.5, 4.2), d * 0.53);
+        g.add(awning);
+      }
+      g.position.set(x, y - 0.08, z);
       pushDecor(g);
       buildingColliders.push({ x, z, r: Math.max(w, d) * .56 + .55 });
     }
@@ -516,6 +590,9 @@
       msg: document.getElementById('msg'),
       assetStatus: document.getElementById('assetStatus'),
       controlsHelp: document.getElementById('controlsHelp'),
+      radar: document.getElementById('radar'),
+      mobileTip: document.getElementById('mobileTip'),
+      dismissMobileTip: document.getElementById('dismissMobileTip'),
       touchControls: document.getElementById('touchControls'),
       movePad: document.getElementById('movePad'),
       moveKnob: document.getElementById('moveKnob'),
@@ -563,7 +640,10 @@
     function setupTouchControls() {
       if (!touchCapable) return;
       ui.touchControls.classList.add('active');
-      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · Compact shrinks touch UI · Auto Compact uses compact mode on short screens · Opacity slider sets control transparency · Swap Side flips look pad · Recenter resets view · Reset Touch UI restores defaults · Haptic toggles vibration · E button: interact/tag';
+      document.body.classList.add('touch-simplified');
+      ui.controlsHelp.textContent = 'Left thumb: move · Right drag: look · E: tag suspect';
+      ui.mobileTip.style.display = 'block';
+      ui.dismissMobileTip.addEventListener('click', () => { ui.mobileTip.style.display = 'none'; });
 
       function triggerTouchHaptic() {
         if (!touchInput.hapticEnabled || typeof navigator.vibrate !== 'function') return;
@@ -1086,6 +1166,37 @@
     }
     placeSuspect(-90, -68);
 
+    function drawRadar() {
+      const can = ui.radar;
+      const c = can.getContext('2d');
+      const w = can.width;
+      const h = can.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = w * 0.44;
+      c.clearRect(0, 0, w, h);
+
+      c.strokeStyle = 'rgba(180,220,255,.38)';
+      c.lineWidth = 1;
+      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.arc(cx, cy, r * 0.66, 0, Math.PI * 2); c.stroke();
+
+      c.fillStyle = '#9fd3ff';
+      c.beginPath(); c.arc(cx, cy, 3.2, 0, Math.PI * 2); c.fill();
+
+      const dx = suspect.position.x - camera.position.x;
+      const dz = suspect.position.z - camera.position.z;
+      const dist = Math.hypot(dx, dz);
+      const maxRadar = 70;
+      const scale = Math.min(1, dist / maxRadar);
+      const ang = Math.atan2(dx, dz) - player.yaw;
+      const rx = cx + Math.sin(ang) * r * scale;
+      const ry = cy - Math.cos(ang) * r * scale;
+
+      c.fillStyle = suspect.visible ? '#ff6b6b' : 'rgba(255,125,125,.45)';
+      c.beginPath(); c.arc(rx, ry, 4, 0, Math.PI * 2); c.fill();
+    }
+
     function tryTag() {
       const d = camera.position.distanceTo(suspect.position);
       if (d > 2.8) return;
@@ -1099,6 +1210,10 @@
       if (suspectState.catches >= 3) {
         const sec = ((performance.now() - suspectState.started) / 1000).toFixed(1);
         ui.finishText.textContent = `You secured 3 catches in ${sec}s (${suspectState.mode === 'chase' ? 'Chase' : 'Hide-and-seek'} mode).`;
+        const burst = document.getElementById('finishBurst');
+        burst.style.animation = 'none';
+        burst.offsetHeight;
+        burst.style.animation = '';
         ui.finish.style.display = 'grid';
         document.exitPointerLock();
       }
@@ -1115,7 +1230,7 @@
       const keyX = (state.right ? 1 : 0) - (state.left ? 1 : 0);
       const keyZ = (state.back ? 1 : 0) - (state.forward ? 1 : 0);
       move.x = keyX + touchInput.moveX;
-      move.z = keyZ + touchInput.moveY;
+      move.z = keyZ - touchInput.moveY;
       if (move.lengthSq() > 1) move.normalize();
 
       const accel = baseMove * (state.canControl ? 1 : 0);
@@ -1181,6 +1296,7 @@
         obj.rotation.y += dt * (0.3 + i * 0.04);
       });
 
+      drawRadar();
       ui.dist.textContent = dist.toFixed(1);
       ui.rb.textContent = rbLabel;
       ui.time.textContent = ((performance.now() - suspectState.started) / 1000).toFixed(1);
