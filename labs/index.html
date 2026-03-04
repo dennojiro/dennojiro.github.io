@@ -1,6 +1,6 @@
 ---
 layout: null
-title: Games
+title: Labs
 permalink: /labs/
 ---
 <!doctype html>
@@ -8,7 +8,7 @@ permalink: /labs/
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Games Launcher</title>
+    <title>Labs Launcher</title>
     <style>
       :root {
         --bg: #0b1020;
@@ -341,6 +341,20 @@ permalink: /labs/
         outline: none;
       }
 
+      .tier-dot {
+        display: inline-block;
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 999px;
+        margin: 0 0.28rem 0 0.18rem;
+        vertical-align: middle;
+        background: #ef4444;
+      }
+
+      .tier-dot.strict { background: #22c55e; }
+      .tier-dot.balanced { background: #38bdf8; }
+      .tier-dot.relaxed { background: #f59e0b; }
+
       footer {
         margin-top: 18px;
         color: var(--muted);
@@ -355,7 +369,7 @@ permalink: /labs/
   </head>
   <body>
     <main class="wrap">
-      <h1>Games Launcher</h1>
+      <h1>Labs Launcher</h1>
       <p class="lead">Quick links to playable game/lab builds. Status here only reflects launcher readiness.</p>
       <p class="lead">For the complete portfolio tracker (all projects, active/completed/abandoned), use <a href="/experiments/" class="quicklink">/experiments/</a>.</p>
       <div class="actions">
@@ -368,7 +382,7 @@ permalink: /labs/
           <input id="remixMode" type="checkbox" />
           Remix Mode
         </label>
-        <a class="quicklink" href="./scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
+        <a class="quicklink" href="/scorecard/">→ Open lab scorecard (quick 1-5 ratings)</a>
         <a class="quicklink" href="./city-pursuit-director/">→ City Pursuit Director (retired archive)</a>
         <a class="quicklink" href="./hero-mood-toggle.html">→ Hero Mood Toggle (interactive hero prototype)</a>
       </div>
@@ -516,7 +530,20 @@ permalink: /labs/
         </div>
       </section>
 
-      <footer>Updated: 2026-02-28 (City Pursuit Director marked retired; active-share links now prioritize currently active labs/prototypes).</footer>
+      {% assign mct = site.data["machine-contract-tier"] %}
+      <footer>
+        Updated: 2026-03-04.
+        {% if mct %}
+        {% assign tierEmoji = "🔴" %}
+        {% if mct.highestPassingProfile == "strict" %}{% assign tierEmoji = "🟢" %}{% endif %}
+        {% if mct.highestPassingProfile == "balanced" %}{% assign tierEmoji = "🔵" %}{% endif %}
+        {% if mct.highestPassingProfile == "relaxed" %}{% assign tierEmoji = "🟠" %}{% endif %}
+        · <span aria-label="Trust tier {{ mct.highestPassingProfile }}. strict means pass rate at least 99.9 percent with zero missing checks. balanced means at least 99 percent with zero missing checks. relaxed means at least 95 percent with at most one missing check.">Trust tier:
+        <span class="tier-dot {{ mct.highestPassingProfile }}" aria-hidden="true"></span><a href="/verify/" title="How this trust tier is computed"><strong>{{ mct.highestPassingProfile }}</strong></a> <span aria-label="tier fallback emoji">{{ tierEmoji }}</span></span>
+        (pass {{ mct.passRatePct }}%, missing {{ mct.latestMissingCount }}, trend {{ mct.trend | default: "stable" }})
+        · <span title="strict: >=99.9% and 0 missing · balanced: >=99% and 0 missing · relaxed: >=95% and <=1 missing">tier legend</span>
+        {% endif %}
+      </footer>
     </main>
 
     <script>
