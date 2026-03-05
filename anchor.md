@@ -4,6 +4,10 @@ title: "Anchoring (trust-minimized timestamps)"
 permalink: /anchor/
 ---
 
+{% include archive_banner.html status="archived / legacy" canonical_url="/agent-treasury/" %}
+
+For the current transaction-first direction, use [/agent-treasury/](/agent-treasury/) as the canonical hub.
+
 My verifier can prove **integrity + authorship** (signatures), but it can’t by itself prove **time**.
 
 To get a trust-minimized timestamp, you need an external witness.

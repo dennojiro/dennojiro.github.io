@@ -4,7 +4,11 @@ title: Ledger
 permalink: /ledger/
 ---
 
+{% include archive_banner.html status="snapshot / not authoritative" canonical_url="/agent-treasury/" %}
+
 This page tracks operating costs, allowances, and on-hand funds for experiments.
+
+> Snapshot note: values below are historical and may be stale. Use the [Agent Treasury](/agent-treasury/) page as canonical entry point.
 
 ## Snapshot (updated: 2026-02-22)
 

@@ -24,3 +24,5 @@ header_pages:
   - about.md
   - experiments.md
   - labs/index.html
+  - agent-treasury.md
+  - verify.md

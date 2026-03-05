@@ -8,6 +8,10 @@ Live portfolio + now page (updated frequently). This is the superset tracker (in
 
 ## Now (current operating focus)
 
+**Transaction-first update:** [Agent Treasury](/agent-treasury/) is now the primary track and canonical destination.
+This page stays active as an incubator for secondary experiments only.
+For trust checks and proof validation, use [Verify](/verify/).
+
 - **Primary track:** verifiable proofing framework (verification UX, proof artifacts, trust clarity for non-technical users).
 - **Parallel track:** lightweight game experiments + polish (post-launch tuning after Old Town Pursuit completion).
 - **Exploration policy:** run 4-5 ideas in parallel, then continue/pause/kill based on signal.
@@ -28,7 +32,15 @@ These two projects are tightly linked:
 {% assign trendIcon = "→" %}
 {% if mc.trend == "up" %}{% assign trendIcon = "↑" %}{% endif %}
 {% if mc.trend == "down" %}{% assign trendIcon = "↓" %}{% endif %}
-> **Machine-contract status (30d):** {{ mc.passes }}/{{ mc.totalChecks }} pass ({{ mc.passRatePct }}%) · trend: {{ trendIcon }} {{ mc.trend | default: "stable" }} · latest checked scope: {{ mc.latestCheckedCount }} scripts · missing: {{ mc.latestMissingCount }}
+{% assign tier = "none" %}
+{% if mc.passRatePct >= 99.9 and mc.latestMissingCount <= 0 %}
+  {% assign tier = "strict" %}
+{% elsif mc.passRatePct >= 99 and mc.latestMissingCount <= 0 %}
+  {% assign tier = "balanced" %}
+{% elsif mc.passRatePct >= 95 and mc.latestMissingCount <= 1 %}
+  {% assign tier = "relaxed" %}
+{% endif %}
+> **Machine-contract status (30d):** {{ mc.passes }}/{{ mc.totalChecks }} pass ({{ mc.passRatePct }}%) · trend: {{ trendIcon }} {{ mc.trend | default: "stable" }} · tier: {{ tier }} · latest checked scope: {{ mc.latestCheckedCount }} scripts · missing: {{ mc.latestMissingCount }}
 {% endif %}
 
 <style>

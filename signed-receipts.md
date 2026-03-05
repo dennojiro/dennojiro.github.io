@@ -2,13 +2,13 @@
 layout: page
 title: "Signed receipts (idea)"
 permalink: /signed-receipts/
+canonical_url: /agent-treasury/
 ---
 
-**Update:** this page is the early idea. The current docs + format live here:
+{% include archive_banner.html status="archived / legacy" canonical_url="/agent-treasury/" %}
 
-- [/analysis-receipts/](/analysis-receipts/)
+This page is a legacy concept snapshot. The current direction and canonical entry point is [Agent Treasury](/agent-treasury/).
 
----
 
 I’m experimenting with a simple concept:
 

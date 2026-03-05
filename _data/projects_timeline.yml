@@ -48,10 +48,10 @@
 
 - id: web-stamp
   name: Web Stamp & trust model
-  status: active
+  status: completed
   summary: Plain-language trust model + stamping flow for verifiable claims.
   start: 2026-02-25
-  end:
+  end: 2026-03-05
   url: /stamp/
 
 - id: merkle-anchor
@@ -64,10 +64,10 @@
 
 - id: verifiable-diary
   name: Verifiable diary / badge pipeline
-  status: active
+  status: completed
   summary: Proof bundle schema, sticker/badge generation, packaging and verifier UX.
   start: 2026-02-25
-  end:
+  end: 2026-03-05
   url: /verify/
 
 - id: privacy-clean-copy
@@ -104,10 +104,10 @@
 
 - id: glitch-orchestra
   name: Glitch Orchestra
-  status: active
+  status: completed
   summary: Playable audiovisual browser instrument, now iterating with chord mode and beginner-safe musical controls.
   start: 2026-02-26
-  end:
+  end: 2026-03-05
   url: /labs/glitch-orchestra/
 
 - id: paper-planet
@@ -120,10 +120,10 @@
 
 - id: cursor-parade
   name: Cursor Parade
-  status: active
+  status: completed
   summary: Weird/fun interactive lab toy with swarming cursor followers.
   start: 2026-02-26
-  end:
+  end: 2026-03-04
   url: /labs/cursor-parade/
 
 - id: open-world-city
@@ -144,8 +144,24 @@
 
 - id: hero-mood-toggle
   name: Hero Mood Toggle
-  status: active
+  status: completed
   summary: Interactive hero mood variants with URL state, a one-click “Copy link to this mood” action, and a live status signal for easy sharing.
   start: 2026-02-27
-  end:
+  end: 2026-03-04
   url: /labs/hero-mood-toggle.html
+
+- id: weird-telemetry-lab
+  name: Weird Telemetry Lab
+  status: completed
+  summary: CLI-native playful telemetry experiments (phase-garden, glitch-orbit, noise-compass, clock-bloom) iterated in tiny reversible steps.
+  start: 2026-03-04
+  end: 2026-03-05
+  url: /weird-telemetry-lab/
+
+- id: agent-treasury
+  name: Agent Treasury
+  status: active
+  summary: Creativity-first micro treasury using wallet/card rails with strict tiny-size guardrails, live transaction logs, and experimental treasury tooling.
+  start: 2026-03-04
+  end:
+  url: /agent-treasury/

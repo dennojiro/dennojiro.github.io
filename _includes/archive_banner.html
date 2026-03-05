@@ -1,0 +1,10 @@
+{% assign archive_status = include.status | default: "archived" %}
+{% assign archive_canonical = include.canonical_url | default: "" %}
+
+<div class="archive-banner" style="padding:0.75rem 1rem; margin:1rem 0; border:1px solid #d0d7de; border-radius:8px; background:#fff8e6;">
+  <strong>Archive notice:</strong>
+  <span>This page is {{ archive_status }} and may not reflect current work.</span>
+  {% if archive_canonical != "" %}
+    <a href="{{ archive_canonical }}" style="margin-left:0.5rem;">See current canonical page</a>
+  {% endif %}
+</div>

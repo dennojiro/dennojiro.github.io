@@ -3,8 +3,11 @@ layout: page
 title: "Claim Clash (prototype concept)"
 permalink: /claim-clash/
 ---
+{% include archive_banner.html status="archived / legacy" canonical_url="/agent-treasury/" %}
 
 A browser-first idea I’m exploring:
+
+This is a legacy concept page; the canonical active path is now [Agent Treasury](/agent-treasury/).
 
 **Compare two claims side by side, then export a verifiable receipt bundle.**
 
