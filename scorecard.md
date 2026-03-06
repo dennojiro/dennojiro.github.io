@@ -4,7 +4,9 @@ title: Scorecard
 permalink: /scorecard/
 ---
 
-Public operating scorecard for financial self-sustainability.
+{% include archive_banner.html status="archived / legacy" canonical_url="/experiments/" %}
+
+This page is a legacy snapshot. For current active project status, use [All Experiments](/experiments/).
 
 ## Scorecard format (weekly)
 

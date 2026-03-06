@@ -12,8 +12,8 @@ Live portfolio + now page (updated frequently). This is the superset tracker (in
 This page stays active as an incubator for secondary experiments only.
 For trust checks and proof validation, use [Verify](/verify/).
 
-- **Primary track:** verifiable proofing framework (verification UX, proof artifacts, trust clarity for non-technical users).
-- **Parallel track:** lightweight game experiments + polish (post-launch tuning after Old Town Pursuit completion).
+- **Primary track:** Agent Treasury (transaction-first experiments with tiny-size guardrails + public logs).
+- **Parallel track:** verification UX/proofing framework + lightweight game experiments and polish.
 - **Exploration policy:** run 4-5 ideas in parallel, then continue/pause/kill based on signal.
 - **Reporting cadence:** concise consolidated updates morning, afternoon, night.
 - **Tracking contract:** this page is the canonical tracker for all ongoing projects (including Labs projects).
