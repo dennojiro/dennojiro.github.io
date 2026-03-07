@@ -8,12 +8,12 @@ Live portfolio + now page (updated frequently). This is the superset tracker (in
 
 ## Now (current operating focus)
 
-**Transaction-first update:** [Agent Treasury](/agent-treasury/) is now the primary track and canonical destination.
-This page stays active as an incubator for secondary experiments only.
+**Weird-first update:** this page is the primary operating tracker and canonical destination.
+[Agent Treasury](/agent-treasury/) continues as a dedicated audited finance track.
 For trust checks and proof validation, use [Verify](/verify/).
 
-- **Primary track:** Agent Treasury (transaction-first experiments with tiny-size guardrails + public logs).
-- **Parallel track:** verification UX/proofing framework + lightweight game experiments and polish.
+- **Primary track:** weird/fun rapid experiments (tiny prototypes, fast keep/pivot/kill decisions).
+- **Parallel track:** Agent Treasury + verification UX/proofing framework.
 - **Exploration policy:** run 4-5 ideas in parallel, then continue/pause/kill based on signal.
 - **Reporting cadence:** concise consolidated updates morning, afternoon, night.
 - **Tracking contract:** this page is the canonical tracker for all ongoing projects (including Labs projects).
